@@ -1,0 +1,661 @@
+export default {
+    editor: {
+        label: { en: 'Chat' },
+        icon: 'chat',
+        customStylePropertiesOrder: [
+            // Container styles
+            [
+                'containerTitle',
+                'backgroundColor',
+                'containerBorder',
+                'containerBorderRadius',
+                'containerShadow',
+                'fontFamily',
+            ],
+            // Header styles
+            ['headerTitle', 'headerBgColor', 'headerTextColor'],
+            // Messages area styles
+            ['messagesAreaTitle', 'messagesAreaBgColor'],
+            // Message styles
+            [
+                'messageTitle',
+                'messageBgColor',
+                'messageTextColor',
+                'messageBorder',
+                'ownMessageTitle',
+                'ownMessageBgColor',
+                'ownMessageTextColor',
+                'ownMessageBorder',
+            ],
+            // Input styles
+            [
+                'inputAreaTitle',
+                'inputBgColor',
+                'inputTextColor',
+                'inputPlaceholderColor',
+                'inputBorder',
+                'inputMaxHeight',
+                'inputMinHeight',
+                'inputBorderRadius',
+            ],
+        ],
+        customSettingsPropertiesOrder: [
+            // User settings
+            ['userSettingsTitle', 'userName', 'userAvatar', 'userLocation', 'userStatus', 'currentUserId'],
+            // Chat settings
+            ['chatSettingsTitle', 'displayHeader', 'allowAttachments', 'inputPlaceholder', 'disabled'],
+            // Chat data
+            ['chatDataTitle', 'chatHistory'],
+        ],
+    },
+    properties: {
+        // ======== APPEARANCE ========
+
+        // Container styles
+        containerTitle: {
+            type: 'Title',
+            label: { en: 'Container' },
+            section: 'style',
+        },
+        backgroundColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#f5f7fb',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of the chat container',
+            },
+            /* wwEditor:end */
+        },
+        containerBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the chat container',
+            },
+            /* wwEditor:end */
+        },
+        containerBorderRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '8px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border radius of the chat container',
+            },
+            /* wwEditor:end */
+        },
+        containerShadow: {
+            label: { en: 'Shadow' },
+            type: 'Shadows',
+            section: 'style',
+            bindable: true,
+            defaultValue: '0 2px 8px rgba(0, 0, 0, 0.05)',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Box shadow of the chat container',
+            },
+            /* wwEditor:end */
+        },
+        fontFamily: {
+            label: { en: 'Font Family' },
+            type: 'FontFamily',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'inherit',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font family used throughout the chat',
+            },
+            /* wwEditor:end */
+        },
+
+        // Header styles
+        headerTitle: {
+            type: 'Title',
+            label: { en: 'Header' },
+            section: 'style',
+        },
+        headerBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#ffffff',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of the chat header',
+            },
+            /* wwEditor:end */
+        },
+        headerTextColor: {
+            label: { en: 'Text Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#1e293b',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text color in the chat header',
+            },
+            /* wwEditor:end */
+        },
+
+        // Messages area styles
+        messagesAreaTitle: {
+            type: 'Title',
+            label: { en: 'Messages Area' },
+            section: 'style',
+        },
+        messagesAreaBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#ffffff',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of the messages area',
+            },
+            /* wwEditor:end */
+        },
+
+        // Message styles
+        messageTitle: {
+            type: 'Title',
+            label: { en: "Others' Messages" },
+            section: 'style',
+        },
+        messageBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#f1f5f9',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of messages from others',
+            },
+            /* wwEditor:end */
+        },
+        messageTextColor: {
+            label: { en: 'Text Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text color of messages from others',
+            },
+            /* wwEditor:end */
+        },
+        messageBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of messages from others',
+            },
+            /* wwEditor:end */
+        },
+
+        // Own message styles
+        ownMessageTitle: {
+            type: 'Title',
+            label: { en: 'Your Messages' },
+            section: 'style',
+        },
+        ownMessageBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#dbeafe',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of your own messages',
+            },
+            /* wwEditor:end */
+        },
+        ownMessageTextColor: {
+            label: { en: 'Text Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#1e40af',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text color of your own messages',
+            },
+            /* wwEditor:end */
+        },
+        ownMessageBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1px solid #bfdbfe',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of your own messages',
+            },
+            /* wwEditor:end */
+        },
+
+        // Input area styles
+        inputAreaTitle: {
+            type: 'Title',
+            label: { en: 'Input Area' },
+            section: 'style',
+        },
+        inputBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#ffffff',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of the message input',
+            },
+            /* wwEditor:end */
+        },
+        inputTextColor: {
+            label: { en: 'Text Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text color of the message input',
+            },
+            /* wwEditor:end */
+        },
+        inputPlaceholderColor: {
+            label: { en: 'Placeholder Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#94a3b8',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Placeholder text color in the message input',
+            },
+            /* wwEditor:end */
+        },
+        inputBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the message input',
+            },
+            /* wwEditor:end */
+        },
+        inputMaxHeight: {
+            label: { en: 'Input Max Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '120px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Maximum height of the input area before scrolling',
+            },
+            /* wwEditor:end */
+        },
+        inputMinHeight: {
+            label: { en: 'Input Min Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '38px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Minimum height of the input area',
+            },
+            /* wwEditor:end */
+        },
+        inputBorderRadius: {
+            label: { en: 'Input Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '20px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border radius of the input field',
+            },
+            /* wwEditor:end */
+        },
+
+        // ======== SETTINGS ========
+
+        // User settings
+        userSettingsTitle: {
+            type: 'Title',
+            label: { en: 'User Settings' },
+            section: 'settings',
+        },
+        userName: {
+            label: { en: 'User Name' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'User',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Name to display for the current user',
+            },
+            /* wwEditor:end */
+        },
+        userAvatar: {
+            label: { en: 'User Avatar URL' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: '',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'URL of the user avatar image (initials will be used if empty)',
+            },
+            /* wwEditor:end */
+        },
+        userLocation: {
+            label: { en: 'User Location' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: '',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Location to display under the user name (optional)',
+            },
+            /* wwEditor:end */
+        },
+        userStatus: {
+            label: { en: 'User Status' },
+            type: 'TextSelect',
+            options: {
+                options: [
+                    { value: 'online', label: { en: 'Online' } },
+                    { value: 'offline', label: { en: 'Offline' } },
+                    { value: 'away', label: { en: 'Away' } },
+                    { value: 'busy', label: { en: 'Busy' } },
+                ],
+            },
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'online',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                enum: ['online', 'offline', 'away', 'busy'],
+                tooltip: 'Current status of the user',
+            },
+            /* wwEditor:end */
+        },
+        currentUserId: {
+            label: { en: 'Current User ID' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'current-user',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Unique identifier for the current user (used to identify your messages)',
+            },
+            /* wwEditor:end */
+        },
+
+        // Chat settings
+        chatSettingsTitle: {
+            type: 'Title',
+            label: { en: 'Chat Settings' },
+            section: 'settings',
+        },
+        displayHeader: {
+            label: { en: 'Display Header' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: true,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'Whether to display the chat header',
+            },
+            /* wwEditor:end */
+        },
+        allowAttachments: {
+            label: { en: 'Allow Attachments' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'Whether to allow file attachments',
+            },
+            /* wwEditor:end */
+        },
+        inputPlaceholder: {
+            label: { en: 'Input Placeholder' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'Type a message...',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Placeholder text for the message input',
+            },
+            /* wwEditor:end */
+        },
+        disabled: {
+            label: { en: 'Disabled' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'Whether the chat component is disabled',
+            },
+            /* wwEditor:end */
+        },
+
+        // Chat data
+        chatDataTitle: {
+            type: 'Title',
+            label: { en: 'Chat Data' },
+            section: 'settings',
+        },
+        chatHistory: {
+            label: { en: 'Chat History' },
+            type: 'Array',
+            section: 'settings',
+            bindable: true,
+            defaultValue: [],
+            options: {
+                item: {
+                    type: 'Object',
+                    defaultValue: {
+                        id: 'msg-1',
+                        text: 'Hello there!',
+                        senderId: 'user-1',
+                        userName: 'John Doe',
+                        timestamp: new Date().toISOString(),
+                    },
+                    options: {
+                        item: {
+                            id: {
+                                label: { en: 'Message ID' },
+                                type: 'Text',
+                            },
+                            text: {
+                                label: { en: 'Message Text' },
+                                type: 'Textarea',
+                            },
+                            senderId: {
+                                label: { en: 'Sender ID' },
+                                type: 'Text',
+                            },
+                            userName: {
+                                label: { en: 'Sender Name' },
+                                type: 'Text',
+                            },
+                            timestamp: {
+                                label: { en: 'Timestamp' },
+                                type: 'Text',
+                            },
+                            attachments: {
+                                label: { en: 'Attachments' },
+                                type: 'Array',
+                                options: {
+                                    item: {
+                                        type: 'Object',
+                                        options: {
+                                            item: {
+                                                id: {
+                                                    label: { en: 'ID' },
+                                                    type: 'Text',
+                                                },
+                                                name: {
+                                                    label: { en: 'Name' },
+                                                    type: 'Text',
+                                                },
+                                                type: {
+                                                    label: { en: 'MIME Type' },
+                                                    type: 'Text',
+                                                },
+                                                size: {
+                                                    label: { en: 'Size (bytes)' },
+                                                    type: 'Number',
+                                                },
+                                                url: {
+                                                    label: { en: 'URL' },
+                                                    type: 'Text',
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'array',
+                tooltip: 'Array of message objects for the chat history',
+            },
+            /* wwEditor:end */
+        },
+    },
+    triggerEvents: [
+        {
+            name: 'messageSent',
+            label: { en: 'On message sent' },
+            event: {
+                message: {
+                    id: 'msg-1',
+                    text: 'Hello there!',
+                    senderId: 'current-user',
+                    userName: 'User',
+                    timestamp: new Date().toISOString(),
+                },
+            },
+        },
+        {
+            name: 'attachmentClick',
+            label: { en: 'On attachment click' },
+            event: {
+                attachment: {
+                    id: 'file-1',
+                    name: 'document.pdf',
+                    type: 'application/pdf',
+                    size: 1024000,
+                    url: 'https://example.com/document.pdf',
+                },
+            },
+        },
+        {
+            name: 'close',
+            label: { en: 'On close' },
+            event: {},
+        },
+    ],
+    actions: [
+        {
+            action: 'scrollToBottom',
+            label: { en: 'Scroll to bottom' },
+        },
+        {
+            action: 'clearMessages',
+            label: { en: 'Clear messages' },
+        },
+        {
+            action: 'addMessage',
+            label: { en: 'Add message' },
+            args: [
+                {
+                    name: 'message',
+                    type: 'object',
+                    label: { en: 'Message' },
+                    options: {
+                        item: {
+                            text: { type: 'string', label: { en: 'Text' } },
+                            senderId: { type: 'string', label: { en: 'Sender ID' } },
+                            userName: { type: 'string', label: { en: 'Sender Name' } },
+                        },
+                    },
+                },
+            ],
+        },
+    ],
+};

@@ -131,7 +131,6 @@ export default {
             computed(() => false)
         );
 
-        // Compute message styles based on whether it's the user's own message
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
                 return {
@@ -148,13 +147,11 @@ export default {
             }
         });
 
-        // Check if file is an image type
         const isImageFile = attachment => {
             if (!attachment.type) return false;
             return attachment.type.startsWith('image/');
         };
 
-        // Format file size to human-readable format
         const formatFileSize = bytes => {
             if (!bytes || bytes === 0) return '0 Bytes';
 
@@ -163,13 +160,11 @@ export default {
             return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
         };
 
-        // Handle attachment click
         const handleAttachmentClick = attachment => {
             if (isEditing.value) return;
             emit('attachment-click', attachment);
         };
 
-        // Handle right-click
         const handleRightClick = event => {
             const rect = event.target.getBoundingClientRect();
             const x = event.clientX - rect.left;
@@ -205,17 +200,14 @@ export default {
         position: relative;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-        // Increase spacing between message groups
         &:not(.ww-message-item--continued) {
             margin-top: 8px;
         }
 
-        // Own message styling
         &--own {
-            border-bottom-right-radius: 4px; // Sharp corner for own messages
+            border-bottom-right-radius: 4px;
         }
 
-        // Different radius for continued messages
         .ww-message-item--continued & {
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;

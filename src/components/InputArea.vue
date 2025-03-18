@@ -138,10 +138,8 @@ export default {
         const sendIconText = ref(null);
         const attachmentIconText = ref(null);
 
-        // Get icon helper
         const { getIcon } = wwLib.useIcons();
 
-        // Default icons as fallbacks
         const defaultSendIcon = `<svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -173,7 +171,6 @@ export default {
             ></path>
         </svg>`;
 
-        // Use watchEffect for reactive icon loading
         watchEffect(async () => {
             try {
                 if (props.sendIcon) {
@@ -196,7 +193,6 @@ export default {
             }
         });
 
-        // Computed icon HTML
         const sendIconHtml = computed(() => {
             return sendIconText.value || defaultSendIcon;
         });
@@ -205,11 +201,8 @@ export default {
             return attachmentIconText.value || defaultAttachmentIcon;
         });
 
-        // Remove debugging watches
-        // Determine if message can be sent
         const canSend = computed(() => inputValue.value.trim().length > 0);
 
-        // Watch for changes in model value
         watch(
             () => props.modelValue,
             newValue => {
@@ -217,59 +210,47 @@ export default {
             }
         );
 
-        // Update parent model when input changes
         watch(inputValue, newValue => {
             emit('update:modelValue', newValue);
         });
 
-        // Auto-resize textarea
         const resizeTextarea = () => {
             const textarea = textareaRef.value;
             if (!textarea) return;
 
-            // Reset height to auto to get correct scrollHeight
             textarea.style.height = 'auto';
 
-            // Set the height to the scroll height + small buffer
             const newHeight = Math.min(textarea.scrollHeight, parseInt(props.inputMaxHeight));
             textarea.style.height = `${newHeight}px`;
         };
 
-        // Handle Enter key press
         const onEnterPress = event => {
             if (isEditing.value) return;
 
-            // Send on Enter without Shift
             if (!event.shiftKey && canSend.value && !props.isDisabled) {
                 sendMessage();
             } else if (event.shiftKey) {
-                // Allow newline with Shift+Enter
-                // The default behavior will be to insert a newline
                 nextTick(resizeTextarea);
             }
         };
 
-        // Send the message
         const sendMessage = () => {
             if (isEditing.value || !canSend.value || props.isDisabled) return;
 
             emit('send');
             inputValue.value = '';
 
-            // Reset textarea height
             if (textareaRef.value) {
                 textareaRef.value.style.height = 'auto';
             }
         };
 
-        // Handle file attachment
         const handleAttachment = event => {
             if (isEditing.value || props.isDisabled) return;
 
             const files = event.target.files;
             if (files && files.length > 0) {
                 emit('attachment', files);
-                // Reset the input to allow selecting the same file again
                 event.target.value = '';
             }
         };
@@ -312,10 +293,10 @@ export default {
     padding: 12px 16px;
     gap: 8px;
     border-top: v-bind('inputBorder');
-    width: 100%; /* Ensure it takes full width */
-    flex-shrink: 0; /* Prevent shrinking */
-    background-color: v-bind('inputBgColor'); /* Add background color to prevent transparency */
-    position: relative; /* For proper stacking context */
+    width: 100%;
+    flex-shrink: 0;
+    background-color: v-bind('inputBgColor');
+    position: relative;
 
     &__attachment-btn {
         display: flex;
@@ -327,7 +308,6 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        /* Color applied via inline styles now */
 
         &:hover {
             background-color: rgba(0, 0, 0, 0.05);
@@ -346,7 +326,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        /* Width and height now set inline */
 
         :deep(svg) {
             width: 100%;
@@ -400,7 +379,6 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        /* Color applied via inline styles now */
 
         &:hover:not(:disabled) {
             background-color: rgba(0, 0, 0, 0.05);

@@ -111,12 +111,10 @@ export default {
             computed(() => false)
         );
 
-        // Computed styles for empty message
         const emptyMessageStyle = computed(() => ({
             color: props.emptyMessageColor,
         }));
 
-        // Computed styles for date separator
         const dateSeparatorStyle = computed(() => ({
             '--date-separator-text-color': props.dateSeparatorTextColor,
             '--date-separator-line-color': props.dateSeparatorLineColor,
@@ -124,7 +122,6 @@ export default {
             '--date-separator-border-radius': props.dateSeparatorBorderRadius,
         }));
 
-        // Group messages by date and add date separators
         const groupedMessages = computed(() => {
             if (!props.messages || props.messages.length === 0) return [];
 
@@ -132,12 +129,10 @@ export default {
             let currentDate = null;
 
             props.messages.forEach(message => {
-                // Extract the date part from the timestamp
                 const messageDate = message.timestamp
                     ? new Date(message.timestamp).toDateString()
                     : new Date().toDateString();
 
-                // Add date separator when date changes
                 if (messageDate !== currentDate) {
                     currentDate = messageDate;
                     result.push({
@@ -147,7 +142,6 @@ export default {
                     });
                 }
 
-                // Add the message with a unique key
                 result.push({
                     ...message,
                     key: message.id || `msg-${wwLib.wwUtils.getUid()}`,
@@ -157,7 +151,6 @@ export default {
             return result;
         });
 
-        // Check if message is from the same sender as the previous message
         const isSameSenderAsPrevious = index => {
             if (index === 0) return false;
 
@@ -176,7 +169,6 @@ export default {
             return false;
         };
 
-        // Check if message is from the same sender as the next message
         const isSameSenderAsNext = index => {
             if (index === groupedMessages.value.length - 1) return false;
 
@@ -195,13 +187,11 @@ export default {
             return false;
         };
 
-        // Handle attachment click
         const handleAttachmentClick = attachment => {
             if (isEditing.value) return;
             emit('attachment-click', attachment);
         };
 
-        // Handle right-click
         const handleRightClick = ({ message, x, y }) => {
             if (isEditing.value) return;
             emit('message-right-click', { message, position: { x, y } });

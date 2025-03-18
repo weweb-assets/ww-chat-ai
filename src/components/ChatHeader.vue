@@ -101,7 +101,7 @@ export default {
         },
         closeButtonColor: {
             type: String,
-            default: '', // Will inherit from text color
+            default: '',
         },
         closeButtonBgHover: {
             type: String,
@@ -115,7 +115,6 @@ export default {
             computed(() => false)
         );
 
-        // Compute user initials for avatar fallback
         const userInitials = computed(() => {
             return props.userName
                 .split(' ')
@@ -125,7 +124,6 @@ export default {
                 .slice(0, 2);
         });
 
-        // Compute human-readable status text
         const statusText = computed(() => {
             const statusMap = {
                 online: 'Online',
@@ -136,7 +134,6 @@ export default {
             return statusMap[props.userStatus] || 'Unknown';
         });
 
-        // Style objects
         const headerStyles = computed(() => ({
             backgroundColor: props.headerBgColor,
             color: props.textColor,
@@ -165,7 +162,6 @@ export default {
             color: '#ffffff',
         }));
 
-        // Generate a consistent color based on username
         const getAvatarColor = name => {
             const colors = [
                 '#4f46e5',
@@ -182,7 +178,6 @@ export default {
                 '#a855f7',
             ];
 
-            // Simple hash function for consistent color
             let hash = 0;
             for (let i = 0; i < name.length; i++) {
                 hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -211,10 +206,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* These styles are now applied via v-bind */
-    /* padding, border-bottom, box-shadow moved to headerStyles */
-    width: 100%; /* Ensure it takes full width */
-    flex-shrink: 0; /* Prevent shrinking */
+    width: 100%;
+    flex-shrink: 0;
 
     &__user {
         display: flex;
@@ -273,12 +266,10 @@ export default {
     }
 
     &__name {
-        /* Styles now applied via nameStyles */
         line-height: 1.2;
     }
 
     &__location {
-        /* Styles now applied via locationStyles */
         line-height: 1.2;
         margin-top: 2px;
     }

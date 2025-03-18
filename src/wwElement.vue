@@ -104,13 +104,11 @@ export default {
     },
     emits: ['trigger-event'],
     setup(props, { emit }) {
-        // Internal state
         const messagesContainer = ref(null);
         const newMessage = ref('');
         const isScrolling = ref(false);
         const pendingAttachments = ref([]);
 
-        // Component variables
         const { value: chatHistory, setValue: setChatHistory } = wwLib.wwVariable.useComponentVariable({
             uid: props.uid,
             name: 'chatHistory',
@@ -118,16 +116,13 @@ export default {
             defaultValue: [],
         });
 
-        // Formula resolver for mapping fields
         const { resolveMappingFormula } = wwLib.wwFormula.useFormula();
 
-        // Function to resolve mapping for each message
         const resolveMapping = (message, mappingFormula, defaultProp) => {
             if (!mappingFormula) return message[defaultProp];
             return resolveMappingFormula(mappingFormula, message);
         };
 
-        // Editor state
         const isEditing = computed(() => {
             /* wwEditor:start */
             return props.wwEditorState.isEditing;
@@ -136,11 +131,9 @@ export default {
             return false;
         });
 
-        // Computed properties from content
         const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
         const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
 
-        // Apply mappings to messages
         const messages = computed(() => {
             return rawMessages.value.map(message => {
                 return {
@@ -154,7 +147,7 @@ export default {
                         resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') ||
                         new Date().toISOString(),
                     attachments: resolveMapping(message, props.content?.mappingAttachments, 'attachments'),
-                    _originalData: message, // Keep the original data for reference
+                    _originalData: message,
                 };
             });
         });
@@ -230,15 +223,6 @@ export default {
         const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
         const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
 
-        // Provide context to child components
-        provide('isEditing', isEditing);
-
-        // Set CSS variables when the component is mounted
-        onMounted(() => {
-            scrollToBottom();
-        });
-
-        // Watch for changes in messages to auto-scroll
         watch(
             messages,
             () => {
@@ -249,34 +233,28 @@ export default {
             { deep: true }
         );
 
-        // Scroll to bottom of messages
         const scrollToBottom = async (smooth = false) => {
             await nextTick();
             if (messagesContainer.value) {
                 if (smooth) {
-                    // Use smooth scrolling behavior when requested
                     const lastElement = messagesContainer.value.lastElementChild;
                     if (lastElement) {
                         lastElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
                     } else {
-                        // Fallback if no child elements exist
                         messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
                     }
                 } else {
-                    // Use instant scrolling (original behavior)
                     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
                 }
             }
         };
 
-        // Handle sending a new message
         const sendMessage = () => {
             if (isEditing.value || isDisabled.value || !newMessage.value.trim()) return;
 
             const attachments = [...pendingAttachments.value];
             pendingAttachments.value = [];
 
-            // Create a new message object with all the standard fields
             const message = {
                 id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
@@ -286,24 +264,19 @@ export default {
                 attachments: attachments.length > 0 ? attachments : undefined,
             };
 
-            // Update chat history
             const updatedHistory = [...chatHistory.value, message];
             setChatHistory(updatedHistory);
 
-            // Clear input
             newMessage.value = '';
 
-            // Emit event
             emit('trigger-event', {
                 name: 'messageSent',
                 event: { message },
             });
 
-            // Scroll to bottom
             scrollToBottom();
         };
 
-        // Handle attachment button click
         const handleAttachment = files => {
             if (isEditing.value || isDisabled.value) return;
 
@@ -319,7 +292,6 @@ export default {
             pendingAttachments.value = [...pendingAttachments.value, ...attachmentFiles];
         };
 
-        // Handle attachment click in messages
         const handleAttachmentClick = attachment => {
             if (isEditing.value) return;
 
@@ -329,7 +301,6 @@ export default {
             });
         };
 
-        // Handle message right click
         const handleMessageRightClick = ({ message, position }) => {
             if (isEditing.value) return;
 
@@ -339,7 +310,6 @@ export default {
             });
         };
 
-        // Handle close button click in header
         const handleClose = () => {
             if (isEditing.value) return;
 
@@ -362,14 +332,11 @@ export default {
                 ...message,
             };
 
-            // Update chat history
             const updatedHistory = [...chatHistory.value, newMessageRaw];
             setChatHistory(updatedHistory);
 
-            // Scroll to bottom
             scrollToBottom();
 
-            // If the message is from someone else, trigger the messageReceived event
             if (newMessageRaw.senderId !== currentUserId.value) {
                 emit('trigger-event', {
                     name: 'messageReceived',
@@ -380,16 +347,13 @@ export default {
             return newMessageRaw;
         };
 
-        // Clear all messages
         const clearMessages = () => {
             if (isEditing.value) return;
 
             setChatHistory([]);
         };
 
-        // Add new computed properties to determine the chat partner
         const chatPartners = computed(() => {
-            // If there are no messages or explicit userName is provided, use the default user info
             if (messages.value.length === 0 || props.content?.showSelfInHeader) {
                 return {
                     name: userName.value,
@@ -401,12 +365,10 @@ export default {
                 };
             }
 
-            // Get all unique sender IDs except the current user
             const otherSenderIds = [
                 ...new Set(messages.value.filter(msg => msg.senderId !== currentUserId.value).map(msg => msg.senderId)),
             ];
 
-            // If no other users found, fallback to default
             if (otherSenderIds.length === 0) {
                 return {
                     name: userName.value,
@@ -418,16 +380,13 @@ export default {
                 };
             }
 
-            // Create an array of unique participants
             const participants = otherSenderIds.map(senderId => {
                 const msg = messages.value.find(m => m.senderId === senderId);
                 return msg ? msg.userName : 'Unknown User';
             });
 
-            // Create a comma-separated string of participants for the title attribute
             const participantsString = participants.join(', ');
 
-            // If only one other user, show their info
             if (otherSenderIds.length === 1) {
                 const otherUser = messages.value.find(msg => msg.senderId === otherSenderIds[0]);
                 return {
@@ -440,13 +399,10 @@ export default {
                 };
             }
 
-            // Multiple chat partners - create a group chat display
-            // Get the most recent non-self message
             const lastOtherMsg = [...messages.value]
                 .filter(msg => msg.senderId !== currentUserId.value)
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 
-            // Use the groupChatTemplate if available, or fallback to default
             const template = props.content?.groupChatTemplate || 'Group Chat ({count} participants)';
             const groupChatName = template.replace('{count}', otherSenderIds.length);
 
@@ -460,21 +416,24 @@ export default {
             };
         });
 
-        // Use the chat partners info for the header
         const headerUserName = computed(() => chatPartners.value.name);
         const headerUserAvatar = computed(() => chatPartners.value.avatar);
         const headerUserLocation = computed(() => chatPartners.value.location);
         const headerUserStatus = computed(() => chatPartners.value.status);
         const headerParticipants = computed(() => chatPartners.value.participantsString);
 
+        provide('isEditing', isEditing);
+
+        onMounted(() => {
+            scrollToBottom();
+        });
+
         return {
-            // Refs
             messagesContainer,
             newMessage,
             messages,
             pendingAttachments,
 
-            // Computed
             currentUserId,
             isDisabled,
             displayHeader,
@@ -485,14 +444,12 @@ export default {
             userLocation,
             userStatus,
 
-            // Header user properties (chat partner)
             headerUserName,
             headerUserAvatar,
             headerUserLocation,
             headerUserStatus,
             headerParticipants,
 
-            // Styles
             containerStyles,
             messagesContainerStyles,
             headerBgColor,
@@ -509,6 +466,8 @@ export default {
             messageBgColor,
             messageTextColor,
             messageBorder,
+            messagesAreaPadding,
+            messagesAreaHeight,
             ownMessageBgColor,
             ownMessageTextColor,
             ownMessageBorder,
@@ -520,11 +479,9 @@ export default {
             inputMinHeight,
             inputBorderRadius,
 
-            // Empty message styles
             emptyMessageText,
             emptyMessageColor,
 
-            // Date separator styles
             dateSeparatorTextColor,
             dateSeparatorLineColor,
             dateSeparatorBgColor,
@@ -547,14 +504,9 @@ export default {
             handleClose,
             addMessage,
             clearMessages,
-
-            // New computed property
-            messagesAreaPadding,
-            messagesAreaHeight,
         };
     },
     methods: {
-        // Action Methods
         actionScrollToBottom(smooth = false) {
             this.scrollToBottom(smooth);
         },

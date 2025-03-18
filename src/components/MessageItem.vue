@@ -8,7 +8,11 @@
         }"
     >
         <!-- Message content -->
-        <div class="ww-message-item__content" :class="{ 'ww-message-item__content--own': isOwnMessage }">
+        <div
+            class="ww-message-item__content"
+            :class="{ 'ww-message-item__content--own': isOwnMessage }"
+            :style="messageStyles"
+        >
             <!-- Sender name if first in group -->
             <div
                 v-if="!sameSenderAsPrevious"
@@ -190,9 +194,6 @@ export default {
         border-radius: 18px;
         position: relative;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        background-color: var(--ww-chat-message-bg, #f1f5f9);
-        color: var(--ww-chat-message-text, #334155);
-        border: var(--ww-chat-message-border, 1px solid #e2e8f0);
 
         // Increase spacing between message groups
         &:not(.ww-message-item--continued) {
@@ -202,9 +203,6 @@ export default {
         // Own message styling
         &--own {
             border-bottom-right-radius: 4px; // Sharp corner for own messages
-            background-color: var(--ww-chat-own-message-bg, #dbeafe);
-            color: var(--ww-chat-own-message-text, #1e40af);
-            border: var(--ww-chat-own-message-border, 1px solid #bfdbfe);
         }
 
         // Different radius for continued messages

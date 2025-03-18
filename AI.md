@@ -33,6 +33,15 @@ keywords:
     ### Messages Area
 
     - messagesAreaBgColor: `string` - Background color of the messages area. Default: `#ffffff`
+    - emptyMessageText: `string` - Text to display when there are no messages. Default: `No messages yet`
+    - emptyMessageColor: `string` - Color of the empty message text. Default: `#64748b`
+
+    ### Date Separator
+
+    - dateSeparatorTextColor: `string` - Text color of the date separator. Default: `#64748b`
+    - dateSeparatorLineColor: `string` - Color of the date separator divider line. Default: `#e2e8f0`
+    - dateSeparatorBgColor: `string` - Background color behind the date text. Default: `#ffffff`
+    - dateSeparatorBorderRadius: `string` - Border radius of the date separator. Default: `4px`
 
     ### Messages
 
@@ -62,6 +71,18 @@ keywords:
     - inputTextColor: `string` - Text color of the message input. Default: `#334155`
     - inputPlaceholderColor: `string` - Placeholder text color in the message input. Default: `#94a3b8`
     - inputBorder: `string` - Border of the message input. Default: `1px solid #e2e8f0`
+    - inputMaxHeight: `string` - Maximum height of the input area before scrolling. Default: `120px`
+    - inputMinHeight: `string` - Minimum height of the input area. Default: `40px`
+    - inputBorderRadius: `string` - Border radius of the input field. Default: `8px`
+
+    ### Icons
+
+    - sendIcon: `string` - Icon for the send button. Default: `send`
+    - sendIconColor: `string` - Color of the send button icon. Default: `#334155`
+    - sendIconSize: `string` - Size of the send button icon. Default: `20px`
+    - attachmentIcon: `string` - Icon for the attachment button. Default: `paperclip`
+    - attachmentIconColor: `string` - Color of the attachment button icon. Default: `#334155`
+    - attachmentIconSize: `string` - Size of the attachment button icon. Default: `20px`
 
     ## Settings Properties
 
@@ -119,7 +140,8 @@ keywords:
 
     - **User Status Indicator**: Visual indication of user status (online, offline, away, busy)
     - **Message Grouping**: Messages from the same sender are visually grouped
-    - **Date Separators**: Messages are separated by date with "Today", "Yesterday", or specific date labels
+    - **Date Separators**: Messages are separated by date with "Today", "Yesterday", or specific date labels. Fully customizable with color, background, and border radius properties.
+    - **Empty Message State**: Customizable text and styling for when the chat has no messages
     - **File Attachments**: Support for sending and displaying file attachments, with special preview for images
     - **Auto-scrolling**: Automatically scrolls to the bottom when new messages arrive
     - **Responsive Input**: Input area expands as user types and supports shift+enter for line breaks
@@ -172,32 +194,6 @@ keywords:
                     "timestamp": "2023-06-01T11:15:00.000Z"
                 }
             ]
-        }
-    }
-    ```
-
-    ### Styled Chat Implementation
-
-    ```json
-    {
-        "tag": "ww-chat",
-        "content": {
-            "userName": "John Doe",
-            "userAvatar": "https://example.com/avatars/john.jpg",
-            "userStatus": "online",
-            "currentUserId": "john-doe",
-            "backgroundColor": "#f0f4f8",
-            "containerBorder": "1px solid #d0d7de",
-            "containerBorderRadius": "12px",
-            "messageBgColor": "#ffffff",
-            "messageTextColor": "#24292f",
-            "messageBorder": "1px solid #d0d7de",
-            "ownMessageBgColor": "#ddf4ff",
-            "ownMessageTextColor": "#0969da",
-            "ownMessageBorder": "1px solid #54aeff",
-            "inputBgColor": "#ffffff",
-            "inputTextColor": "#24292f",
-            "inputBorder": "1px solid #d0d7de"
         }
     }
     ```

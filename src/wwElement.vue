@@ -23,6 +23,12 @@
                 :own-message-bg-color="ownMessageBgColor"
                 :own-message-text-color="ownMessageTextColor"
                 :own-message-border="ownMessageBorder"
+                :empty-message-text="emptyMessageText"
+                :empty-message-color="emptyMessageColor"
+                :date-separator-text-color="dateSeparatorTextColor"
+                :date-separator-line-color="dateSeparatorLineColor"
+                :date-separator-bg-color="dateSeparatorBgColor"
+                :date-separator-border-radius="dateSeparatorBorderRadius"
                 @attachment-click="handleAttachmentClick"
             />
         </div>
@@ -54,7 +60,6 @@
 
 <script>
 import { ref, computed, watch, nextTick, provide, onMounted } from 'vue';
-import { v4 as uuidv4 } from 'uuid';
 import ChatHeader from './components/ChatHeader.vue';
 import MessageList from './components/MessageList.vue';
 import InputArea from './components/InputArea.vue';
@@ -128,7 +133,9 @@ export default {
         const messages = computed(() => {
             return rawMessages.value.map(message => {
                 return {
-                    id: resolveMapping(message, props.content?.mappingMessageId, 'id') || `msg-${uuidv4()}`,
+                    id:
+                        resolveMapping(message, props.content?.mappingMessageId, 'id') ||
+                        `msg-${wwLib.wwUtils.getUid()}`,
                     text: resolveMapping(message, props.content?.mappingMessageText, 'text') || '',
                     senderId: resolveMapping(message, props.content?.mappingSenderId, 'senderId') || '',
                     userName: resolveMapping(message, props.content?.mappingUserName, 'userName') || '',
@@ -184,92 +191,26 @@ export default {
         const inputPlaceholderColor = computed(() => props.content?.inputPlaceholderColor || '#94a3b8');
         const inputBorder = computed(() => props.content?.inputBorder || '1px solid #e2e8f0');
         const inputMaxHeight = computed(() => props.content?.inputMaxHeight || '120px');
-        const inputMinHeight = computed(() => props.content?.inputMinHeight || '38px');
-        const inputBorderRadius = computed(() => props.content?.inputBorderRadius || '20px');
+        const inputMinHeight = computed(() => props.content?.inputMinHeight || '40px');
+        const inputBorderRadius = computed(() => props.content?.inputBorderRadius || '8px');
+
+        // Empty message styles
+        const emptyMessageText = computed(() => props.content?.emptyMessageText || 'No messages yet');
+        const emptyMessageColor = computed(() => props.content?.emptyMessageColor || '#64748b');
+
+        // Date separator styles
+        const dateSeparatorTextColor = computed(() => props.content?.dateSeparatorTextColor || '#64748b');
+        const dateSeparatorLineColor = computed(() => props.content?.dateSeparatorLineColor || '#e2e8f0');
+        const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
+        const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
 
         // Provide context to child components
         provide('isEditing', isEditing);
 
         // Set CSS variables when the component is mounted
         onMounted(() => {
-            updateCssVariables();
             scrollToBottom();
         });
-
-        // Update CSS variables when style properties change
-        const styleProps = [
-            'backgroundColor',
-            'containerBorder',
-            'containerBorderRadius',
-            'containerShadow',
-            'fontFamily',
-            'headerBgColor',
-            'headerTextColor',
-            'messagesAreaBgColor',
-            'messageBgColor',
-            'messageTextColor',
-            'messageBorder',
-            'ownMessageBgColor',
-            'ownMessageTextColor',
-            'ownMessageBorder',
-            'inputBgColor',
-            'inputTextColor',
-            'inputPlaceholderColor',
-            'inputBorder',
-            'inputMaxHeight',
-            'inputMinHeight',
-            'inputBorderRadius',
-        ];
-
-        // Watch all style properties for changes
-        styleProps.forEach(prop => {
-            watch(
-                () => props.content?.[prop],
-                () => {
-                    updateCssVariables();
-                }
-            );
-        });
-
-        // Function to update all CSS variables
-        const updateCssVariables = () => {
-            const root = document.documentElement;
-
-            // Container styles
-            root.style.setProperty('--ww-chat-bg-color', containerStyles.value.backgroundColor);
-            root.style.setProperty('--ww-chat-border', containerStyles.value.border);
-            root.style.setProperty('--ww-chat-border-radius', containerStyles.value.borderRadius);
-            root.style.setProperty('--ww-chat-shadow', containerStyles.value.boxShadow);
-            root.style.setProperty('--ww-chat-font-family', containerStyles.value.fontFamily);
-
-            // Header styles
-            root.style.setProperty('--ww-chat-header-bg', headerBgColor.value);
-            root.style.setProperty('--ww-chat-header-text', headerTextColor.value);
-
-            // Messages area styles
-            root.style.setProperty('--ww-chat-messages-bg', messagesContainerStyles.value.backgroundColor);
-
-            // Message styles
-            root.style.setProperty('--ww-chat-message-bg', messageBgColor.value);
-            root.style.setProperty('--ww-chat-message-text', messageTextColor.value);
-            root.style.setProperty('--ww-chat-message-border', messageBorder.value);
-
-            // Own message styles
-            root.style.setProperty('--ww-chat-own-message-bg', ownMessageBgColor.value);
-            root.style.setProperty('--ww-chat-own-message-text', ownMessageTextColor.value);
-            root.style.setProperty('--ww-chat-own-message-border', ownMessageBorder.value);
-
-            // Input styles
-            root.style.setProperty('--ww-chat-input-bg', inputBgColor.value);
-            root.style.setProperty('--ww-chat-input-text', inputTextColor.value);
-            root.style.setProperty('--ww-chat-input-placeholder', inputPlaceholderColor.value);
-            root.style.setProperty('--ww-chat-input-border', inputBorder.value);
-
-            // New input styles
-            root.style.setProperty('--ww-chat-input-max-height', inputMaxHeight.value);
-            root.style.setProperty('--ww-chat-input-min-height', inputMinHeight.value);
-            root.style.setProperty('--ww-chat-input-border-radius', inputBorderRadius.value);
-        };
 
         // Watch for changes in messages to auto-scroll
         watch(
@@ -299,7 +240,7 @@ export default {
 
             // Create a new message object with all the standard fields
             const message = {
-                id: `msg-${uuidv4()}`,
+                id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
                 senderId: currentUserId.value,
                 userName: userName.value,
@@ -329,7 +270,7 @@ export default {
             if (isEditing.value || isDisabled.value) return;
 
             const attachmentFiles = Array.from(files).map(file => ({
-                id: `file-${uuidv4()}`,
+                id: `file-${wwLib.wwUtils.getUid()}`,
                 name: file.name,
                 type: file.type,
                 size: file.size,
@@ -369,7 +310,7 @@ export default {
             // This way it will naturally flow through our mapping system
             const newMessageRaw = {
                 // Set default values for standard fields that may be used by default mappings
-                id: message.id || `msg-${uuidv4()}`,
+                id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
                 text: message.text || '',
                 senderId: message.senderId || '',
                 userName: message.userName || '',
@@ -433,6 +374,16 @@ export default {
             inputMinHeight,
             inputBorderRadius,
 
+            // Empty message styles
+            emptyMessageText,
+            emptyMessageColor,
+
+            // Date separator styles
+            dateSeparatorTextColor,
+            dateSeparatorLineColor,
+            dateSeparatorBgColor,
+            dateSeparatorBorderRadius,
+
             // Icons
             sendIcon: computed(() => props.content?.sendIcon || 'send'),
             sendIconColor: computed(() => props.content?.sendIconColor || '#334155'),
@@ -468,16 +419,16 @@ export default {
 
 <style lang="scss" scoped>
 .ww-chat {
-    --ww-chat-bg-color: v-bind('backgroundColor');
-    --ww-chat-border: v-bind('containerBorder');
-    --ww-chat-border-radius: v-bind('containerBorderRadius');
-    --ww-chat-shadow: v-bind('containerShadow');
-    --ww-chat-font-family: v-bind('fontFamily');
+    --ww-chat-bg-color: v-bind('containerStyles.backgroundColor');
+    --ww-chat-border: v-bind('containerStyles.border');
+    --ww-chat-border-radius: v-bind('containerStyles.borderRadius');
+    --ww-chat-shadow: v-bind('containerStyles.boxShadow');
+    --ww-chat-font-family: v-bind('containerStyles.fontFamily');
 
     --ww-chat-header-bg: v-bind('headerBgColor');
     --ww-chat-header-text: v-bind('headerTextColor');
 
-    --ww-chat-messages-bg: v-bind('messagesAreaBgColor');
+    --ww-chat-messages-bg: v-bind('messagesContainerStyles.backgroundColor');
 
     --ww-chat-message-bg: v-bind('messageBgColor');
     --ww-chat-message-text: v-bind('messageTextColor');
@@ -487,10 +438,21 @@ export default {
     --ww-chat-own-message-text: v-bind('ownMessageTextColor');
     --ww-chat-own-message-border: v-bind('ownMessageBorder');
 
+    --ww-chat-empty-message-text: v-bind('emptyMessageText');
+    --ww-chat-empty-message-color: v-bind('emptyMessageColor');
+
+    --ww-chat-date-separator-text-color: v-bind('dateSeparatorTextColor');
+    --ww-chat-date-separator-line-color: v-bind('dateSeparatorLineColor');
+    --ww-chat-date-separator-bg-color: v-bind('dateSeparatorBgColor');
+    --ww-chat-date-separator-border-radius: v-bind('dateSeparatorBorderRadius');
+
     --ww-chat-input-bg: v-bind('inputBgColor');
     --ww-chat-input-text: v-bind('inputTextColor');
     --ww-chat-input-placeholder: v-bind('inputPlaceholderColor');
     --ww-chat-input-border: v-bind('inputBorder');
+    --ww-chat-input-max-height: v-bind('inputMaxHeight');
+    --ww-chat-input-min-height: v-bind('inputMinHeight');
+    --ww-chat-input-border-radius: v-bind('inputBorderRadius');
 
     display: flex;
     flex-direction: column;

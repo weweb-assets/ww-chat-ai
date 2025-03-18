@@ -151,8 +151,8 @@ export default {
     padding: 12px 16px;
     border-bottom: 1px solid #e2e8f0;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    background-color: var(--ww-chat-header-bg, #ffffff);
-    color: var(--ww-chat-header-text, #1e293b);
+    background-color: v-bind('headerBgColor');
+    color: v-bind('textColor');
 
     &__user {
         display: flex;

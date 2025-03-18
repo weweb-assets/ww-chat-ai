@@ -1,7 +1,11 @@
 <template>
     <div class="ww-chat-input-area">
         <!-- Attachment button -->
-        <label v-if="allowAttachments" class="ww-chat-input-area__attachment-btn">
+        <label
+            v-if="allowAttachments"
+            class="ww-chat-input-area__attachment-btn"
+            :style="{ color: attachmentIconColor }"
+        >
             <input
                 type="file"
                 class="ww-chat-input-area__attachment-input"
@@ -9,7 +13,11 @@
                 @change="handleAttachment"
                 :disabled="isDisabled"
             />
-            <span class="ww-chat-input-area__icon" v-html="attachmentIconHtml"></span>
+            <span
+                class="ww-chat-input-area__icon"
+                :style="{ width: attachmentIconSize, height: attachmentIconSize }"
+                v-html="attachmentIconHtml"
+            ></span>
         </label>
 
         <!-- Input field -->
@@ -31,9 +39,14 @@
             class="ww-chat-input-area__send-btn"
             :class="{ 'ww-chat-input-area__send-btn--disabled': !canSend || isDisabled }"
             :disabled="!canSend || isDisabled"
+            :style="{ color: sendIconColor }"
             @click="sendMessage"
         >
-            <span class="ww-chat-input-area__icon" v-html="sendIconHtml"></span>
+            <span
+                class="ww-chat-input-area__icon"
+                :style="{ width: sendIconSize, height: sendIconSize }"
+                v-html="sendIconHtml"
+            ></span>
         </button>
     </div>
 </template>
@@ -164,9 +177,7 @@ export default {
         watchEffect(async () => {
             try {
                 if (props.sendIcon) {
-                    console.log('Loading send icon:', props.sendIcon);
                     sendIconText.value = await getIcon(props.sendIcon);
-                    console.log('Send icon loaded:', !!sendIconText.value);
                 }
             } catch (error) {
                 console.error('Failed to load send icon:', error);
@@ -177,9 +188,7 @@ export default {
         watchEffect(async () => {
             try {
                 if (props.attachmentIcon) {
-                    console.log('Loading attachment icon:', props.attachmentIcon);
                     attachmentIconText.value = await getIcon(props.attachmentIcon);
-                    console.log('Attachment icon loaded:', !!attachmentIconText.value);
                 }
             } catch (error) {
                 console.error('Failed to load attachment icon:', error);
@@ -196,70 +205,7 @@ export default {
             return attachmentIconText.value || defaultAttachmentIcon;
         });
 
-        // Update the main component with CSS variables
-        onMounted(() => {
-            updateCssVariables();
-        });
-
-        // Function to update CSS variables
-        const updateCssVariables = () => {
-            const root = document.querySelector('.ww-chat');
-            if (root) {
-                root.style.setProperty('--ww-chat-input-min-height', props.inputMinHeight);
-                root.style.setProperty('--ww-chat-input-max-height', props.inputMaxHeight);
-                root.style.setProperty('--ww-chat-input-border-radius', props.inputBorderRadius);
-                root.style.setProperty('--ww-chat-send-icon-size', props.sendIconSize);
-                root.style.setProperty('--ww-chat-send-icon-color', props.sendIconColor);
-                root.style.setProperty('--ww-chat-attachment-icon-size', props.attachmentIconSize);
-                root.style.setProperty('--ww-chat-attachment-icon-color', props.attachmentIconColor);
-            }
-        };
-
-        // Watch for style property changes
-        watch(
-            [
-                () => props.inputMinHeight,
-                () => props.inputMaxHeight,
-                () => props.inputBorderRadius,
-                () => props.sendIconSize,
-                () => props.sendIconColor,
-                () => props.attachmentIconSize,
-                () => props.attachmentIconColor,
-            ],
-            () => {
-                updateCssVariables();
-            }
-        );
-
-        // Add debugging watches to track prop changes
-        watch(
-            () => props.sendIcon,
-            (newValue, oldValue) => {
-                console.log('sendIcon prop changed:', oldValue, '->', newValue);
-            }
-        );
-
-        watch(
-            () => props.attachmentIcon,
-            (newValue, oldValue) => {
-                console.log('attachmentIcon prop changed:', oldValue, '->', newValue);
-            }
-        );
-
-        watch(
-            () => props.sendIconColor,
-            (newValue, oldValue) => {
-                console.log('sendIconColor prop changed:', oldValue, '->', newValue);
-            }
-        );
-
-        watch(
-            () => props.attachmentIconColor,
-            (newValue, oldValue) => {
-                console.log('attachmentIconColor prop changed:', oldValue, '->', newValue);
-            }
-        );
-
+        // Remove debugging watches
         // Determine if message can be sent
         const canSend = computed(() => inputValue.value.trim().length > 0);
 
@@ -365,7 +311,7 @@ export default {
     align-items: flex-end;
     padding: 12px 16px;
     gap: 8px;
-    border-top: var(--ww-chat-input-border, 1px solid #e2e8f0);
+    border-top: v-bind('inputBorder');
 
     &__attachment-btn {
         display: flex;
@@ -377,7 +323,7 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        color: var(--ww-chat-attachment-icon-color, #334155);
+        /* Color applied via inline styles now */
 
         &:hover {
             background-color: rgba(0, 0, 0, 0.05);
@@ -396,8 +342,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: var(--ww-chat-attachment-icon-size, 20px);
-        height: var(--ww-chat-attachment-icon-size, 20px);
+        /* Width and height now set inline */
 
         :deep(svg) {
             width: 100%;
@@ -413,20 +358,20 @@ export default {
     &__input {
         width: 100%;
         resize: none;
-        min-height: var(--ww-chat-input-min-height, 38px);
-        max-height: var(--ww-chat-input-max-height, 120px);
+        min-height: v-bind('inputMinHeight');
+        max-height: v-bind('inputMaxHeight');
         padding: 8px 12px;
-        border-radius: var(--ww-chat-input-border-radius, 20px);
+        border-radius: v-bind('inputBorderRadius');
         font-size: 0.9375rem;
         line-height: 1.4;
         overflow-y: auto;
         transition: border-color 0.2s;
-        background-color: var(--ww-chat-input-bg, #ffffff);
-        color: var(--ww-chat-input-text, #334155);
-        border: var(--ww-chat-input-border, 1px solid #e2e8f0);
+        background-color: v-bind('inputBgColor');
+        color: v-bind('inputTextColor');
+        border: v-bind('inputBorder');
 
         &::placeholder {
-            color: var(--ww-chat-input-placeholder, #94a3b8);
+            color: v-bind('inputPlaceholderColor');
         }
 
         &:focus {
@@ -451,12 +396,7 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        color: var(--ww-chat-send-icon-color, #334155);
-
-        .ww-chat-input-area__icon {
-            width: var(--ww-chat-send-icon-size, 20px);
-            height: var(--ww-chat-send-icon-size, 20px);
-        }
+        /* Color applied via inline styles now */
 
         &:hover:not(:disabled) {
             background-color: rgba(0, 0, 0, 0.05);

@@ -15,7 +15,17 @@ export default {
             // Header styles
             ['headerTitle', 'headerBgColor', 'headerTextColor'],
             // Messages area styles
-            ['messagesAreaTitle', 'messagesAreaBgColor'],
+            [
+                'messagesAreaTitle',
+                'messagesAreaBgColor',
+                'emptyMessageText',
+                'emptyMessageColor',
+                'dateSeparatorTitle',
+                'dateSeparatorTextColor',
+                'dateSeparatorLineColor',
+                'dateSeparatorBgColor',
+                'dateSeparatorBorderRadius',
+            ],
             // Message styles
             [
                 'messageTitle',
@@ -192,6 +202,89 @@ export default {
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the messages area',
+            },
+            /* wwEditor:end */
+        },
+        emptyMessageText: {
+            label: { en: 'Empty Message Text' },
+            type: 'Text',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'No messages yet',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text to display when there are no messages',
+            },
+            /* wwEditor:end */
+        },
+        emptyMessageColor: {
+            label: { en: 'Empty Message Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#64748b',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the empty message text',
+            },
+            /* wwEditor:end */
+        },
+        dateSeparatorTitle: {
+            type: 'Title',
+            label: { en: 'Date Separator' },
+            section: 'style',
+        },
+        dateSeparatorTextColor: {
+            label: { en: 'Text Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#64748b',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text color of the date separator',
+            },
+            /* wwEditor:end */
+        },
+        dateSeparatorLineColor: {
+            label: { en: 'Line Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the date separator divider line',
+            },
+            /* wwEditor:end */
+        },
+        dateSeparatorBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#ffffff',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color behind the date text',
+            },
+            /* wwEditor:end */
+        },
+        dateSeparatorBorderRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '4px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border radius of the date separator',
             },
             /* wwEditor:end */
         },

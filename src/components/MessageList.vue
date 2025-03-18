@@ -29,6 +29,7 @@
                     :own-message-text-color="ownMessageTextColor"
                     :own-message-border="ownMessageBorder"
                     @attachment-click="handleAttachmentClick"
+                    @right-click="handleRightClick"
                 />
             </div>
         </transition-group>
@@ -103,7 +104,7 @@ export default {
             default: '4px',
         },
     },
-    emits: ['attachment-click'],
+    emits: ['attachment-click', 'message-right-click'],
     setup(props, { emit }) {
         const isEditing = inject(
             'isEditing',
@@ -200,11 +201,18 @@ export default {
             emit('attachment-click', attachment);
         };
 
+        // Handle right-click
+        const handleRightClick = ({ message, x, y }) => {
+            if (isEditing.value) return;
+            emit('message-right-click', { message, position: { x, y } });
+        };
+
         return {
             groupedMessages,
             isSameSenderAsPrevious,
             isSameSenderAsNext,
             handleAttachmentClick,
+            handleRightClick,
             emptyMessageStyle,
             dateSeparatorStyle,
         };

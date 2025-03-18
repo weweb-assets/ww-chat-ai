@@ -11,7 +11,7 @@
                 ></div>
             </div>
             <div class="ww-chat-header__info">
-                <div class="ww-chat-header__name" :style="nameStyles">{{ userName }}</div>
+                <div class="ww-chat-header__name" :style="nameStyles" :title="participants">{{ userName }}</div>
                 <div v-if="userLocation" class="ww-chat-header__location" :style="locationStyles">
                     {{ userLocation }}
                 </div>
@@ -58,6 +58,10 @@ export default {
             type: String,
             default: 'online',
             validator: value => ['online', 'offline', 'away', 'busy'].includes(value),
+        },
+        participants: {
+            type: String,
+            default: '',
         },
         headerBgColor: {
             type: String,

@@ -87,6 +87,8 @@ User Properties:
 -   `userLocation`: `string` - Location to display under the user name (optional). Default: ``
 -   `userStatus`: `string` - Current status of the user. Options: `online`, `offline`, `away`, `busy`. Default: `online`
 -   `currentUserId`: `string` - Unique identifier for the current user (used to identify your messages). Default: `current-user`
+-   `showSelfInHeader`: `boolean` - If enabled, shows the current user in the header instead of the chat partner. Default: `false`
+-   `groupChatTemplate`: `string` - Template for group chat header text. Use {count} as placeholder for number of participants. Default: `Group Chat ({count} participants)`
 
 Chat Data:
 
@@ -97,6 +99,7 @@ Chat Data:
     -   `userName`: `string` - Display name of the message sender
     -   `timestamp`: `string` - ISO timestamp of when the message was sent
     -   `attachments`: `array` (optional) - Array of attachment objects
+    -   `avatar` or `avatarUrl`: `string` (optional) - URL of sender's avatar image
 
 Message Data Mapping:
 
@@ -110,6 +113,8 @@ Message Data Mapping:
 Events:
 
 -   `messageSent`: {message: messageObject} - Triggered when a new message is sent
+-   `messageReceived`: {message: messageObject} - Triggered when a new message is received from someone else
+-   `messageRightClick`: {message: messageObject, position: {x, y}} - Triggered when a message is right-clicked
 -   `attachmentClick`: {attachment: attachmentObject} - Triggered when an attachment is clicked
 -   `close`: {} - Triggered when the close button in the header is clicked
 
@@ -126,11 +131,14 @@ Variables:
 Special Features:
 
 -   User status indicator (online, offline, away, busy)
+-   Chat partner detection that automatically updates the header based on conversation participants
+-   Group chat support with customizable display template and participant count
 -   Message grouping by sender
 -   Date separators with "Today", "Yesterday", or date labels, fully customizable
 -   Empty message state with customizable text and styling
 -   File attachments with image preview support
 -   Auto-scrolling to latest messages
+-   Context menu support via right-click events on messages
 -   Responsive input that expands as user types
 -   Shift+Enter support for multiline messages
 -   Customizable styling for all elements
@@ -142,6 +150,8 @@ Important Implementation Notes:
 -   For large chat histories, consider pagination or virtual scrolling
 -   The component uses reactive Vue 3 styling with v-bind for dynamic property updates
 -   All styling properties are bindable for dynamic theming
+-   The header will automatically display the chat partner's information based on message history
+-   Right-click events provide coordinates for showing custom context menus at the correct position
 -   Responsive design adapts to container size but may need additional styling for small screens
 
 Example Basic Implementation:
@@ -206,3 +216,6 @@ Troubleshooting:
 -   **Attachments not working:** Ensure `allowAttachments` is set to `true` and file URLs are accessible
 -   **Chat not scrolling to bottom:** Call `scrollToBottom` action after programmatically adding messages
 -   **User avatar not displaying:** Verify the avatar URL is valid (initials will be shown as fallback)
+-   **Right-click event not firing:** Make sure the component is not in editing mode
+-   **Group chat header not showing correctly:** Check that you have messages from multiple different senders
+-   **messageReceived event not triggering:** Verify that the incoming message has a different senderId than currentUserId

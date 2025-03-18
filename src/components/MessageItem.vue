@@ -12,6 +12,7 @@
             class="ww-message-item__content"
             :class="{ 'ww-message-item__content--own': isOwnMessage }"
             :style="messageStyles"
+            @contextmenu.prevent="handleRightClick"
         >
             <!-- Sender name if first in group -->
             <div
@@ -123,7 +124,7 @@ export default {
             default: '1px solid #bfdbfe',
         },
     },
-    emits: ['attachment-click'],
+    emits: ['attachment-click', 'right-click'],
     setup(props, { emit }) {
         const isEditing = inject(
             'isEditing',
@@ -168,12 +169,21 @@ export default {
             emit('attachment-click', attachment);
         };
 
+        // Handle right-click
+        const handleRightClick = event => {
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            emit('right-click', { message: props.message, x, y });
+        };
+
         return {
             messageStyles,
             isImageFile,
             formatFileSize,
             formatTime,
             handleAttachmentClick,
+            handleRightClick,
         };
     },
 };

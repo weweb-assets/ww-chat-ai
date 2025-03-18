@@ -78,7 +78,15 @@ export default {
             // User settings
             ['userSettingsTitle', 'userName', 'userAvatar', 'userLocation', 'userStatus', 'currentUserId'],
             // Chat settings
-            ['chatSettingsTitle', 'displayHeader', 'allowAttachments', 'inputPlaceholder', 'disabled'],
+            [
+                'chatSettingsTitle',
+                'displayHeader',
+                'showSelfInHeader',
+                'groupChatTemplate',
+                'allowAttachments',
+                'inputPlaceholder',
+                'disabled',
+            ],
             // Chat data
             ['chatDataTitle', 'chatHistory'],
             // Message data mapping
@@ -93,6 +101,104 @@ export default {
             ],
         ],
     },
+    triggerEvents: [
+        {
+            name: 'messageSent',
+            label: { en: 'On message sent' },
+            event: {
+                message: {
+                    id: 'msg-1',
+                    text: 'Hello there!',
+                    senderId: 'current-user',
+                    userName: 'User',
+                    timestamp: new Date().toISOString(),
+                },
+            },
+        },
+        {
+            name: 'messageReceived',
+            label: { en: 'On message received' },
+            event: {
+                message: {
+                    id: 'msg-2',
+                    text: 'New message received',
+                    senderId: 'other-user',
+                    userName: 'Other User',
+                    timestamp: new Date().toISOString(),
+                },
+            },
+        },
+        {
+            name: 'messageRightClick',
+            label: { en: 'On message right click' },
+            event: {
+                message: {
+                    id: 'msg-1',
+                    text: 'Message content',
+                    senderId: 'user-id',
+                    userName: 'User Name',
+                    timestamp: new Date().toISOString(),
+                },
+                position: {
+                    x: 100,
+                    y: 200,
+                },
+            },
+        },
+        {
+            name: 'attachmentClick',
+            label: { en: 'On attachment click' },
+            event: {
+                attachment: {
+                    id: 'file-1',
+                    name: 'document.pdf',
+                    type: 'application/pdf',
+                    size: 1024000,
+                    url: 'https://example.com/document.pdf',
+                },
+            },
+        },
+        {
+            name: 'close',
+            label: { en: 'On close' },
+            event: {},
+        },
+    ],
+    actions: [
+        {
+            action: 'scrollToBottom',
+            label: { en: 'Scroll to bottom' },
+            args: [
+                {
+                    name: 'smooth',
+                    type: 'boolean',
+                    label: { en: 'Smooth scroll' },
+                },
+            ],
+        },
+        {
+            action: 'clearMessages',
+            label: { en: 'Clear messages' },
+        },
+        {
+            action: 'addMessage',
+            label: { en: 'Add message' },
+            args: [
+                {
+                    name: 'message',
+                    type: 'object',
+                    label: { en: 'Message' },
+                    options: {
+                        item: {
+                            text: { type: 'string', label: { en: 'Text' } },
+                            senderId: { type: 'string', label: { en: 'Sender ID' } },
+                            userName: { type: 'string', label: { en: 'Sender Name' } },
+                        },
+                    },
+                },
+            ],
+        },
+    ],
     properties: {
         // ======== APPEARANCE ========
 
@@ -829,6 +935,32 @@ export default {
             },
             /* wwEditor:end */
         },
+        showSelfInHeader: {
+            label: { en: 'Show Self in Header' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'If enabled, shows the current user in the header instead of the chat partner',
+            },
+            /* wwEditor:end */
+        },
+        groupChatTemplate: {
+            label: { en: 'Group Chat Text' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'Group Chat ({count} participants)',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Template for group chat header text. Use {count} as placeholder for number of participants.',
+            },
+            /* wwEditor:end */
+        },
         allowAttachments: {
             label: { en: 'Allow Attachments' },
             type: 'OnOff',
@@ -1077,72 +1209,4 @@ export default {
             /* wwEditor:end */
         },
     },
-    triggerEvents: [
-        {
-            name: 'messageSent',
-            label: { en: 'On message sent' },
-            event: {
-                message: {
-                    id: 'msg-1',
-                    text: 'Hello there!',
-                    senderId: 'current-user',
-                    userName: 'User',
-                    timestamp: new Date().toISOString(),
-                },
-            },
-        },
-        {
-            name: 'attachmentClick',
-            label: { en: 'On attachment click' },
-            event: {
-                attachment: {
-                    id: 'file-1',
-                    name: 'document.pdf',
-                    type: 'application/pdf',
-                    size: 1024000,
-                    url: 'https://example.com/document.pdf',
-                },
-            },
-        },
-        {
-            name: 'close',
-            label: { en: 'On close' },
-            event: {},
-        },
-    ],
-    actions: [
-        {
-            action: 'scrollToBottom',
-            label: { en: 'Scroll to bottom' },
-            args: [
-                {
-                    name: 'smooth',
-                    type: 'boolean',
-                    label: { en: 'Smooth scroll' },
-                },
-            ],
-        },
-        {
-            action: 'clearMessages',
-            label: { en: 'Clear messages' },
-        },
-        {
-            action: 'addMessage',
-            label: { en: 'Add message' },
-            args: [
-                {
-                    name: 'message',
-                    type: 'object',
-                    label: { en: 'Message' },
-                    options: {
-                        item: {
-                            text: { type: 'string', label: { en: 'Text' } },
-                            senderId: { type: 'string', label: { en: 'Sender ID' } },
-                            userName: { type: 'string', label: { en: 'Sender Name' } },
-                        },
-                    },
-                },
-            ],
-        },
-    ],
 };

@@ -3,10 +3,10 @@
         <!-- Chat Header -->
         <ChatHeader
             v-if="displayHeader"
-            :user-name="userName"
-            :user-avatar="userAvatar"
-            :user-location="userLocation"
-            :user-status="userStatus"
+            :user-name="headerUserName"
+            :user-avatar="headerUserAvatar"
+            :user-location="headerUserLocation"
+            :user-status="headerUserStatus"
             :header-bg-color="headerBgColor"
             :text-color="headerTextColor"
             :header-border="headerBorder"
@@ -18,6 +18,7 @@
             :location-opacity="headerLocationOpacity"
             :close-button-color="headerCloseButtonColor"
             :close-button-bg-hover="headerCloseButtonBgHover"
+            :participants="headerParticipants"
             @close="handleClose"
         />
 
@@ -39,6 +40,7 @@
                 :date-separator-bg-color="dateSeparatorBgColor"
                 :date-separator-border-radius="dateSeparatorBorderRadius"
                 @attachment-click="handleAttachmentClick"
+                @message-right-click="handleMessageRightClick"
             />
         </div>
 
@@ -327,6 +329,16 @@ export default {
             });
         };
 
+        // Handle message right click
+        const handleMessageRightClick = ({ message, position }) => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'messageRightClick',
+                event: { message, position },
+            });
+        };
+
         // Handle close button click in header
         const handleClose = () => {
             if (isEditing.value) return;
@@ -357,6 +369,14 @@ export default {
             // Scroll to bottom
             scrollToBottom();
 
+            // If the message is from someone else, trigger the messageReceived event
+            if (newMessageRaw.senderId !== currentUserId.value) {
+                emit('trigger-event', {
+                    name: 'messageReceived',
+                    event: { message: newMessageRaw },
+                });
+            }
+
             return newMessageRaw;
         };
 
@@ -366,6 +386,86 @@ export default {
 
             setChatHistory([]);
         };
+
+        // Add new computed properties to determine the chat partner
+        const chatPartners = computed(() => {
+            // If there are no messages or explicit userName is provided, use the default user info
+            if (messages.value.length === 0 || props.content?.showSelfInHeader) {
+                return {
+                    name: userName.value,
+                    avatar: userAvatar.value,
+                    location: userLocation.value,
+                    status: userStatus.value,
+                    participants: [],
+                    participantsString: '',
+                };
+            }
+
+            // Get all unique sender IDs except the current user
+            const otherSenderIds = [
+                ...new Set(messages.value.filter(msg => msg.senderId !== currentUserId.value).map(msg => msg.senderId)),
+            ];
+
+            // If no other users found, fallback to default
+            if (otherSenderIds.length === 0) {
+                return {
+                    name: userName.value,
+                    avatar: userAvatar.value,
+                    location: userLocation.value,
+                    status: userStatus.value,
+                    participants: [],
+                    participantsString: '',
+                };
+            }
+
+            // Create an array of unique participants
+            const participants = otherSenderIds.map(senderId => {
+                const msg = messages.value.find(m => m.senderId === senderId);
+                return msg ? msg.userName : 'Unknown User';
+            });
+
+            // Create a comma-separated string of participants for the title attribute
+            const participantsString = participants.join(', ');
+
+            // If only one other user, show their info
+            if (otherSenderIds.length === 1) {
+                const otherUser = messages.value.find(msg => msg.senderId === otherSenderIds[0]);
+                return {
+                    name: otherUser.userName,
+                    avatar: otherUser.avatar || otherUser.avatarUrl || '',
+                    location: '',
+                    status: 'online',
+                    participants,
+                    participantsString,
+                };
+            }
+
+            // Multiple chat partners - create a group chat display
+            // Get the most recent non-self message
+            const lastOtherMsg = [...messages.value]
+                .filter(msg => msg.senderId !== currentUserId.value)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+            // Use the groupChatTemplate if available, or fallback to default
+            const template = props.content?.groupChatTemplate || 'Group Chat ({count} participants)';
+            const groupChatName = template.replace('{count}', otherSenderIds.length);
+
+            return {
+                name: groupChatName,
+                avatar: '',
+                location: lastOtherMsg ? `Last message from ${lastOtherMsg.userName}` : '',
+                status: 'online',
+                participants,
+                participantsString,
+            };
+        });
+
+        // Use the chat partners info for the header
+        const headerUserName = computed(() => chatPartners.value.name);
+        const headerUserAvatar = computed(() => chatPartners.value.avatar);
+        const headerUserLocation = computed(() => chatPartners.value.location);
+        const headerUserStatus = computed(() => chatPartners.value.status);
+        const headerParticipants = computed(() => chatPartners.value.participantsString);
 
         return {
             // Refs
@@ -384,6 +484,13 @@ export default {
             userAvatar,
             userLocation,
             userStatus,
+
+            // Header user properties (chat partner)
+            headerUserName,
+            headerUserAvatar,
+            headerUserLocation,
+            headerUserStatus,
+            headerParticipants,
 
             // Styles
             containerStyles,
@@ -436,6 +543,7 @@ export default {
             sendMessage,
             handleAttachment,
             handleAttachmentClick,
+            handleMessageRightClick,
             handleClose,
             addMessage,
             clearMessages,

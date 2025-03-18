@@ -1,5 +1,5 @@
 <template>
-    <div class="ww-chat-header">
+    <div class="ww-chat-header" :style="headerStyles">
         <div class="ww-chat-header__user">
             <div class="ww-chat-header__avatar" :style="avatarStyles">
                 <img v-if="userAvatar" :src="userAvatar" alt="User avatar" />
@@ -11,11 +11,13 @@
                 ></div>
             </div>
             <div class="ww-chat-header__info">
-                <div class="ww-chat-header__name">{{ userName }}</div>
-                <div v-if="userLocation" class="ww-chat-header__location">{{ userLocation }}</div>
+                <div class="ww-chat-header__name" :style="nameStyles">{{ userName }}</div>
+                <div v-if="userLocation" class="ww-chat-header__location" :style="locationStyles">
+                    {{ userLocation }}
+                </div>
             </div>
         </div>
-        <button class="ww-chat-header__close" @click="$emit('close')">
+        <button class="ww-chat-header__close" :style="closeButtonStyles" @click="$emit('close')">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -65,6 +67,42 @@ export default {
             type: String,
             default: '#1e293b',
         },
+        headerBorder: {
+            type: String,
+            default: '1px solid #e2e8f0',
+        },
+        headerBoxShadow: {
+            type: String,
+            default: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        },
+        headerPadding: {
+            type: String,
+            default: '12px 16px',
+        },
+        nameFontSize: {
+            type: String,
+            default: '1rem',
+        },
+        nameFontWeight: {
+            type: String,
+            default: '600',
+        },
+        locationFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        locationOpacity: {
+            type: String,
+            default: '0.7',
+        },
+        closeButtonColor: {
+            type: String,
+            default: '', // Will inherit from text color
+        },
+        closeButtonBgHover: {
+            type: String,
+            default: 'rgba(0, 0, 0, 0.05)',
+        },
     },
     emits: ['close'],
     setup(props) {
@@ -98,6 +136,24 @@ export default {
         const headerStyles = computed(() => ({
             backgroundColor: props.headerBgColor,
             color: props.textColor,
+            borderBottom: props.headerBorder,
+            boxShadow: props.headerBoxShadow,
+            padding: props.headerPadding,
+        }));
+
+        const nameStyles = computed(() => ({
+            fontSize: props.nameFontSize,
+            fontWeight: props.nameFontWeight,
+        }));
+
+        const locationStyles = computed(() => ({
+            fontSize: props.locationFontSize,
+            opacity: props.locationOpacity,
+        }));
+
+        const closeButtonStyles = computed(() => ({
+            color: props.closeButtonColor || 'inherit',
+            '--hover-bg-color': props.closeButtonBgHover,
         }));
 
         const avatarStyles = computed(() => ({
@@ -137,6 +193,9 @@ export default {
             userInitials,
             statusText,
             headerStyles,
+            nameStyles,
+            locationStyles,
+            closeButtonStyles,
             avatarStyles,
         };
     },
@@ -148,11 +207,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    background-color: v-bind('headerBgColor');
-    color: v-bind('textColor');
+    /* These styles are now applied via v-bind */
+    /* padding, border-bottom, box-shadow moved to headerStyles */
+    width: 100%; /* Ensure it takes full width */
+    flex-shrink: 0; /* Prevent shrinking */
 
     &__user {
         display: flex;
@@ -169,6 +227,7 @@ export default {
         justify-content: center;
         font-weight: 600;
         margin-right: 12px;
+        flex-shrink: 0; /* Prevent avatar from shrinking */
 
         img {
             width: 100%;
@@ -210,14 +269,12 @@ export default {
     }
 
     &__name {
-        font-weight: 600;
-        font-size: 1rem;
+        /* Styles now applied via nameStyles */
         line-height: 1.2;
     }
 
     &__location {
-        font-size: 0.875rem;
-        opacity: 0.7;
+        /* Styles now applied via locationStyles */
         line-height: 1.2;
         margin-top: 2px;
     }
@@ -231,14 +288,13 @@ export default {
         border-radius: 50%;
         border: none;
         background: transparent;
-        color: inherit;
         opacity: 0.7;
         cursor: pointer;
         transition: all 0.2s ease;
 
         &:hover {
             opacity: 1;
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
         }
     }
 }

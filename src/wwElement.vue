@@ -9,6 +9,15 @@
             :user-status="userStatus"
             :header-bg-color="headerBgColor"
             :text-color="headerTextColor"
+            :header-border="headerBorder"
+            :header-box-shadow="headerBoxShadow"
+            :header-padding="headerPadding"
+            :name-font-size="headerNameFontSize"
+            :name-font-weight="headerNameFontWeight"
+            :location-font-size="headerLocationFontSize"
+            :location-opacity="headerLocationOpacity"
+            :close-button-color="headerCloseButtonColor"
+            :close-button-bg-hover="headerCloseButtonBgHover"
             @close="handleClose"
         />
 
@@ -168,13 +177,28 @@ export default {
             fontFamily: props.content?.fontFamily || 'inherit',
         }));
 
+        const messagesAreaPadding = computed(() => props.content?.messagesAreaPadding || '16px');
+        const messagesAreaHeight = computed(() => props.content?.messagesAreaHeight || 'auto');
+
         const messagesContainerStyles = computed(() => ({
             backgroundColor: props.content?.messagesAreaBgColor || '#ffffff',
+            padding: messagesAreaPadding.value,
+            height: messagesAreaHeight.value,
+            maxHeight: messagesAreaHeight.value !== 'auto' ? messagesAreaHeight.value : undefined,
         }));
 
         // Header styles
         const headerBgColor = computed(() => props.content?.headerBgColor || '#ffffff');
         const headerTextColor = computed(() => props.content?.headerTextColor || '#1e293b');
+        const headerBorder = computed(() => props.content?.headerBorder || '1px solid #e2e8f0');
+        const headerBoxShadow = computed(() => props.content?.headerBoxShadow || '0 2px 8px rgba(0, 0, 0, 0.05)');
+        const headerPadding = computed(() => props.content?.headerPadding || '16px');
+        const headerNameFontSize = computed(() => props.content?.headerNameFontSize || '18px');
+        const headerNameFontWeight = computed(() => props.content?.headerNameFontWeight || '600');
+        const headerLocationFontSize = computed(() => props.content?.headerLocationFontSize || '14px');
+        const headerLocationOpacity = computed(() => props.content?.headerLocationOpacity || '0.7');
+        const headerCloseButtonColor = computed(() => props.content?.headerCloseButtonColor || '#334155');
+        const headerCloseButtonBgHover = computed(() => props.content?.headerCloseButtonBgHover || '#dbeafe');
 
         // Message styles
         const messageBgColor = computed(() => props.content?.messageBgColor || '#f1f5f9');
@@ -224,10 +248,22 @@ export default {
         );
 
         // Scroll to bottom of messages
-        const scrollToBottom = async () => {
+        const scrollToBottom = async (smooth = false) => {
             await nextTick();
             if (messagesContainer.value) {
-                messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+                if (smooth) {
+                    // Use smooth scrolling behavior when requested
+                    const lastElement = messagesContainer.value.lastElementChild;
+                    if (lastElement) {
+                        lastElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    } else {
+                        // Fallback if no child elements exist
+                        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+                    }
+                } else {
+                    // Use instant scrolling (original behavior)
+                    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+                }
             }
         };
 
@@ -301,22 +337,16 @@ export default {
             });
         };
 
-        // Add a message programmatically
         const addMessage = message => {
             if (isEditing.value) return;
 
-            // Ensure required fields
-            // We'll add the new message directly to the chat history array
-            // This way it will naturally flow through our mapping system
             const newMessageRaw = {
-                // Set default values for standard fields that may be used by default mappings
                 id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
                 text: message.text || '',
                 senderId: message.senderId || '',
                 userName: message.userName || '',
                 timestamp: message.timestamp || new Date().toISOString(),
                 attachments: message.attachments,
-                // If there are any additional fields in the message object, they'll be preserved
                 ...message,
             };
 
@@ -360,6 +390,15 @@ export default {
             messagesContainerStyles,
             headerBgColor,
             headerTextColor,
+            headerBorder,
+            headerBoxShadow,
+            headerPadding,
+            headerNameFontSize,
+            headerNameFontWeight,
+            headerLocationFontSize,
+            headerLocationOpacity,
+            headerCloseButtonColor,
+            headerCloseButtonBgHover,
             messageBgColor,
             messageTextColor,
             messageBorder,
@@ -400,12 +439,16 @@ export default {
             handleClose,
             addMessage,
             clearMessages,
+
+            // New computed property
+            messagesAreaPadding,
+            messagesAreaHeight,
         };
     },
     methods: {
         // Action Methods
-        actionScrollToBottom() {
-            this.scrollToBottom();
+        actionScrollToBottom(smooth = false) {
+            this.scrollToBottom(smooth);
         },
         actionClearMessages() {
             this.clearMessages();
@@ -427,6 +470,15 @@ export default {
 
     --ww-chat-header-bg: v-bind('headerBgColor');
     --ww-chat-header-text: v-bind('headerTextColor');
+    --ww-chat-header-border: v-bind('headerBorder');
+    --ww-chat-header-shadow: v-bind('headerBoxShadow');
+    --ww-chat-header-padding: v-bind('headerPadding');
+    --ww-chat-header-name-font-size: v-bind('headerNameFontSize');
+    --ww-chat-header-name-font-weight: v-bind('headerNameFontWeight');
+    --ww-chat-header-location-font-size: v-bind('headerLocationFontSize');
+    --ww-chat-header-location-opacity: v-bind('headerLocationOpacity');
+    --ww-chat-header-close-button-color: v-bind('headerCloseButtonColor');
+    --ww-chat-header-close-button-bg-hover: v-bind('headerCloseButtonBgHover');
 
     --ww-chat-messages-bg: v-bind('messagesContainerStyles.backgroundColor');
 
@@ -454,10 +506,20 @@ export default {
     --ww-chat-input-min-height: v-bind('inputMinHeight');
     --ww-chat-input-border-radius: v-bind('inputBorderRadius');
 
+    /* Add new CSS variable for messages padding */
+    --ww-chat-messages-padding: v-bind('messagesAreaPadding');
+
+    /* Add new CSS variable for messages container height */
+    --ww-chat-messages-height: v-bind('messagesAreaHeight');
+
+    /* Main container layout */
     display: flex;
     flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+    height: 100%; /* Take full height of parent */
+    min-height: 300px; /* Minimum height to ensure usability */
+    overflow: hidden; /* Hide overflow to prevent scrollbar on the entire container */
+
+    /* Container styling */
     background-color: var(--ww-chat-bg-color);
     border: var(--ww-chat-border);
     border-radius: var(--ww-chat-border-radius);
@@ -469,12 +531,31 @@ export default {
         pointer-events: none;
     }
 
+    /* Make sure ChatHeader component doesn't shrink */
+    .ww-chat-header {
+        flex-shrink: 0; /* Prevent header from shrinking */
+        z-index: 2; /* Ensure header stays above scrolling content */
+    }
+
+    /* Messages area - scrollable and takes remaining space */
     &__messages {
-        flex: 1;
-        overflow-y: auto;
-        scroll-behavior: smooth;
-        padding: 16px;
+        flex: v-bind(
+            "messagesAreaHeight === 'auto' ? '1' : '0 0 auto'"
+        ); /* Adjust flex behavior based on height setting */
+        min-height: 100px; /* Minimum height to ensure it doesn't collapse */
+        height: var(--ww-chat-messages-height);
+        overflow-y: auto; /* Add vertical scrollbar when needed */
+        scroll-behavior: smooth; /* Smooth scrolling behavior */
+        padding: var(--ww-chat-messages-padding);
         background-color: var(--ww-chat-messages-bg);
+        position: relative; /* For proper stacking context */
+        z-index: 1;
+    }
+
+    /* Make sure InputArea component doesn't shrink */
+    .ww-chat-input-area {
+        flex-shrink: 0; /* Prevent input area from shrinking */
+        z-index: 2; /* Ensure input stays above scrolling content */
     }
 }
 </style>

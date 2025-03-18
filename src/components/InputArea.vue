@@ -312,6 +312,10 @@ export default {
     padding: 12px 16px;
     gap: 8px;
     border-top: v-bind('inputBorder');
+    width: 100%; /* Ensure it takes full width */
+    flex-shrink: 0; /* Prevent shrinking */
+    background-color: v-bind('inputBgColor'); /* Add background color to prevent transparency */
+    position: relative; /* For proper stacking context */
 
     &__attachment-btn {
         display: flex;

@@ -23,11 +23,22 @@ Header Style Properties:
 
 -   `headerBgColor`: `string` - Background color of the chat header. Default: `#ffffff`
 -   `headerTextColor`: `string` - Text color in the chat header. Default: `#1e293b`
+-   `headerBorder`: `string` - Border of the chat header. Default: `1px solid #e2e8f0`
+-   `headerBoxShadow`: `string` - Box shadow of the chat header. Default: `0 1px 2px rgba(0, 0, 0, 0.05)`
+-   `headerPadding`: `string` - Padding of the chat header. Default: `12px 16px`
+-   `headerNameFontSize`: `string` - Font size of the user name in header. Default: `1rem`
+-   `headerNameFontWeight`: `string` - Font weight of the user name in header. Default: `600`
+-   `headerLocationFontSize`: `string` - Font size of the location text in header. Default: `0.875rem`
+-   `headerLocationOpacity`: `number` - Opacity of the location text in header. Default: `0.7`
+-   `headerCloseButtonColor`: `string` - Color of the close button (leave empty to inherit). Default: ``
+-   `headerCloseButtonBgHover`: `string` - Background color of the close button on hover. Default: `rgba(0, 0, 0, 0.05)`
 -   `displayHeader`: `boolean` - Whether to display the chat header. Default: `true`
 
 Messages Area Properties:
 
 -   `messagesAreaBgColor`: `string` - Background color of the messages area. Default: `#ffffff`
+-   `messagesAreaPadding`: `string` - Padding inside the messages area. Default: `16px`
+-   `messagesAreaHeight`: `string` - Height of the messages area. Use 'auto' to fill available space. Default: `auto`
 -   `emptyMessageText`: `string` - Text to display when there are no messages. Default: `No messages yet`
 -   `emptyMessageColor`: `string` - Color of the empty message text. Default: `#64748b`
 
@@ -104,7 +115,7 @@ Events:
 
 Actions:
 
--   `scrollToBottom`: Scrolls the message area to the bottom
+-   `scrollToBottom`: Scrolls the message area to the bottom. Args: `smooth` (boolean, optional) - Whether to use smooth scrolling animation. Default: `false`
 -   `clearMessages`: Clears all messages from the chat history
 -   `addMessage`: Adds a new message to the chat. Args: message (object with text, senderId, and userName properties)
 

@@ -13,11 +13,26 @@ export default {
                 'fontFamily',
             ],
             // Header styles
-            ['headerTitle', 'headerBgColor', 'headerTextColor'],
+            [
+                'headerTitle',
+                'headerBgColor',
+                'headerTextColor',
+                'headerBorder',
+                'headerBoxShadow',
+                'headerPadding',
+                'headerNameFontSize',
+                'headerNameFontWeight',
+                'headerLocationFontSize',
+                'headerLocationOpacity',
+                'headerCloseButtonColor',
+                'headerCloseButtonBgHover',
+            ],
             // Messages area styles
             [
                 'messagesAreaTitle',
                 'messagesAreaBgColor',
+                'messagesAreaPadding',
+                'messagesAreaHeight',
                 'emptyMessageText',
                 'emptyMessageColor',
                 'dateSeparatorTitle',
@@ -185,6 +200,128 @@ export default {
             },
             /* wwEditor:end */
         },
+        headerBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the chat header',
+            },
+            /* wwEditor:end */
+        },
+        headerBoxShadow: {
+            label: { en: 'Shadow' },
+            type: 'Shadows',
+            section: 'style',
+            bindable: true,
+            defaultValue: '0 1px 2px rgba(0, 0, 0, 0.05)',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Box shadow of the chat header',
+            },
+            /* wwEditor:end */
+        },
+        headerPadding: {
+            label: { en: 'Padding' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '12px 16px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Padding of the chat header',
+            },
+            /* wwEditor:end */
+        },
+        headerNameFontSize: {
+            label: { en: 'Name Font Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '1rem',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font size of the user name in header',
+            },
+            /* wwEditor:end */
+        },
+        headerNameFontWeight: {
+            label: { en: 'Name Font Weight' },
+            type: 'TextWeight',
+            section: 'style',
+            bindable: true,
+            defaultValue: '600',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font weight of the user name in header',
+            },
+            /* wwEditor:end */
+        },
+        headerLocationFontSize: {
+            label: { en: 'Location Font Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '0.875rem',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font size of the location text in header',
+            },
+            /* wwEditor:end */
+        },
+        headerLocationOpacity: {
+            label: { en: 'Location Opacity' },
+            type: 'Number',
+            options: {
+                min: 0,
+                max: 1,
+                step: 0.1,
+            },
+            section: 'style',
+            bindable: true,
+            defaultValue: 0.7,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'number',
+                tooltip: 'Opacity of the location text in header',
+            },
+            /* wwEditor:end */
+        },
+        headerCloseButtonColor: {
+            label: { en: 'Close Button Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the close button (leave empty to inherit from header text color)',
+            },
+            /* wwEditor:end */
+        },
+        headerCloseButtonBgHover: {
+            label: { en: 'Close Button Hover BG' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'rgba(0, 0, 0, 0.05)',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background color of the close button on hover',
+            },
+            /* wwEditor:end */
+        },
 
         // Messages area styles
         messagesAreaTitle: {
@@ -202,6 +339,32 @@ export default {
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the messages area',
+            },
+            /* wwEditor:end */
+        },
+        messagesAreaPadding: {
+            label: { en: 'Padding' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '16px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Padding of the messages area',
+            },
+            /* wwEditor:end */
+        },
+        messagesAreaHeight: {
+            label: { en: 'Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'auto',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Specific height for the messages area (use "auto" to fill available space)',
             },
             /* wwEditor:end */
         },
@@ -951,6 +1114,13 @@ export default {
         {
             action: 'scrollToBottom',
             label: { en: 'Scroll to bottom' },
+            args: [
+                {
+                    name: 'smooth',
+                    type: 'boolean',
+                    label: { en: 'Smooth scroll' },
+                },
+            ],
         },
         {
             action: 'clearMessages',

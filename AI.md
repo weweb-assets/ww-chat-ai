@@ -43,6 +43,19 @@ keywords:
     - ownMessageTextColor: `string` - Text color of your own messages. Default: `#1e40af`
     - ownMessageBorder: `string` - Border of your own messages. Default: `1px solid #bfdbfe`
 
+    ## Message Data Mapping
+
+    The chat component supports flexible data mapping using formula expressions:
+
+    - mappingMessageId: `Formula` - Formula to extract message ID from your data. Default: `context.mapping?.['id']`
+    - mappingMessageText: `Formula` - Formula to extract message text from your data. Default: `context.mapping?.['text']`
+    - mappingSenderId: `Formula` - Formula to extract sender ID from your data. Default: `context.mapping?.['senderId']`
+    - mappingUserName: `Formula` - Formula to extract user name from your data. Default: `context.mapping?.['userName']`
+    - mappingTimestamp: `Formula` - Formula to extract timestamp from your data. Default: `context.mapping?.['timestamp']`
+    - mappingAttachments: `Formula` - Formula to extract attachments from your data. Default: `context.mapping?.['attachments']`
+
+    These mappings allow you to use any data structure for your chat messages by defining how your custom fields map to the component's expected properties. For example, if your data has a field named "content" instead of "text", you can set the `mappingMessageText` formula to: `context.mapping?.['content']`
+
     ### Input Area
 
     - inputBgColor: `string` - Background color of the message input. Default: `#ffffff`

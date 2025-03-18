@@ -38,6 +38,16 @@ export default {
                 'inputMinHeight',
                 'inputBorderRadius',
             ],
+            // Icons
+            [
+                'iconsTitle',
+                'sendIcon',
+                'sendIconColor',
+                'sendIconSize',
+                'attachmentIcon',
+                'attachmentIconColor',
+                'attachmentIconSize',
+            ],
         ],
         customSettingsPropertiesOrder: [
             // User settings
@@ -46,6 +56,16 @@ export default {
             ['chatSettingsTitle', 'displayHeader', 'allowAttachments', 'inputPlaceholder', 'disabled'],
             // Chat data
             ['chatDataTitle', 'chatHistory'],
+            // Message data mapping
+            [
+                'messageDataTitle',
+                'mappingMessageId',
+                'mappingMessageText',
+                'mappingSenderId',
+                'mappingUserName',
+                'mappingTimestamp',
+                'mappingAttachments',
+            ],
         ],
     },
     properties: {
@@ -366,6 +386,91 @@ export default {
             /* wwEditor:end */
         },
 
+        // Icon properties
+        iconsTitle: {
+            type: 'Title',
+            label: { en: 'Icons' },
+            section: 'style',
+        },
+        sendIcon: {
+            label: { en: 'Send Icon' },
+            type: 'SystemIcon',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'send',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the send button',
+            },
+            /* wwEditor:end */
+        },
+        sendIconColor: {
+            label: { en: 'Send Icon Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the send button icon',
+            },
+            /* wwEditor:end */
+        },
+        sendIconSize: {
+            label: { en: 'Send Icon Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '20px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Size of the send button icon',
+            },
+            /* wwEditor:end */
+        },
+        attachmentIcon: {
+            label: { en: 'Attachment Icon' },
+            type: 'SystemIcon',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'paperclip',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the attachment button',
+            },
+            /* wwEditor:end */
+        },
+        attachmentIconColor: {
+            label: { en: 'Attachment Icon Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the attachment button icon',
+            },
+            /* wwEditor:end */
+        },
+        attachmentIconSize: {
+            label: { en: 'Attachment Icon Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '20px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Size of the attachment button icon',
+            },
+            /* wwEditor:end */
+        },
+
         // ======== SETTINGS ========
 
         // User settings
@@ -593,6 +698,125 @@ export default {
             bindingValidation: {
                 type: 'array',
                 tooltip: 'Array of message objects for the chat history',
+            },
+            /* wwEditor:end */
+        },
+        messageDataTitle: {
+            type: 'Title',
+            label: { en: 'Message Data Mapping' },
+            section: 'settings',
+        },
+        mappingMessageId: {
+            label: { en: 'Message ID Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['id']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the message ID from your data structure. Will be executed for each message in the chat history.',
+            },
+            /* wwEditor:end */
+        },
+        mappingMessageText: {
+            label: { en: 'Message Text Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['text']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the message text from your data structure. Will be executed for each message in the chat history.',
+            },
+            /* wwEditor:end */
+        },
+        mappingSenderId: {
+            label: { en: 'Sender ID Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['senderId']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the sender ID from your data structure. Will be executed for each message in the chat history.',
+            },
+            /* wwEditor:end */
+        },
+        mappingUserName: {
+            label: { en: 'User Name Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['userName']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the user name from your data structure. Will be executed for each message in the chat history.',
+            },
+            /* wwEditor:end */
+        },
+        mappingTimestamp: {
+            label: { en: 'Timestamp Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['timestamp']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the timestamp from your data structure. Will be executed for each message in the chat history.',
+            },
+            /* wwEditor:end */
+        },
+        mappingAttachments: {
+            label: { en: 'Attachments Mapping' },
+            type: 'Formula',
+            options: content => ({
+                template:
+                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['attachments']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            propertyHelp: {
+                tooltip:
+                    'Formula to extract the attachments from your data structure. Will be executed for each message in the chat history.',
             },
             /* wwEditor:end */
         },

@@ -9,21 +9,7 @@
                 @change="handleAttachment"
                 :disabled="isDisabled"
             />
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <path
-                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
-                ></path>
-            </svg>
+            <span class="ww-chat-input-area__icon" v-html="attachmentIconHtml"></span>
         </label>
 
         <!-- Input field -->
@@ -47,26 +33,13 @@
             :disabled="!canSend || isDisabled"
             @click="sendMessage"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            >
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-            </svg>
+            <span class="ww-chat-input-area__icon" v-html="sendIconHtml"></span>
         </button>
     </div>
 </template>
 
 <script>
-import { ref, computed, watch, onMounted, inject } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, inject, watchEffect } from 'vue';
 
 export default {
     name: 'InputArea',
@@ -115,6 +88,31 @@ export default {
             type: String,
             default: 'Type a message...',
         },
+        // Icon properties
+        sendIcon: {
+            type: String,
+            default: 'send',
+        },
+        sendIconColor: {
+            type: String,
+            default: '#334155',
+        },
+        sendIconSize: {
+            type: String,
+            default: '20px',
+        },
+        attachmentIcon: {
+            type: String,
+            default: 'paperclip',
+        },
+        attachmentIconColor: {
+            type: String,
+            default: '#334155',
+        },
+        attachmentIconSize: {
+            type: String,
+            default: '20px',
+        },
     },
     emits: ['update:modelValue', 'send', 'attachment'],
     setup(props, { emit }) {
@@ -124,27 +122,141 @@ export default {
         );
         const textareaRef = ref(null);
         const inputValue = ref(props.modelValue);
+        const sendIconText = ref(null);
+        const attachmentIconText = ref(null);
+
+        // Get icon helper
+        const { getIcon } = wwLib.useIcons();
+
+        // Default icons as fallbacks
+        const defaultSendIcon = `<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>`;
+
+        const defaultAttachmentIcon = `<svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path
+                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            ></path>
+        </svg>`;
+
+        // Use watchEffect for reactive icon loading
+        watchEffect(async () => {
+            try {
+                if (props.sendIcon) {
+                    console.log('Loading send icon:', props.sendIcon);
+                    sendIconText.value = await getIcon(props.sendIcon);
+                    console.log('Send icon loaded:', !!sendIconText.value);
+                }
+            } catch (error) {
+                console.error('Failed to load send icon:', error);
+                sendIconText.value = null;
+            }
+        });
+
+        watchEffect(async () => {
+            try {
+                if (props.attachmentIcon) {
+                    console.log('Loading attachment icon:', props.attachmentIcon);
+                    attachmentIconText.value = await getIcon(props.attachmentIcon);
+                    console.log('Attachment icon loaded:', !!attachmentIconText.value);
+                }
+            } catch (error) {
+                console.error('Failed to load attachment icon:', error);
+                attachmentIconText.value = null;
+            }
+        });
+
+        // Computed icon HTML
+        const sendIconHtml = computed(() => {
+            return sendIconText.value || defaultSendIcon;
+        });
+
+        const attachmentIconHtml = computed(() => {
+            return attachmentIconText.value || defaultAttachmentIcon;
+        });
 
         // Update the main component with CSS variables
         onMounted(() => {
+            updateCssVariables();
+        });
+
+        // Function to update CSS variables
+        const updateCssVariables = () => {
             const root = document.querySelector('.ww-chat');
             if (root) {
                 root.style.setProperty('--ww-chat-input-min-height', props.inputMinHeight);
                 root.style.setProperty('--ww-chat-input-max-height', props.inputMaxHeight);
                 root.style.setProperty('--ww-chat-input-border-radius', props.inputBorderRadius);
+                root.style.setProperty('--ww-chat-send-icon-size', props.sendIconSize);
+                root.style.setProperty('--ww-chat-send-icon-color', props.sendIconColor);
+                root.style.setProperty('--ww-chat-attachment-icon-size', props.attachmentIconSize);
+                root.style.setProperty('--ww-chat-attachment-icon-color', props.attachmentIconColor);
             }
-        });
+        };
 
-        // Update CSS variables when props change
+        // Watch for style property changes
         watch(
-            [() => props.inputMinHeight, () => props.inputMaxHeight, () => props.inputBorderRadius],
-            ([minHeight, maxHeight, borderRadius]) => {
-                const root = document.querySelector('.ww-chat');
-                if (root) {
-                    root.style.setProperty('--ww-chat-input-min-height', minHeight);
-                    root.style.setProperty('--ww-chat-input-max-height', maxHeight);
-                    root.style.setProperty('--ww-chat-input-border-radius', borderRadius);
-                }
+            [
+                () => props.inputMinHeight,
+                () => props.inputMaxHeight,
+                () => props.inputBorderRadius,
+                () => props.sendIconSize,
+                () => props.sendIconColor,
+                () => props.attachmentIconSize,
+                () => props.attachmentIconColor,
+            ],
+            () => {
+                updateCssVariables();
+            }
+        );
+
+        // Add debugging watches to track prop changes
+        watch(
+            () => props.sendIcon,
+            (newValue, oldValue) => {
+                console.log('sendIcon prop changed:', oldValue, '->', newValue);
+            }
+        );
+
+        watch(
+            () => props.attachmentIcon,
+            (newValue, oldValue) => {
+                console.log('attachmentIcon prop changed:', oldValue, '->', newValue);
+            }
+        );
+
+        watch(
+            () => props.sendIconColor,
+            (newValue, oldValue) => {
+                console.log('sendIconColor prop changed:', oldValue, '->', newValue);
+            }
+        );
+
+        watch(
+            () => props.attachmentIconColor,
+            (newValue, oldValue) => {
+                console.log('attachmentIconColor prop changed:', oldValue, '->', newValue);
             }
         );
 
@@ -220,6 +332,8 @@ export default {
             textareaRef,
             inputValue,
             canSend,
+            sendIconHtml,
+            attachmentIconHtml,
             inputAreaStyles: computed(() => ({
                 borderTop: props.inputBorder,
             })),
@@ -263,7 +377,7 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        color: var(--ww-chat-input-text, #334155);
+        color: var(--ww-chat-attachment-icon-color, #334155);
 
         &:hover {
             background-color: rgba(0, 0, 0, 0.05);
@@ -276,6 +390,19 @@ export default {
         height: 0;
         opacity: 0;
         pointer-events: none;
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--ww-chat-attachment-icon-size, 20px);
+        height: var(--ww-chat-attachment-icon-size, 20px);
+
+        :deep(svg) {
+            width: 100%;
+            height: 100%;
+        }
     }
 
     &__input-container {
@@ -324,7 +451,12 @@ export default {
         cursor: pointer;
         transition: background-color 0.2s;
         flex-shrink: 0;
-        color: var(--ww-chat-input-text, #334155);
+        color: var(--ww-chat-send-icon-color, #334155);
+
+        .ww-chat-input-area__icon {
+            width: var(--ww-chat-send-icon-size, 20px);
+            height: var(--ww-chat-send-icon-size, 20px);
+        }
 
         &:hover:not(:disabled) {
             background-color: rgba(0, 0, 0, 0.05);

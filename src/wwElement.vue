@@ -40,6 +40,12 @@
             :input-min-height="inputMinHeight"
             :input-border-radius="inputBorderRadius"
             :placeholder="inputPlaceholder"
+            :send-icon="sendIcon"
+            :send-icon-color="sendIconColor"
+            :send-icon-size="sendIconSize"
+            :attachment-icon="attachmentIcon"
+            :attachment-icon-color="attachmentIconColor"
+            :attachment-icon-size="attachmentIconSize"
             @send="sendMessage"
             @attachment="handleAttachment"
         />
@@ -96,6 +102,15 @@ export default {
             defaultValue: [],
         });
 
+        // Formula resolver for mapping fields
+        const { resolveMappingFormula } = wwLib.wwFormula.useFormula();
+
+        // Function to resolve mapping for each message
+        const resolveMapping = (message, mappingFormula, defaultProp) => {
+            if (!mappingFormula) return message[defaultProp];
+            return resolveMappingFormula(mappingFormula, message);
+        };
+
         // Editor state
         const isEditing = computed(() => {
             /* wwEditor:start */
@@ -107,7 +122,25 @@ export default {
 
         // Computed properties from content
         const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
-        const messages = computed(() => props.content?.chatHistory || chatHistory.value || []);
+        const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
+
+        // Apply mappings to messages
+        const messages = computed(() => {
+            return rawMessages.value.map(message => {
+                return {
+                    id: resolveMapping(message, props.content?.mappingMessageId, 'id') || `msg-${uuidv4()}`,
+                    text: resolveMapping(message, props.content?.mappingMessageText, 'text') || '',
+                    senderId: resolveMapping(message, props.content?.mappingSenderId, 'senderId') || '',
+                    userName: resolveMapping(message, props.content?.mappingUserName, 'userName') || '',
+                    timestamp:
+                        resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') ||
+                        new Date().toISOString(),
+                    attachments: resolveMapping(message, props.content?.mappingAttachments, 'attachments'),
+                    _originalData: message, // Keep the original data for reference
+                };
+            });
+        });
+
         const isDisabled = computed(() => props.content?.disabled || false);
         const displayHeader = computed(() => props.content?.displayHeader !== false);
         const allowAttachments = computed(() => props.content?.allowAttachments || false);
@@ -264,6 +297,7 @@ export default {
             const attachments = [...pendingAttachments.value];
             pendingAttachments.value = [];
 
+            // Create a new message object with all the standard fields
             const message = {
                 id: `msg-${uuidv4()}`,
                 text: newMessage.value.trim(),
@@ -331,23 +365,28 @@ export default {
             if (isEditing.value) return;
 
             // Ensure required fields
-            const newMessage = {
+            // We'll add the new message directly to the chat history array
+            // This way it will naturally flow through our mapping system
+            const newMessageRaw = {
+                // Set default values for standard fields that may be used by default mappings
                 id: message.id || `msg-${uuidv4()}`,
                 text: message.text || '',
                 senderId: message.senderId || '',
                 userName: message.userName || '',
                 timestamp: message.timestamp || new Date().toISOString(),
                 attachments: message.attachments,
+                // If there are any additional fields in the message object, they'll be preserved
+                ...message,
             };
 
             // Update chat history
-            const updatedHistory = [...chatHistory.value, newMessage];
+            const updatedHistory = [...chatHistory.value, newMessageRaw];
             setChatHistory(updatedHistory);
 
             // Scroll to bottom
             scrollToBottom();
 
-            return newMessage;
+            return newMessageRaw;
         };
 
         // Clear all messages
@@ -393,6 +432,14 @@ export default {
             inputMaxHeight,
             inputMinHeight,
             inputBorderRadius,
+
+            // Icons
+            sendIcon: computed(() => props.content?.sendIcon || 'send'),
+            sendIconColor: computed(() => props.content?.sendIconColor || '#334155'),
+            sendIconSize: computed(() => props.content?.sendIconSize || '20px'),
+            attachmentIcon: computed(() => props.content?.attachmentIcon || 'paperclip'),
+            attachmentIconColor: computed(() => props.content?.attachmentIconColor || '#334155'),
+            attachmentIconSize: computed(() => props.content?.attachmentIconSize || '20px'),
 
             // Methods
             scrollToBottom,

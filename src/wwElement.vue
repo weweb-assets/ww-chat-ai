@@ -724,20 +724,16 @@ export default {
     --ww-chat-input-min-height: v-bind('inputMinHeight');
     --ww-chat-input-border-radius: v-bind('inputBorderRadius');
 
-    /* Add new CSS variable for messages padding */
     --ww-chat-messages-padding: v-bind('messagesAreaPadding');
 
-    /* Add new CSS variable for messages container height */
     --ww-chat-messages-height: v-bind('messagesAreaHeight');
 
-    /* Main container layout */
     display: flex;
     flex-direction: column;
-    height: 100%; /* Take full height of parent */
-    min-height: 300px; /* Minimum height to ensure usability */
-    overflow: hidden; /* Hide overflow to prevent scrollbar on the entire container */
+    height: 100%;
+    min-height: 300px;
+    overflow: hidden;
 
-    /* Container styling */
     background-color: var(--ww-chat-bg-color);
     border: var(--ww-chat-border);
     border-radius: var(--ww-chat-border-radius);
@@ -749,31 +745,26 @@ export default {
         pointer-events: none;
     }
 
-    /* Make sure ChatHeader component doesn't shrink */
     .ww-chat-header {
-        flex-shrink: 0; /* Prevent header from shrinking */
-        z-index: 2; /* Ensure header stays above scrolling content */
+        flex-shrink: 0;
+        z-index: 2;
     }
 
-    /* Messages area - scrollable and takes remaining space */
     &__messages {
-        flex: v-bind(
-            "messagesAreaHeight === 'auto' ? '1' : '0 0 auto'"
-        ); /* Adjust flex behavior based on height setting */
-        min-height: 100px; /* Minimum height to ensure it doesn't collapse */
+        flex: v-bind("messagesAreaHeight === 'auto' ? '1' : '0 0 auto'");
+        min-height: 100px;
         height: var(--ww-chat-messages-height);
-        overflow-y: auto; /* Add vertical scrollbar when needed */
-        scroll-behavior: smooth; /* Smooth scrolling behavior */
+        overflow-y: auto;
+        scroll-behavior: smooth;
         padding: var(--ww-chat-messages-padding);
         background-color: var(--ww-chat-messages-bg);
-        position: relative; /* For proper stacking context */
+        position: relative;
         z-index: 1;
     }
 
-    /* Make sure InputArea component doesn't shrink */
     .ww-chat-input-area {
-        flex-shrink: 0; /* Prevent input area from shrinking */
-        z-index: 2; /* Ensure input stays above scrolling content */
+        flex-shrink: 0;
+        z-index: 2;
     }
 }
 </style>

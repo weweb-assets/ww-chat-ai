@@ -19,6 +19,28 @@ Container Properties:
 -   `containerShadow`: `string` - Box shadow of the chat container. Default: `0 2px 8px rgba(0, 0, 0, 0.05)`
 -   `fontFamily`: `string` - Font family used throughout the chat. Default: `inherit`
 
+Localization Properties:
+
+-   `locale`: `string` - Locale code for date/time formatting. Supports over 40 languages and regional variants including:
+    -   English (US, UK, Canada, Australia, New Zealand, Ireland, India, South Africa)
+    -   French (France, Canada, Switzerland)
+    -   German (Germany, Austria)
+    -   Spanish
+    -   Italian (Italy, Switzerland)
+    -   Portuguese (Portugal, Brazil)
+    -   Russian
+    -   Japanese (including Hiragana)
+    -   Chinese (Simplified, Hong Kong, Taiwan)
+    -   Korean
+    -   Arabic (multiple variants)
+    -   Hindi, Bengali
+    -   And many more European and Asian languages.
+        Default: `enUS`
+-   `timeFormat`: `string` - Format for time display using date-fns format pattern. Default: `h:mm a`
+-   `todayText`: `string` - Text to display for today's date. Default: `Today`
+-   `yesterdayText`: `string` - Text to display for yesterday's date. Default: `Yesterday`
+-   `justNowText`: `string` - Text to display for very recent messages. Default: `just now`
+
 Header Style Properties:
 
 -   `headerBgColor`: `string` - Background color of the chat header. Default: `#ffffff`

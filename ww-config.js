@@ -72,6 +72,9 @@ export default {
                 'attachmentIcon',
                 'attachmentIconColor',
                 'attachmentIconSize',
+                'removeIcon',
+                'removeIconColor',
+                'removeIconSize',
             ],
         ],
         customSettingsPropertiesOrder: [
@@ -87,6 +90,8 @@ export default {
                 'inputPlaceholder',
                 'disabled',
             ],
+            // Localization settings
+            ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
             // Chat data
             ['chatDataTitle', 'chatHistory'],
             // Message data mapping
@@ -832,6 +837,45 @@ export default {
             },
             /* wwEditor:end */
         },
+        removeIcon: {
+            label: { en: 'Remove Attachment Icon' },
+            type: 'SystemIcon',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'x',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the remove attachment button',
+            },
+            /* wwEditor:end */
+        },
+        removeIconColor: {
+            label: { en: 'Remove Icon Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the remove attachment button icon',
+            },
+            /* wwEditor:end */
+        },
+        removeIconSize: {
+            label: { en: 'Remove Icon Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '16px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Size of the remove attachment button icon',
+            },
+            /* wwEditor:end */
+        },
 
         // ======== SETTINGS ========
 
@@ -852,6 +896,10 @@ export default {
                 type: 'string',
                 tooltip: 'Name to display for the current user',
             },
+            propertyHelp: {
+                tooltip:
+                    'The display name for the current user that will appear on their messages and potentially in the header.\n\n**Examples**: John Doe, Customer Service, Support Agent',
+            },
             /* wwEditor:end */
         },
         userAvatar: {
@@ -865,6 +913,10 @@ export default {
                 type: 'string',
                 tooltip: 'URL of the user avatar image (initials will be used if empty)',
             },
+            propertyHelp: {
+                tooltip:
+                    "URL to the image that will be displayed as the user's avatar. If left empty, the user's initials will be displayed instead.\n\n**Example**: https://example.com/avatars/user.jpg",
+            },
             /* wwEditor:end */
         },
         userLocation: {
@@ -877,6 +929,10 @@ export default {
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Location to display under the user name (optional)',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Optional information to display under the user's name in the header, such as their location or status.\n\n**Examples**: New York USA, Online, Available until 5 PM",
             },
             /* wwEditor:end */
         },
@@ -900,6 +956,10 @@ export default {
                 enum: ['online', 'offline', 'away', 'busy'],
                 tooltip: 'Current status of the user',
             },
+            propertyHelp: {
+                tooltip:
+                    'The current availability status of the user, displayed as a colored indicator in the chat header.\n\nEach status has a specific color: online (green), offline (gray), away (yellow), busy (red).',
+            },
             /* wwEditor:end */
         },
         currentUserId: {
@@ -912,6 +972,10 @@ export default {
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Unique identifier for the current user (used to identify your messages)',
+            },
+            propertyHelp: {
+                tooltip:
+                    'A unique ID that identifies the current user. This is used to determine which messages belong to the user versus other participants.\n\nThe component uses this ID to style messages differently depending on whether they are sent by the current user or others.\n\n**Examples**: user-123, customer-456, agent-789',
             },
             /* wwEditor:end */
         },
@@ -933,6 +997,10 @@ export default {
                 type: 'boolean',
                 tooltip: 'Whether to display the chat header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Determines whether the chat header with user information is visible or hidden.\n\nThe header displays user details such as name, avatar, status, and location. Turn this off for a more compact chat interface.',
+            },
             /* wwEditor:end */
         },
         showSelfInHeader: {
@@ -945,6 +1013,10 @@ export default {
             bindingValidation: {
                 type: 'boolean',
                 tooltip: 'If enabled, shows the current user in the header instead of the chat partner',
+            },
+            propertyHelp: {
+                tooltip:
+                    "When enabled, the header will display the current user's information instead of the chat partner.\n\nBy default, the header shows the person you are chatting with. Enable this option to show your own profile in the header instead.",
             },
             /* wwEditor:end */
         },
@@ -959,6 +1031,10 @@ export default {
                 type: 'string',
                 tooltip: 'Template for group chat header text. Use {count} as placeholder for number of participants.',
             },
+            propertyHelp: {
+                tooltip:
+                    'The text displayed in the header when there are multiple chat participants.\n\nUse {count} as a placeholder which will be replaced with the actual number of participants in the conversation.\n\n**Examples**: Group Conversation ({count}), Chat Room - {count} people, Team Discussion',
+            },
             /* wwEditor:end */
         },
         allowAttachments: {
@@ -971,6 +1047,10 @@ export default {
             bindingValidation: {
                 type: 'boolean',
                 tooltip: 'Whether to allow file attachments',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Enables the attachment button in the chat input, allowing users to send files and images.\n\nWhen enabled, an attachment button appears next to the input field. Images will be displayed with thumbnails, and other files will show appropriate icons.',
             },
             /* wwEditor:end */
         },
@@ -985,6 +1065,10 @@ export default {
                 type: 'string',
                 tooltip: 'Placeholder text for the message input',
             },
+            propertyHelp: {
+                tooltip:
+                    'The placeholder text shown in the empty message input field.\n\n**Examples**: Type a message..., Send a reply..., Write something...',
+            },
             /* wwEditor:end */
         },
         disabled: {
@@ -997,6 +1081,181 @@ export default {
             bindingValidation: {
                 type: 'boolean',
                 tooltip: 'Whether the chat component is disabled',
+            },
+            propertyHelp: {
+                tooltip:
+                    'When enabled, the entire chat component becomes inactive and users cannot send messages.\n\nUse this setting to temporarily disable chat functionality while maintaining the UI. The component will appear faded when disabled.',
+            },
+            /* wwEditor:end */
+        },
+
+        // Localization settings
+        localizationTitle: {
+            type: 'Title',
+            label: { en: 'Localization' },
+            section: 'settings',
+        },
+        locale: {
+            label: { en: 'Locale' },
+            type: 'TextSelect',
+            options: {
+                options: [
+                    // English variants
+                    { value: 'enUS', label: { en: 'English (US)' } },
+                    { value: 'enGB', label: { en: 'English (UK)' } },
+                    { value: 'enCA', label: { en: 'English (Canada)' } },
+                    { value: 'enAU', label: { en: 'English (Australia)' } },
+                    { value: 'enNZ', label: { en: 'English (New Zealand)' } },
+                    { value: 'enIE', label: { en: 'English (Ireland)' } },
+                    { value: 'enIN', label: { en: 'English (India)' } },
+                    { value: 'enZA', label: { en: 'English (South Africa)' } },
+
+                    // French variants
+                    { value: 'fr', label: { en: 'French (France)' } },
+                    { value: 'frCA', label: { en: 'French (Canada)' } },
+                    { value: 'frCH', label: { en: 'French (Switzerland)' } },
+
+                    // German variants
+                    { value: 'de', label: { en: 'German (Germany)' } },
+                    { value: 'deAT', label: { en: 'German (Austria)' } },
+
+                    // Spanish
+                    { value: 'es', label: { en: 'Spanish' } },
+
+                    // Italian variants
+                    { value: 'it', label: { en: 'Italian (Italy)' } },
+                    { value: 'itCH', label: { en: 'Italian (Switzerland)' } },
+
+                    // Portuguese variants
+                    { value: 'pt', label: { en: 'Portuguese (Portugal)' } },
+                    { value: 'ptBR', label: { en: 'Portuguese (Brazil)' } },
+
+                    { value: 'ru', label: { en: 'Russian' } },
+
+                    // East Asian languages
+                    { value: 'ja', label: { en: 'Japanese' } },
+                    { value: 'jaHira', label: { en: 'Japanese (Hiragana)' } },
+                    { value: 'zh', label: { en: 'Chinese (Simplified)' } },
+                    { value: 'zhHK', label: { en: 'Chinese (Hong Kong)' } },
+                    { value: 'zhTW', label: { en: 'Chinese (Taiwan)' } },
+                    { value: 'ko', label: { en: 'Korean' } },
+
+                    // Arabic variants
+                    { value: 'ar', label: { en: 'Arabic' } },
+                    { value: 'arDZ', label: { en: 'Arabic (Algeria)' } },
+                    { value: 'arEG', label: { en: 'Arabic (Egypt)' } },
+                    { value: 'arMA', label: { en: 'Arabic (Morocco)' } },
+                    { value: 'arSA', label: { en: 'Arabic (Saudi Arabia)' } },
+                    { value: 'arTN', label: { en: 'Arabic (Tunisia)' } },
+
+                    // Indian subcontinent languages
+                    { value: 'hi', label: { en: 'Hindi (India)' } },
+                    { value: 'bn', label: { en: 'Bengali' } },
+
+                    // Other European languages
+                    { value: 'nl', label: { en: 'Dutch (Netherlands)' } },
+                    { value: 'nlBE', label: { en: 'Dutch (Belgium)' } },
+                    { value: 'sv', label: { en: 'Swedish' } },
+                    { value: 'nb', label: { en: 'Norwegian (Bokmål)' } },
+                    { value: 'nn', label: { en: 'Norwegian (Nynorsk)' } },
+                    { value: 'da', label: { en: 'Danish' } },
+                    { value: 'fi', label: { en: 'Finnish' } },
+                    { value: 'el', label: { en: 'Greek' } },
+                    { value: 'tr', label: { en: 'Turkish' } },
+                    { value: 'cs', label: { en: 'Czech' } },
+                    { value: 'pl', label: { en: 'Polish' } },
+                    { value: 'ro', label: { en: 'Romanian' } },
+                    { value: 'hu', label: { en: 'Hungarian' } },
+
+                    // Southeast Asian languages
+                    { value: 'vi', label: { en: 'Vietnamese' } },
+                    { value: 'th', label: { en: 'Thai' } },
+                    { value: 'id', label: { en: 'Indonesian' } },
+                    { value: 'ms', label: { en: 'Malay' } },
+
+                    // Other languages
+                    { value: 'uk', label: { en: 'Ukrainian' } },
+                ],
+            },
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'enUS',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Locale code for date/time formatting',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Sets the language and regional format for displaying dates and times in the chat.\n\nThis affects how dates, times, and relative time expressions (like "2 hours ago") are formatted according to regional standards.\n\n**Examples**:\n- enUS - "Today at 3:45 PM"\n- fr - "Aujourd\'hui à 15:45"\n- ptBR - "Hoje às 15:45"',
+            },
+            /* wwEditor:end */
+        },
+        timeFormat: {
+            label: { en: 'Time Format' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'h:mm a',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Format for time display using date-fns format pattern',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Determines how time is displayed in the chat using date-fns format patterns.\n\nUses date-fns formatting tokens: h (hours 1-12), H (hours 0-23), mm (minutes), a (am/pm), etc.\n\n**Examples**:\n- h:mm a - "3:45 pm"\n- HH:mm - "15:45"\n- h:mm:ss a - "3:45:30 pm"\n\nSee [date-fns format documentation](https://date-fns.org/docs/format) for all pattern options.',
+            },
+            /* wwEditor:end */
+        },
+        todayText: {
+            label: { en: 'Today Text' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'Today',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: "Text to display for today's date",
+            },
+            propertyHelp: {
+                tooltip:
+                    "The text displayed for today's date in the date separator.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: Today, Aujourd'hui, Hoje, 今日",
+            },
+            /* wwEditor:end */
+        },
+        yesterdayText: {
+            label: { en: 'Yesterday Text' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'Yesterday',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: "Text to display for yesterday's date",
+            },
+            propertyHelp: {
+                tooltip:
+                    "The text displayed for yesterday's date in the date separator.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: Yesterday, Hier, Ontem, 昨日",
+            },
+            /* wwEditor:end */
+        },
+        justNowText: {
+            label: { en: 'Just Now Text' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'just now',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Text to display for very recent messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "The text displayed for messages that were sent within the last minute.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: just now, à l'instant, agora mesmo, 今すぐ",
             },
             /* wwEditor:end */
         },
@@ -1087,6 +1346,10 @@ export default {
                 type: 'array',
                 tooltip: 'Array of message objects for the chat history',
             },
+            propertyHelp: {
+                tooltip:
+                    'An array of message objects that represent the conversation history.\n\nEach message should include id, text, senderId, userName, and timestamp properties. Optionally can include attachments.\n\n**Example**: \n```json\n[{ \n  "id": "msg-1", \n  "text": "Hello!", \n  "senderId": "user-1", \n  "userName": "John", \n  "timestamp": "2023-06-01T10:30:00Z" \n}]\n```',
+            },
             /* wwEditor:end */
         },
         messageDataTitle: {
@@ -1109,7 +1372,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the message ID from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the message ID from your data structure.\n\nThis formula is executed for each message in the chat history to determine its unique identifier.\n\n**Examples**:\n- `context.mapping?.["id"]`\n- `context.mapping?.["messageId"]`\n- `"msg-" + context.mapping?.["index"]`',
             },
             /* wwEditor:end */
         },
@@ -1128,7 +1391,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the message text from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the message text content from your data structure.\n\nThis formula is executed for each message in the chat history to get the text that will be displayed.\n\n**Examples**:\n- `context.mapping?.["text"]`\n- `context.mapping?.["content"]`\n- `context.mapping?.["message"]`',
             },
             /* wwEditor:end */
         },
@@ -1147,7 +1410,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the sender ID from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the sender ID from your data structure.\n\nThis formula is executed for each message to determine who sent it. This is compared with the currentUserId to style messages differently.\n\n**Examples**:\n- `context.mapping?.["senderId"]`\n- `context.mapping?.["userId"]`\n- `context.mapping?.["from"]`',
             },
             /* wwEditor:end */
         },
@@ -1166,7 +1429,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the user name from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the user display name from your data structure.\n\nThis formula is executed for each message to get the display name of the sender shown above their messages.\n\n**Examples**:\n- `context.mapping?.["userName"]`\n- `context.mapping?.["senderName"]`\n- `context.mapping?.["from_name"]`',
             },
             /* wwEditor:end */
         },
@@ -1185,7 +1448,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the timestamp from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the timestamp from your data structure.\n\nThis formula is executed for each message to get the time when it was sent. Should return an ISO date string or Date object.\n\n**Examples**:\n- `context.mapping?.["timestamp"]`\n- `context.mapping?.["sentAt"]`\n- `context.mapping?.["date"]`',
             },
             /* wwEditor:end */
         },
@@ -1204,7 +1467,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the attachments from your data structure. Will be executed for each message in the chat history.',
+                    'Formula to extract the attachments array from your data structure.\n\nThis formula should return an array of attachment objects, each with id, name, type, size, and url properties.\n\n**Examples**:\n- `context.mapping?.["attachments"]`\n- `context.mapping?.["files"]`\n- `context.mapping?.["media"]`',
             },
             /* wwEditor:end */
         },

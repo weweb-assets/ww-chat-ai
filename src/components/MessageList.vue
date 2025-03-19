@@ -111,6 +111,11 @@ export default {
             computed(() => false)
         );
 
+        const dateTimeOptions = inject(
+            'dateTimeOptions',
+            computed(() => ({}))
+        );
+
         const emptyMessageStyle = computed(() => ({
             color: props.emptyMessageColor,
         }));
@@ -137,7 +142,7 @@ export default {
                     currentDate = messageDate;
                     result.push({
                         type: 'date-separator',
-                        date: formatDate(message.timestamp),
+                        date: formatDate(message.timestamp, dateTimeOptions.value),
                         key: `date-${messageDate}`,
                     });
                 }
@@ -205,6 +210,7 @@ export default {
             handleRightClick,
             emptyMessageStyle,
             dateSeparatorStyle,
+            dateTimeOptions,
         };
     },
 };

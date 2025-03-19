@@ -1,50 +1,44 @@
-export function formatDate(timestamp) {
+import { format, formatRelative, isToday, isYesterday, differenceInCalendarDays, formatDistanceToNow } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+
+export function formatDate(timestamp, options = {}) {
     if (!timestamp) return '';
 
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    const locale = options.locale || enUS;
 
     if (isNaN(date.getTime())) return '';
 
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    if (isSameDay(date, today)) {
-        return 'Today';
+    if (isToday(date)) {
+        return options.todayText || 'Today';
     }
 
-    if (isSameDay(date, yesterday)) {
-        return 'Yesterday';
+    if (isYesterday(date)) {
+        return options.yesterdayText || 'Yesterday';
     }
 
-    const daysDiff = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+    const daysDiff = differenceInCalendarDays(new Date(), date);
+
     if (daysDiff < 7) {
-        return date.toLocaleDateString(undefined, { weekday: 'long' });
+        return formatRelative(date, new Date(), { locale });
     }
 
-    if (date.getFullYear() === today.getFullYear()) {
-        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    if (date.getFullYear() === new Date().getFullYear()) {
+        return format(date, 'MMM d', { locale });
     }
 
-    return date.toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+    return format(date, 'MMM d, yyyy', { locale });
 }
 
-export function formatTime(timestamp) {
+export function formatTime(timestamp, options = {}) {
     if (!timestamp) return '';
 
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    const locale = options.locale || enUS;
 
     if (isNaN(date.getTime())) return '';
 
-    return date.toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-    });
+    return format(date, options.timeFormat || 'h:mm a', { locale });
 }
 
 function isSameDay(date1, date2) {
@@ -55,10 +49,11 @@ function isSameDay(date1, date2) {
     );
 }
 
-export function formatRelativeTime(timestamp) {
+export function formatRelativeTime(timestamp, options = {}) {
     if (!timestamp) return '';
 
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    const locale = options.locale || enUS;
 
     if (isNaN(date.getTime())) return '';
 
@@ -66,23 +61,20 @@ export function formatRelativeTime(timestamp) {
     const secondsDiff = Math.floor((now - date) / 1000);
 
     if (secondsDiff < 60) {
-        return 'just now';
+        return options.justNowText || 'just now';
     }
 
     if (secondsDiff < 3600) {
-        const minutes = Math.floor(secondsDiff / 60);
-        return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+        return formatDistanceToNow(date, { addSuffix: true, locale });
     }
 
     if (secondsDiff < 86400) {
-        const hours = Math.floor(secondsDiff / 3600);
-        return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+        return formatDistanceToNow(date, { addSuffix: true, locale });
     }
 
     if (secondsDiff < 604800) {
-        const days = Math.floor(secondsDiff / 86400);
-        return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+        return formatDistanceToNow(date, { addSuffix: true, locale });
     }
 
-    return formatDate(date);
+    return formatDate(date, options);
 }

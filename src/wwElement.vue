@@ -49,6 +49,7 @@
             v-model="newMessage"
             :is-disabled="isDisabled"
             :allow-attachments="allowAttachments"
+            :pending-attachments="pendingAttachments"
             :input-bg-color="inputBgColor"
             :input-text-color="inputTextColor"
             :input-placeholder-color="inputPlaceholderColor"
@@ -63,8 +64,12 @@
             :attachment-icon="attachmentIcon"
             :attachment-icon-color="attachmentIconColor"
             :attachment-icon-size="attachmentIconSize"
+            :remove-icon="removeIcon"
+            :remove-icon-color="removeIconColor"
+            :remove-icon-size="removeIconSize"
             @send="sendMessage"
             @attachment="handleAttachment"
+            @remove-attachment="handleRemoveAttachment"
         />
     </div>
 </template>
@@ -74,6 +79,61 @@ import { ref, computed, watch, nextTick, provide, onMounted } from 'vue';
 import ChatHeader from './components/ChatHeader.vue';
 import MessageList from './components/MessageList.vue';
 import InputArea from './components/InputArea.vue';
+
+// Import date-fns locales explicitly
+import {
+    enUS,
+    enGB,
+    enCA,
+    enAU,
+    enNZ,
+    enIE,
+    enIN,
+    enZA,
+    fr,
+    frCA,
+    frCH,
+    de,
+    deAT,
+    es,
+    it,
+    itCH,
+    pt,
+    ptBR,
+    ru,
+    ja,
+    jaHira,
+    zhCN as zh,
+    zhHK,
+    zhTW,
+    ko,
+    ar,
+    arDZ,
+    arEG,
+    arMA,
+    arSA,
+    arTN,
+    hi,
+    bn,
+    nl,
+    nlBE,
+    sv,
+    nb,
+    nn,
+    da,
+    fi,
+    el,
+    tr,
+    cs,
+    pl,
+    ro,
+    hu,
+    vi,
+    th,
+    id,
+    ms,
+    uk,
+} from 'date-fns/locale';
 
 export default {
     name: 'Chat',
@@ -292,6 +352,17 @@ export default {
             pendingAttachments.value = [...pendingAttachments.value, ...attachmentFiles];
         };
 
+        const handleRemoveAttachment = index => {
+            if (isEditing.value || isDisabled.value) return;
+
+            // Release the object URL to avoid memory leaks
+            if (pendingAttachments.value[index]?.url) {
+                URL.revokeObjectURL(pendingAttachments.value[index].url);
+            }
+
+            pendingAttachments.value.splice(index, 1);
+        };
+
         const handleAttachmentClick = attachment => {
             if (isEditing.value) return;
 
@@ -346,6 +417,90 @@ export default {
 
             return newMessageRaw;
         };
+
+        // Date/time locale configuration
+        const locale = computed(() => {
+            if (!props.content?.locale) return enUS;
+
+            const locales = {
+                // English variants
+                enUS,
+                enGB,
+                enCA,
+                enAU,
+                enNZ,
+                enIE,
+                enIN,
+                enZA,
+                // French variants
+                fr,
+                frCA,
+                frCH,
+                // German variants
+                de,
+                deAT,
+                // Spanish
+                es,
+                // Italian variants
+                it,
+                itCH,
+                // Portuguese variants
+                pt,
+                ptBR,
+                // Russian
+                ru,
+                // East Asian languages
+                ja,
+                jaHira,
+                zh,
+                zhHK,
+                zhTW,
+                ko,
+                // Arabic variants
+                ar,
+                arDZ,
+                arEG,
+                arMA,
+                arSA,
+                arTN,
+                // Indian subcontinent languages
+                hi,
+                bn,
+                // Other European
+                nl,
+                nlBE,
+                sv,
+                nb,
+                nn,
+                da,
+                fi,
+                el,
+                tr,
+                cs,
+                pl,
+                ro,
+                hu,
+                // Southeast Asian
+                vi,
+                th,
+                id,
+                ms,
+                // Other
+                uk,
+            };
+
+            return locales[props.content.locale] || enUS;
+        });
+
+        const dateTimeOptions = computed(() => ({
+            locale: locale.value,
+            timeFormat: props.content?.timeFormat,
+            todayText: props.content?.todayText,
+            yesterdayText: props.content?.yesterdayText,
+            justNowText: props.content?.justNowText,
+        }));
+
+        provide('dateTimeOptions', dateTimeOptions);
 
         const clearMessages = () => {
             if (isEditing.value) return;
@@ -494,11 +649,15 @@ export default {
             attachmentIcon: computed(() => props.content?.attachmentIcon || 'paperclip'),
             attachmentIconColor: computed(() => props.content?.attachmentIconColor || '#334155'),
             attachmentIconSize: computed(() => props.content?.attachmentIconSize || '20px'),
+            removeIcon: computed(() => props.content?.removeIcon || 'x'),
+            removeIconColor: computed(() => props.content?.removeIconColor || '#f43f5e'),
+            removeIconSize: computed(() => props.content?.removeIconSize || '12px'),
 
             // Methods
             scrollToBottom,
             sendMessage,
             handleAttachment,
+            handleRemoveAttachment,
             handleAttachmentClick,
             handleMessageRightClick,
             handleClose,

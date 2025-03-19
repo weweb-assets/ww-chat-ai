@@ -70,7 +70,7 @@
 
             <!-- Message timestamp -->
             <div class="ww-message-item__time">
-                {{ formatTime(message.timestamp) }}
+                {{ formatMessageTime(message.timestamp) }}
             </div>
         </div>
     </div>
@@ -131,6 +131,11 @@ export default {
             computed(() => false)
         );
 
+        const dateTimeOptions = inject(
+            'dateTimeOptions',
+            computed(() => ({}))
+        );
+
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
                 return {
@@ -160,6 +165,10 @@ export default {
             return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
         };
 
+        const formatMessageTime = timestamp => {
+            return formatTime(timestamp, dateTimeOptions.value);
+        };
+
         const handleAttachmentClick = attachment => {
             if (isEditing.value) return;
             emit('attachment-click', attachment);
@@ -176,7 +185,7 @@ export default {
             messageStyles,
             isImageFile,
             formatFileSize,
-            formatTime,
+            formatMessageTime,
             handleAttachmentClick,
             handleRightClick,
         };

@@ -80,7 +80,6 @@ import ChatHeader from './components/ChatHeader.vue';
 import MessageList from './components/MessageList.vue';
 import InputArea from './components/InputArea.vue';
 
-// Import date-fns locales explicitly
 import {
     enUS,
     enGB,

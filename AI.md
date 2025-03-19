@@ -19,30 +19,9 @@ Container Properties:
 -   `containerShadow`: `string` - Box shadow of the chat container. Default: `0 2px 8px rgba(0, 0, 0, 0.05)`
 -   `fontFamily`: `string` - Font family used throughout the chat. Default: `inherit`
 
-Localization Properties:
-
--   `locale`: `string` - Locale code for date/time formatting. Supports over 40 languages and regional variants including:
-    -   English (US, UK, Canada, Australia, New Zealand, Ireland, India, South Africa)
-    -   French (France, Canada, Switzerland)
-    -   German (Germany, Austria)
-    -   Spanish
-    -   Italian (Italy, Switzerland)
-    -   Portuguese (Portugal, Brazil)
-    -   Russian
-    -   Japanese (including Hiragana)
-    -   Chinese (Simplified, Hong Kong, Taiwan)
-    -   Korean
-    -   Arabic (multiple variants)
-    -   Hindi, Bengali
-    -   And many more European and Asian languages.
-        Default: `enUS`
--   `timeFormat`: `string` - Format for time display using date-fns format pattern. Default: `h:mm a`
--   `todayText`: `string` - Text to display for today's date. Default: `Today`
--   `yesterdayText`: `string` - Text to display for yesterday's date. Default: `Yesterday`
--   `justNowText`: `string` - Text to display for very recent messages. Default: `just now`
-
 Header Style Properties:
 
+-   `displayHeader`: `boolean` - Whether to display the chat header. Default: `true`
 -   `headerBgColor`: `string` - Background color of the chat header. Default: `#ffffff`
 -   `headerTextColor`: `string` - Text color in the chat header. Default: `#1e293b`
 -   `headerBorder`: `string` - Border of the chat header. Default: `1px solid #e2e8f0`
@@ -54,7 +33,6 @@ Header Style Properties:
 -   `headerLocationOpacity`: `number` - Opacity of the location text in header. Default: `0.7`
 -   `headerCloseButtonColor`: `string` - Color of the close button (leave empty to inherit). Default: ``
 -   `headerCloseButtonBgHover`: `string` - Background color of the close button on hover. Default: `rgba(0, 0, 0, 0.05)`
--   `displayHeader`: `boolean` - Whether to display the chat header. Default: `true`
 
 Messages Area Properties:
 
@@ -87,11 +65,9 @@ Input Area Properties:
 -   `inputPlaceholderColor`: `string` - Placeholder text color in the message input. Default: `#94a3b8`
 -   `inputBorder`: `string` - Border of the message input. Default: `1px solid #e2e8f0`
 -   `inputMaxHeight`: `string` - Maximum height of the input area before scrolling. Default: `120px`
--   `inputMinHeight`: `string` - Minimum height of the input area. Default: `40px`
--   `inputBorderRadius`: `string` - Border radius of the input field. Default: `8px`
+-   `inputMinHeight`: `string` - Minimum height of the input area. Default: `38px`
+-   `inputBorderRadius`: `string` - Border radius of the input field. Default: `20px`
 -   `inputPlaceholder`: `string` - Placeholder text for the message input. Default: `Type a message...`
--   `disabled`: `boolean` - Whether the chat component is disabled. Default: `false`
--   `allowAttachments`: `boolean` - Whether to allow file attachments. Default: `false`
 
 Icon Properties:
 
@@ -101,6 +77,9 @@ Icon Properties:
 -   `attachmentIcon`: `string` - Icon for the attachment button. Default: `paperclip`
 -   `attachmentIconColor`: `string` - Color of the attachment button icon. Default: `#334155`
 -   `attachmentIconSize`: `string` - Size of the attachment button icon. Default: `20px`
+-   `removeIcon`: `string` - Icon for the remove attachment button. Default: `x`
+-   `removeIconColor`: `string` - Color of the remove attachment button icon. Default: `#f43f5e`
+-   `removeIconSize`: `string` - Size of the remove attachment button icon. Default: `16px`
 
 User Properties:
 
@@ -110,7 +89,34 @@ User Properties:
 -   `userStatus`: `string` - Current status of the user. Options: `online`, `offline`, `away`, `busy`. Default: `online`
 -   `currentUserId`: `string` - Unique identifier for the current user (used to identify your messages). Default: `current-user`
 -   `showSelfInHeader`: `boolean` - If enabled, shows the current user in the header instead of the chat partner. Default: `false`
+
+Chat Settings:
+
 -   `groupChatTemplate`: `string` - Template for group chat header text. Use {count} as placeholder for number of participants. Default: `Group Chat ({count} participants)`
+-   `allowAttachments`: `boolean` - Whether to allow file attachments. Default: `false`
+-   `disabled`: `boolean` - Whether the chat component is disabled. Default: `false`
+
+Localization Properties:
+
+-   `locale`: `string` - Locale code for date/time formatting. Supports over 40 languages and regional variants including:
+    -   English (US, UK, Canada, Australia, New Zealand, Ireland, India, South Africa)
+    -   French (France, Canada, Switzerland)
+    -   German (Germany, Austria)
+    -   Spanish
+    -   Italian (Italy, Switzerland)
+    -   Portuguese (Portugal, Brazil)
+    -   Russian
+    -   Japanese (including Hiragana)
+    -   Chinese (Simplified, Hong Kong, Taiwan)
+    -   Korean
+    -   Arabic (multiple variants)
+    -   Hindi, Bengali
+    -   And many more European and Asian languages.
+        Default: `enUS`
+-   `timeFormat`: `string` - Format for time display using date-fns format pattern. Default: `h:mm a`
+-   `todayText`: `string` - Text to display for today's date. Default: `Today`
+-   `yesterdayText`: `string` - Text to display for yesterday's date. Default: `Yesterday`
+-   `justNowText`: `string` - Text to display for very recent messages. Default: `just now`
 
 Chat Data:
 

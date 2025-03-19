@@ -15,6 +15,7 @@ export default {
             // Header styles
             [
                 'headerTitle',
+                'displayHeader',
                 'headerBgColor',
                 'headerTextColor',
                 'headerBorder',
@@ -35,6 +36,9 @@ export default {
                 'messagesAreaHeight',
                 'emptyMessageText',
                 'emptyMessageColor',
+            ],
+            // Date separator styles
+            [
                 'dateSeparatorTitle',
                 'dateSeparatorTextColor',
                 'dateSeparatorLineColor',
@@ -62,6 +66,7 @@ export default {
                 'inputMaxHeight',
                 'inputMinHeight',
                 'inputBorderRadius',
+                'inputPlaceholder',
             ],
             // Icons
             [
@@ -79,17 +84,17 @@ export default {
         ],
         customSettingsPropertiesOrder: [
             // User settings
-            ['userSettingsTitle', 'userName', 'userAvatar', 'userLocation', 'userStatus', 'currentUserId'],
-            // Chat settings
             [
-                'chatSettingsTitle',
-                'displayHeader',
+                'userSettingsTitle',
+                'userName',
+                'userAvatar',
+                'userLocation',
+                'userStatus',
+                'currentUserId',
                 'showSelfInHeader',
-                'groupChatTemplate',
-                'allowAttachments',
-                'inputPlaceholder',
-                'disabled',
             ],
+            // Chat settings
+            ['chatSettingsTitle', 'groupChatTemplate', 'allowAttachments', 'disabled'],
             // Localization settings
             ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
             // Chat data
@@ -284,6 +289,23 @@ export default {
             type: 'Title',
             label: { en: 'Header' },
             section: 'style',
+        },
+        displayHeader: {
+            label: { en: 'Display Header' },
+            type: 'OnOff',
+            section: 'style',
+            bindable: true,
+            defaultValue: true,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'Whether to display the chat header',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Determines whether the chat header with user information is visible or hidden.\n\nThe header displays user details such as name, avatar, status, and location. Turn this off for a more compact chat interface.',
+            },
+            /* wwEditor:end */
         },
         headerBgColor: {
             label: { en: 'Background Color' },
@@ -986,40 +1008,6 @@ export default {
             label: { en: 'Chat Settings' },
             section: 'settings',
         },
-        displayHeader: {
-            label: { en: 'Display Header' },
-            type: 'OnOff',
-            section: 'settings',
-            bindable: true,
-            defaultValue: true,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'boolean',
-                tooltip: 'Whether to display the chat header',
-            },
-            propertyHelp: {
-                tooltip:
-                    'Determines whether the chat header with user information is visible or hidden.\n\nThe header displays user details such as name, avatar, status, and location. Turn this off for a more compact chat interface.',
-            },
-            /* wwEditor:end */
-        },
-        showSelfInHeader: {
-            label: { en: 'Show Self in Header' },
-            type: 'OnOff',
-            section: 'settings',
-            bindable: true,
-            defaultValue: false,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'boolean',
-                tooltip: 'If enabled, shows the current user in the header instead of the chat partner',
-            },
-            propertyHelp: {
-                tooltip:
-                    "When enabled, the header will display the current user's information instead of the chat partner.\n\nBy default, the header shows the person you are chatting with. Enable this option to show your own profile in the header instead.",
-            },
-            /* wwEditor:end */
-        },
         groupChatTemplate: {
             label: { en: 'Group Chat Text' },
             type: 'Text',
@@ -1051,23 +1039,6 @@ export default {
             propertyHelp: {
                 tooltip:
                     'Enables the attachment button in the chat input, allowing users to send files and images.\n\nWhen enabled, an attachment button appears next to the input field. Images will be displayed with thumbnails, and other files will show appropriate icons.',
-            },
-            /* wwEditor:end */
-        },
-        inputPlaceholder: {
-            label: { en: 'Input Placeholder' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: 'Type a message...',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Placeholder text for the message input',
-            },
-            propertyHelp: {
-                tooltip:
-                    'The placeholder text shown in the empty message input field.\n\n**Examples**: Type a message..., Send a reply..., Write something...',
             },
             /* wwEditor:end */
         },

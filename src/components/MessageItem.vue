@@ -3,6 +3,7 @@
         class="ww-message-item"
         :class="{
             'ww-message-item--own': isOwnMessage,
+            'ww-message-item--ai': !isOwnMessage,
             'ww-message-item--continued': sameSenderAsPrevious,
             'ww-message-item--continue-next': sameSenderAsNext,
         }"
@@ -10,7 +11,10 @@
         <!-- Message content -->
         <div
             class="ww-message-item__content"
-            :class="{ 'ww-message-item__content--own': isOwnMessage }"
+            :class="{
+                'ww-message-item__content--own': isOwnMessage,
+                'ww-message-item__content--ai': !isOwnMessage,
+            }"
             :style="messageStyles"
             @contextmenu.prevent="handleRightClick"
         >
@@ -23,10 +27,8 @@
                 {{ message.userName }}
             </div>
 
-            <!-- Message text -->
-            <div class="ww-message-item__text">
-                {{ message.text }}
-            </div>
+            <!-- Message text with Markdown -->
+            <div class="ww-message-item__text" v-html="formattedText"></div>
 
             <!-- Attachments if any -->
             <div v-if="message.attachments && message.attachments.length" class="ww-message-item__attachments">
@@ -79,6 +81,7 @@
 <script>
 import { computed, inject } from 'vue';
 import { formatTime } from '../utils/dateTimeFormatter';
+import showdown from 'showdown';
 
 export default {
     name: 'MessageItem',
@@ -136,6 +139,29 @@ export default {
             computed(() => ({}))
         );
 
+        // Create a Showdown converter instance
+        const converter = new showdown.Converter({
+            tables: true,
+            tasklists: true,
+            strikethrough: true,
+            emoji: true,
+            openLinksInNewWindow: true,
+            ghCodeBlocks: true,
+            simpleLineBreaks: true,
+            parseImgDimensions: true,
+            simplifiedAutoLink: true,
+            literalMidWordUnderscores: true,
+            literalMidWordAsterisks: true,
+            noHeaderId: true,
+            headerLevelStart: 3,
+            disableForced4SpacesIndentedSublists: true,
+        });
+
+        const formattedText = computed(() => {
+            if (!props.message.text) return '';
+            return converter.makeHtml(props.message.text);
+        });
+
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
                 return {
@@ -144,10 +170,9 @@ export default {
                     border: props.ownMessageBorder,
                 };
             } else {
+                // AI message doesn't need any special styling
                 return {
-                    backgroundColor: props.messageBgColor,
-                    color: props.messageTextColor,
-                    border: props.messageBorder,
+                    width: '100%',
                 };
             }
         });
@@ -183,6 +208,7 @@ export default {
 
         return {
             messageStyles,
+            formattedText,
             isImageFile,
             formatFileSize,
             formatMessageTime,
@@ -197,47 +223,35 @@ export default {
 .ww-message-item {
     display: flex;
     margin-bottom: 4px;
+    width: 100%;
 
     &--own {
         justify-content: flex-end;
     }
 
+    &--ai {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
     &__content {
-        max-width: 70%;
-        padding: 10px 12px;
-        border-radius: 18px;
         position: relative;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
         &:not(.ww-message-item--continued) {
             margin-top: 8px;
         }
 
         &--own {
+            max-width: 70%;
+            padding: 10px 12px;
+            border-radius: 18px;
             border-bottom-right-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        .ww-message-item--continued & {
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            margin-top: 2px;
-        }
-
-        .ww-message-item--own.ww-message-item--continued & {
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ww-message-item--continue-next & {
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-            margin-bottom: 2px;
-        }
-
-        .ww-message-item--own.ww-message-item--continue-next & {
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 4px;
+        &--ai {
+            width: 100%;
+            padding: 4px 0;
         }
     }
 
@@ -254,8 +268,86 @@ export default {
 
     &__text {
         font-size: 0.9375rem;
-        line-height: 1.4;
+        line-height: 1.5;
         word-break: break-word;
+
+        :deep(a) {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        :deep(pre) {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre;
+            margin: 12px 0;
+        }
+
+        :deep(code) {
+            font-family: monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        // Inline code should wrap
+        :deep(:not(pre) > code) {
+            white-space: pre-wrap;
+        }
+
+        // Code blocks should preserve formatting
+        :deep(pre > code) {
+            white-space: pre;
+            display: block;
+            padding: 0;
+            background-color: transparent;
+        }
+
+        :deep(blockquote) {
+            border-left: 3px solid rgba(0, 0, 0, 0.1);
+            padding-left: 10px;
+            margin: 12px 0 12px 0;
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        :deep(ul, ol) {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        :deep(p) {
+            margin: 8px 0;
+        }
+
+        :deep(h3, h4, h5, h6) {
+            margin: 16px 0 8px 0;
+        }
+
+        :deep(img) {
+            max-width: 100%;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+
+        :deep(table) {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+
+            th,
+            td {
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                padding: 8px;
+                text-align: left;
+            }
+
+            th {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+        }
     }
 
     &__time {

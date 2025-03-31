@@ -57,7 +57,7 @@ export default {
         },
         messageBgColor: {
             type: String,
-            default: '#f1f5f9',
+            default: 'transparent',
         },
         messageTextColor: {
             type: String,
@@ -65,7 +65,7 @@ export default {
         },
         messageBorder: {
             type: String,
-            default: '1px solid #e2e8f0',
+            default: 'none',
         },
         ownMessageBgColor: {
             type: String,
@@ -81,7 +81,7 @@ export default {
         },
         emptyMessageText: {
             type: String,
-            default: 'No messages yet',
+            default: 'No messages yet. Start a conversation!',
         },
         emptyMessageColor: {
             type: String,
@@ -220,6 +220,7 @@ export default {
 .ww-message-list {
     display: flex;
     flex-direction: column;
+    width: 100%;
 
     &__empty {
         display: flex;
@@ -242,6 +243,7 @@ export default {
         justify-content: center;
         margin: 16px 0;
         position: relative;
+        width: 100%;
 
         &::before,
         &::after {
@@ -264,16 +266,15 @@ export default {
 // Message transition animations
 .message-transition-enter-active,
 .message-transition-leave-active {
-    transition: all 0.3s ease;
+    transition: opacity 0.2s ease;
 }
 
 .message-transition-enter-from,
 .message-transition-leave-to {
     opacity: 0;
-    transform: translateY(10px);
 }
 
 .message-transition-move {
-    transition: transform 0.3s;
+    transition: transform 0.2s;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="ww-chat" :class="{ 'ww-chat--disabled': isDisabled }" :style="containerStyles">
+    <div class="ww-chat ww-chat-ai" :class="{ 'ww-chat--disabled': isDisabled }" :style="containerStyles">
         <!-- Chat Header -->
         <ChatHeader
             v-if="displayHeader"
@@ -191,6 +191,7 @@ export default {
         });
 
         const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
+        const assistantId = computed(() => props.content?.assistantId || 'assistant');
         const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
 
         const messages = computed(() => {
@@ -217,14 +218,18 @@ export default {
         const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Type a message...');
 
         // User properties
-        const userName = computed(() => props.content?.userName || 'User');
+        const userName = computed(() => props.content?.userName || 'You');
         const userAvatar = computed(() => props.content?.userAvatar || '');
         const userLocation = computed(() => props.content?.userLocation || '');
         const userStatus = computed(() => props.content?.userStatus || 'online');
 
+        // Assistant properties
+        const assistantName = computed(() => props.content?.assistantName || 'Assistant');
+        const assistantAvatar = computed(() => props.content?.assistantAvatar || '');
+
         // Style properties
         const containerStyles = computed(() => ({
-            backgroundColor: props.content?.backgroundColor || '#f5f7fb',
+            backgroundColor: props.content?.backgroundColor || '#ffffff',
             border: props.content?.containerBorder || '1px solid #e2e8f0',
             borderRadius: props.content?.containerBorderRadius || '8px',
             boxShadow: props.content?.containerShadow || '0 2px 8px rgba(0, 0, 0, 0.05)',
@@ -255,9 +260,9 @@ export default {
         const headerCloseButtonBgHover = computed(() => props.content?.headerCloseButtonBgHover || '#dbeafe');
 
         // Message styles
-        const messageBgColor = computed(() => props.content?.messageBgColor || '#f1f5f9');
+        const messageBgColor = computed(() => props.content?.messageBgColor || 'transparent');
         const messageTextColor = computed(() => props.content?.messageTextColor || '#334155');
-        const messageBorder = computed(() => props.content?.messageBorder || '1px solid #e2e8f0');
+        const messageBorder = computed(() => props.content?.messageBorder || 'none');
 
         const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#dbeafe');
         const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e40af');
@@ -273,7 +278,9 @@ export default {
         const inputBorderRadius = computed(() => props.content?.inputBorderRadius || '8px');
 
         // Empty message styles
-        const emptyMessageText = computed(() => props.content?.emptyMessageText || 'No messages yet');
+        const emptyMessageText = computed(
+            () => props.content?.emptyMessageText || 'No messages yet. Start a conversation!'
+        );
         const emptyMessageColor = computed(() => props.content?.emptyMessageColor || '#64748b');
 
         // Date separator styles
@@ -417,6 +424,27 @@ export default {
             return newMessageRaw;
         };
 
+        const addAIMessage = text => {
+            if (isEditing.value) return;
+
+            const message = {
+                id: `msg-${wwLib.wwUtils.getUid()}`,
+                text: text || '',
+                senderId: assistantId.value,
+                userName: assistantName.value,
+                timestamp: new Date().toISOString(),
+            };
+
+            const newMessage = addMessage(message);
+
+            emit('trigger-event', {
+                name: 'aiMessageSent',
+                event: { message: newMessage },
+            });
+
+            return newMessage;
+        };
+
         // Date/time locale configuration
         const locale = computed(() => {
             if (!props.content?.locale) return enUS;
@@ -508,65 +536,14 @@ export default {
         };
 
         const chatPartners = computed(() => {
-            if (messages.value.length === 0 || props.content?.showSelfInHeader) {
-                return {
-                    name: userName.value,
-                    avatar: userAvatar.value,
-                    location: userLocation.value,
-                    status: userStatus.value,
-                    participants: [],
-                    participantsString: '',
-                };
-            }
-
-            const otherSenderIds = [
-                ...new Set(messages.value.filter(msg => msg.senderId !== currentUserId.value).map(msg => msg.senderId)),
-            ];
-
-            if (otherSenderIds.length === 0) {
-                return {
-                    name: userName.value,
-                    avatar: userAvatar.value,
-                    location: userLocation.value,
-                    status: userStatus.value,
-                    participants: [],
-                    participantsString: '',
-                };
-            }
-
-            const participants = otherSenderIds.map(senderId => {
-                const msg = messages.value.find(m => m.senderId === senderId);
-                return msg ? msg.userName : 'Unknown User';
-            });
-
-            const participantsString = participants.join(', ');
-
-            if (otherSenderIds.length === 1) {
-                const otherUser = messages.value.find(msg => msg.senderId === otherSenderIds[0]);
-                return {
-                    name: otherUser.userName,
-                    avatar: otherUser.avatar || otherUser.avatarUrl || '',
-                    location: '',
-                    status: 'online',
-                    participants,
-                    participantsString,
-                };
-            }
-
-            const lastOtherMsg = [...messages.value]
-                .filter(msg => msg.senderId !== currentUserId.value)
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-
-            const template = props.content?.groupChatTemplate || 'Group Chat ({count} participants)';
-            const groupChatName = template.replace('{count}', otherSenderIds.length);
-
+            // For AI chat, we simplify this to always return the assistant information
             return {
-                name: groupChatName,
-                avatar: '',
-                location: lastOtherMsg ? `Last message from ${lastOtherMsg.userName}` : '',
+                name: assistantName.value,
+                avatar: assistantAvatar.value,
+                location: '',
                 status: 'online',
-                participants,
-                participantsString,
+                participants: [],
+                participantsString: '',
             };
         });
 
@@ -589,6 +566,7 @@ export default {
             pendingAttachments,
 
             currentUserId,
+            assistantId,
             isDisabled,
             displayHeader,
             allowAttachments,
@@ -597,6 +575,8 @@ export default {
             userAvatar,
             userLocation,
             userStatus,
+            assistantName,
+            assistantAvatar,
 
             headerUserName,
             headerUserAvatar,
@@ -661,6 +641,7 @@ export default {
             handleMessageRightClick,
             handleClose,
             addMessage,
+            addAIMessage,
             clearMessages,
         };
     },
@@ -673,6 +654,9 @@ export default {
         },
         actionAddMessage(message) {
             return this.addMessage(message);
+        },
+        actionAddAIMessage(text) {
+            return this.addAIMessage(text);
         },
     },
 };
@@ -743,6 +727,13 @@ export default {
     &--disabled {
         opacity: 0.7;
         pointer-events: none;
+    }
+
+    &.ww-chat-ai {
+        // AI chat specific styling
+        .ww-chat__messages {
+            padding: var(--ww-chat-messages-padding) var(--ww-chat-messages-padding) 0;
+        }
     }
 
     .ww-chat-header {

@@ -1,6 +1,6 @@
-# WW-CHAT
+# WW-CHAT-AI
 
-This is an element for Weweb, to display a Chat.
+This is an element for Weweb, to display a AI Chat.
 
 ## Installation
 
@@ -12,4 +12,4 @@ To serve locally, run `npm run serve --port=[PORT]`, and then go to Weweb editor
 
 ## Build
 
-Before release, you can check build error by running `npm run build --name="ww-input-file" --type="element"`
+Before release, you can check build error by running `npm run build --name="ww-chat-ai" --type="element"`

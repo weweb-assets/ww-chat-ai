@@ -1,0 +1,39 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# AI Integration Guide
+
+This component provides a ready-to-use chat interface, but the AI functionality must be implemented separately through WeWeb actions and events.
+
+## Integration Approach
+
+1. Listen for the `messageSent` event from the component
+2. Process the message content through your AI provider (OpenAI, Anthropic, etc.)
+3. Use the `addMessage` action to add the AI response to the chat
+
+## Implementation Flow
+
+1. Create a WeWeb action for handling user messages
+2. Inside the action, call your AI service's API
+3. Format the response as a message object
+4. Call the chat component's `addMessage` action with the formatted message
+
+## Message Format
+
+```javascript
+// AI response message format
+{
+  text: "AI response text here",
+  senderId: "ai-assistant", // Different from currentUserId
+  userName: "AI Assistant",
+  timestamp: new Date().toISOString()
+}
+```
+
+## Helpful Hooks
+
+- Use the `messageReceived` event to trigger animations or sounds
+- Add the `disabled` property while waiting for AI response
+- Consider using typing indicators while the AI is generating a response

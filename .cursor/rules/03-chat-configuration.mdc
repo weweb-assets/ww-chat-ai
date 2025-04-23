@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Chat Component Configuration
+
+## Core Properties
+
+- **User Properties**: 
+  - `userName` - Name to display for the current user
+  - `userAvatar` - URL of the user avatar image
+  - `userStatus` - Status (online, offline, away, busy)
+  - `currentUserId` - Unique identifier for the current user
+
+- **Chat Settings**:
+  - `allowAttachments` - Toggle file attachment support
+  - `disabled` - Disable chat functionality
+  - `groupChatTemplate` - Template for group chat header
+
+## Styling Properties
+
+- **Container**: backgroundColor, containerBorder, containerBorderRadius, containerShadow
+- **Header**: headerBgColor, headerTextColor, headerBorder, headerBoxShadow
+- **Messages**: messageBgColor, messageTextColor, messageBorder
+- **Own Messages**: ownMessageBgColor, ownMessageTextColor, ownMessageBorder
+- **Input**: inputBgColor, inputTextColor, inputBorder, inputPlaceholder
+
+## Data Management
+
+- Component uses `chatHistory` variable to store and retrieve messages
+- Messages can be added programmatically with the `addMessage` action
+- Messages can be cleared with the `clearMessages` action
+
+## Events
+
+- `messageSent` - Triggered when a new message is sent
+- `messageReceived` - Triggered when a message is received
+- `attachmentClick` - Triggered when an attachment is clicked
+- `close` - Triggered when the close button is clicked

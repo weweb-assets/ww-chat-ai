@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Development Guide
+
+## Local Development
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Run local development server:
+   ```bash
+   npm run serve --port=9000
+   ```
+
+3. Add to WeWeb Editor:
+   - Open WeWeb editor
+   - Open developer popup (click on profile picture)
+   - Add localhost:9000 as custom element
+
+## Build and Deploy
+
+- Check for build errors:
+  ```bash
+  npm run build --name="ww-chat-ai" --type="element"
+  ```
+
+- Deploy to production:
+  ```bash
+  npm run deploy --name="ww-chat-ai" --type="element"
+  ```
+
+## Code Standards
+
+- [.eslintrc](mdc:.eslintrc) - ESLint configuration
+- [.prettierrc](mdc:.prettierrc) - Prettier formatting configuration

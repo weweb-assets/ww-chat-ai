@@ -3,14 +3,31 @@
     "env": {
         "node": true
     },
-    "extends": ["plugin:vue/vue3-recommended", "eslint:recommended", "plugin:prettier/recommended", "@vue/prettier"],
+    "extends": [
+        "plugin:vue/vue3-recommended",
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "@vue/prettier"
+    ],
     "rules": {
-        "semi": ["warn", "always"],
-        "quotes": ["warn", "single", { "avoidEscape": true }],
+        "semi": [
+            "warn",
+            "always"
+        ],
+        "quotes": [
+            "warn",
+            "single",
+            {
+                "avoidEscape": true
+            }
+        ],
         "no-console": "warn"
     },
     "parserOptions": {
-        "parser": "babel-eslint"
+        "parser": "@babel/eslint-parser",
+        "requireConfigFile": false,
+        "ecmaVersion": 2020,
+        "sourceType": "module"
     },
     "globals": {
         "wwLib": "readonly",

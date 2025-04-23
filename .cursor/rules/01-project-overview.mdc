@@ -1,0 +1,25 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# WW-Chat-AI Component Overview
+
+This WeWeb element provides a customizable chat interface for web applications.
+
+## Key Files
+
+- [src/wwElement.vue](mdc:src/wwElement.vue) - The main component that orchestrates all functionality
+- [ww-config.js](mdc:ww-config.js) - WeWeb element configuration
+- [package.json](mdc:package.json) - Project dependencies and scripts
+
+## Component Structure
+
+The chat is built from several Vue components:
+- [src/components/ChatHeader.vue](mdc:src/components/ChatHeader.vue) - The chat header with user info
+- [src/components/MessageList.vue](mdc:src/components/MessageList.vue) - The message display area
+- [src/components/InputArea.vue](mdc:src/components/InputArea.vue) - The input field and controls
+
+## Utility Functions
+
+- [src/utils/dateTimeFormatter.js](mdc:src/utils/dateTimeFormatter.js) - Functions for formatting dates and times

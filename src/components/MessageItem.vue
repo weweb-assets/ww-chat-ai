@@ -139,7 +139,6 @@ export default {
             computed(() => ({}))
         );
 
-        // Create a Showdown converter instance
         const converter = new showdown.Converter({
             tables: true,
             tasklists: true,
@@ -170,7 +169,6 @@ export default {
                     border: props.ownMessageBorder,
                 };
             } else {
-                // AI message doesn't need any special styling
                 return {
                     width: '100%',
                 };
@@ -293,12 +291,10 @@ export default {
             border-radius: 4px;
         }
 
-        // Inline code should wrap
         :deep(:not(pre) > code) {
             white-space: pre-wrap;
         }
 
-        // Code blocks should preserve formatting
         :deep(pre > code) {
             white-space: pre;
             display: block;

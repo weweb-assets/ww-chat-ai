@@ -493,11 +493,11 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
-            defaultValue: 'auto',
+            defaultValue: '700px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'Specific height for the messages area (use "auto" to fill available space)',
+                tooltip: 'Specific height for the messages area',
             },
             /* wwEditor:end */
         },

@@ -106,7 +106,7 @@ export default {
             // Localization settings
             ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
             // Chat data
-            ['chatDataTitle', 'chatHistory', 'streamingText'],
+            ['chatDataTitle', 'chatHistory', 'isStreaming', 'streamingText'],
             // Message data mapping
             [
                 'messageDataTitle',
@@ -1382,6 +1382,13 @@ export default {
             section: 'settings',
             bindable: true,
             defaultValue: '',
+        },
+        isStreaming: {
+            label: { en: 'Is Streaming' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
         },
         messageDataTitle: {
             type: 'Title',

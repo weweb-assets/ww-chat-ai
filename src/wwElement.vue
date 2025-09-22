@@ -175,13 +175,8 @@ export default {
             defaultValue: [],
         });
 
-        // Streaming state (component variable)
-        const { value: isStreaming, setValue: setIsStreaming } = wwLib.wwVariable.useComponentVariable({
-            uid: props.uid,
-            name: 'isStreaming',
-            type: 'boolean',
-            defaultValue: false,
-        });
+        // Streaming state (ww-config property)
+        const isStreaming = computed(() => !!props.content?.isStreaming);
 
         const { resolveMappingFormula } = wwLib.wwFormula.useFormula();
 

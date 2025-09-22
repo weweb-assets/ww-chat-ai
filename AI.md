@@ -30,7 +30,6 @@ Chat interface optimized for AI assistants. Supports live streaming text, polish
 
 ***Exposed Variables:***
 - chatHistory: Conversation array. (path: variables['current_element_uid-chatHistory'])
-- isStreaming: Toggles streaming bubble. (path: variables['current_element_uid-isStreaming'])
 
 ***Events:***
 - messageSent: Triggered on send. Payload: { "message": { ... } }
@@ -45,7 +44,7 @@ Chat interface optimized for AI assistants. Supports live streaming text, polish
 - addMessage: (message: object) Append a message (id auto-generated if missing)
 
 ***Notes:***
-- Streaming: set `isStreaming = true`, write partials to `streamingText`; when done, set `isStreaming = false` and call `addMessage` with the final text
+- Streaming: set `isStreaming = true` (property), write partials to `streamingText`; when done, set `isStreaming = false` and call `addMessage` with the final text
 - Flat schema by design; participants/conversation metadata omitted for AI simplicity
 - Use `autoScrollBehavior` for default scrolling; actions can override per call
 

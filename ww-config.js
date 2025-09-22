@@ -1101,11 +1101,13 @@ export default {
         },
         autoScrollBehavior: {
             label: { en: 'Auto-scroll Behavior' },
-            type: 'Select',
-            options: [
-                { value: 'instant', label: { en: 'Instant' } },
-                { value: 'smooth', label: { en: 'Smooth' } },
-            ],
+            type: 'TextSelect',
+            options: {
+                options: [
+                    { value: 'instant', label: { en: 'Instant' } },
+                    { value: 'smooth', label: { en: 'Smooth' } },
+                ],
+            },
             section: 'settings',
             bindable: true,
             defaultValue: 'smooth',

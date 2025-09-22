@@ -110,6 +110,9 @@ export default {
             type: String,
             default: '#334155',
         },
+        messageFontSize: { type: String, default: '0.875rem' },
+        messageFontWeight: { type: String, default: '400' },
+        messageFontFamily: { type: String, default: 'inherit' },
         messageBorder: {
             type: String,
             default: '1px solid #e2e8f0',
@@ -122,10 +125,15 @@ export default {
             type: String,
             default: '#1e40af',
         },
+        ownMessageFontSize: { type: String, default: '0.875rem' },
+        ownMessageFontWeight: { type: String, default: '400' },
+        ownMessageFontFamily: { type: String, default: 'inherit' },
         ownMessageBorder: {
             type: String,
             default: '1px solid #bfdbfe',
         },
+        messageRadius: { type: String, default: '18px 18px 18px 18px' },
+        ownMessageRadius: { type: String, default: '18px 18px 18px 18px' },
     },
     emits: ['attachment-click', 'right-click'],
     setup(props, { emit }) {
@@ -166,11 +174,19 @@ export default {
                 return {
                     backgroundColor: props.ownMessageBgColor,
                     color: props.ownMessageTextColor,
+                    fontSize: props.ownMessageFontSize,
+                    fontWeight: props.ownMessageFontWeight,
+                    fontFamily: props.ownMessageFontFamily,
                     border: props.ownMessageBorder,
+                    '--message-radius': props.ownMessageRadius,
                 };
             } else {
                 return {
                     width: '100%',
+                    fontSize: props.messageFontSize,
+                    fontWeight: props.messageFontWeight,
+                    fontFamily: props.messageFontFamily,
+                    '--message-radius': props.messageRadius,
                 };
             }
         });
@@ -242,8 +258,7 @@ export default {
         &--own {
             max-width: 70%;
             padding: 10px 12px;
-            border-radius: 18px;
-            border-bottom-right-radius: 4px;
+            border-radius: var(--message-radius, 18px 18px 18px 18px);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 

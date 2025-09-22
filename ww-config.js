@@ -50,11 +50,19 @@ export default {
                 'messageTitle',
                 'messageBgColor',
                 'messageTextColor',
+                'messageFontSize',
+                'messageFontWeight',
+                'messageFontFamily',
                 'messageBorder',
+                'messageRadius',
                 'ownMessageTitle',
                 'ownMessageBgColor',
                 'ownMessageTextColor',
+                'ownMessageFontSize',
+                'ownMessageFontWeight',
+                'ownMessageFontFamily',
                 'ownMessageBorder',
+                'ownMessageRadius',
             ],
             // Input styles
             [
@@ -94,11 +102,11 @@ export default {
                 'showSelfInHeader',
             ],
             // Chat settings
-            ['chatSettingsTitle', 'groupChatTemplate', 'allowAttachments', 'disabled'],
+            ['chatSettingsTitle', 'groupChatTemplate', 'allowAttachments', 'disabled', 'autoScrollBehavior'],
             // Localization settings
             ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
             // Chat data
-            ['chatDataTitle', 'chatHistory'],
+            ['chatDataTitle', 'chatHistory', 'streamingText'],
             // Message data mapping
             [
                 'messageDataTitle',
@@ -617,6 +625,21 @@ export default {
             },
             /* wwEditor:end */
         },
+        messageFontSize: { label: { en: 'Font Size' }, type: 'Length', section: 'style', bindable: true, defaultValue: '0.875rem' },
+        messageFontWeight: {
+            label: { en: 'Font Weight' },
+            type: 'TextSelect',
+            options: { options: [
+                { value: '300', label: { en: 'Light' } },
+                { value: '400', label: { en: 'Normal' } },
+                { value: '500', label: { en: 'Medium' } },
+                { value: '600', label: { en: 'Semi Bold' } },
+            ] },
+            section: 'style',
+            bindable: true,
+            defaultValue: '400',
+        },
+        messageFontFamily: { label: { en: 'Font Family' }, type: 'FontFamily', section: 'style', bindable: true, defaultValue: 'inherit' },
         messageBorder: {
             label: { en: 'Border' },
             type: 'Border',
@@ -630,6 +653,7 @@ export default {
             },
             /* wwEditor:end */
         },
+        messageRadius: { label: { en: 'Border Radius' }, type: 'Spacing', section: 'style', bindable: true, defaultValue: '18px 18px 18px 18px' },
 
         // Own message styles
         ownMessageTitle: {
@@ -663,6 +687,21 @@ export default {
             },
             /* wwEditor:end */
         },
+        ownMessageFontSize: { label: { en: 'Font Size' }, type: 'Length', section: 'style', bindable: true, defaultValue: '0.875rem' },
+        ownMessageFontWeight: {
+            label: { en: 'Font Weight' },
+            type: 'TextSelect',
+            options: { options: [
+                { value: '300', label: { en: 'Light' } },
+                { value: '400', label: { en: 'Normal' } },
+                { value: '500', label: { en: 'Medium' } },
+                { value: '600', label: { en: 'Semi Bold' } },
+            ] },
+            section: 'style',
+            bindable: true,
+            defaultValue: '400',
+        },
+        ownMessageFontFamily: { label: { en: 'Font Family' }, type: 'FontFamily', section: 'style', bindable: true, defaultValue: 'inherit' },
         ownMessageBorder: {
             label: { en: 'Border' },
             type: 'Border',
@@ -676,6 +715,7 @@ export default {
             },
             /* wwEditor:end */
         },
+        ownMessageRadius: { label: { en: 'Border Radius' }, type: 'Spacing', section: 'style', bindable: true, defaultValue: '18px 18px 18px 18px' },
 
         // Input area styles
         inputAreaTitle: {
@@ -1059,6 +1099,17 @@ export default {
             },
             /* wwEditor:end */
         },
+        autoScrollBehavior: {
+            label: { en: 'Auto-scroll Behavior' },
+            type: 'Select',
+            options: [
+                { value: 'instant', label: { en: 'Instant' } },
+                { value: 'smooth', label: { en: 'Smooth' } },
+            ],
+            section: 'settings',
+            bindable: true,
+            defaultValue: 'smooth',
+        },
 
         // Localization settings
         localizationTitle: {
@@ -1322,6 +1373,13 @@ export default {
                     'An array of message objects that represent the conversation history.\n\nEach message should include id, text, senderId, userName, and timestamp properties. Optionally can include attachments.\n\n**Example**: \n```json\n[{ \n  "id": "msg-1", \n  "text": "Hello!", \n  "senderId": "user-1", \n  "userName": "John", \n  "timestamp": "2023-06-01T10:30:00Z" \n}]\n```',
             },
             /* wwEditor:end */
+        },
+        streamingText: {
+            label: { en: 'Streaming Text' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: '',
         },
         messageDataTitle: {
             type: 'Title',

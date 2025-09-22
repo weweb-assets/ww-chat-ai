@@ -25,7 +25,7 @@
         <!-- Messages Area -->
         <div ref="messagesContainer" class="ww-chat__messages" :style="messagesContainerStyles">
             <MessageList
-                :messages="messages"
+                :messages="displayMessages"
                 :current-user-id="currentUserId"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
@@ -175,6 +175,14 @@ export default {
             defaultValue: [],
         });
 
+        // Streaming state (component variable)
+        const { value: isStreaming, setValue: setIsStreaming } = wwLib.wwVariable.useComponentVariable({
+            uid: props.uid,
+            name: 'isStreaming',
+            type: 'boolean',
+            defaultValue: false,
+        });
+
         const { resolveMappingFormula } = wwLib.wwFormula.useFormula();
 
         const resolveMapping = (message, mappingFormula, defaultProp) => {
@@ -193,6 +201,7 @@ export default {
         const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
         const assistantId = computed(() => props.content?.assistantId || 'assistant');
         const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
+        const streamingText = computed(() => props.content?.streamingText || '');
 
         const messages = computed(() => {
             return rawMessages.value.map(message => {
@@ -289,6 +298,7 @@ export default {
         const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
         const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
 
+        // Auto-scroll on message changes
         watch(
             messages,
             () => {
@@ -299,10 +309,23 @@ export default {
             { deep: true }
         );
 
-        const scrollToBottom = async (smooth = false) => {
+        // Auto-scroll during streaming updates
+        watch(
+            () => streamingText.value,
+            () => {
+                if (isStreaming.value && streamingText.value) scrollToBottom();
+            }
+        );
+        watch(isStreaming, () => {
+            if (isStreaming.value && streamingText.value) scrollToBottom();
+        });
+
+        const defaultSmooth = computed(() => (props.content?.autoScrollBehavior || 'smooth') === 'smooth');
+        const scrollToBottom = async (smooth = undefined) => {
             await nextTick();
             if (messagesContainer.value) {
-                if (smooth) {
+                const useSmooth = typeof smooth === 'boolean' ? smooth : defaultSmooth.value;
+                if (useSmooth) {
                     const lastElement = messagesContainer.value.lastElementChild;
                     if (lastElement) {
                         lastElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -559,10 +582,32 @@ export default {
             scrollToBottom();
         });
 
+        // Display messages including transient streaming bubble
+        const displayMessages = computed(() => {
+            const base = messages.value;
+            const text = (streamingText.value || '').toString();
+            if (isStreaming.value && text.trim()) {
+                return [
+                    ...base,
+                    {
+                        id: 'streaming-message',
+                        text,
+                        senderId: assistantId.value,
+                        userName: 'Assistant',
+                        timestamp: new Date().toISOString(),
+                        attachments: [],
+                        _isStreaming: true,
+                    },
+                ];
+            }
+            return base;
+        });
+
         return {
             messagesContainer,
             newMessage,
             messages,
+            displayMessages,
             pendingAttachments,
 
             currentUserId,
@@ -599,12 +644,21 @@ export default {
             headerCloseButtonBgHover,
             messageBgColor,
             messageTextColor,
+            // Message typography and radius
+            messageFontSize: computed(() => props.content?.messageFontSize || '0.875rem'),
+            messageFontWeight: computed(() => props.content?.messageFontWeight || '400'),
+            messageFontFamily: computed(() => props.content?.messageFontFamily || 'inherit'),
             messageBorder,
+            messageRadius: computed(() => props.content?.messageRadius || '18px 18px 18px 18px'),
             messagesAreaPadding,
             messagesAreaHeight,
             ownMessageBgColor,
             ownMessageTextColor,
+            ownMessageFontSize: computed(() => props.content?.ownMessageFontSize || '0.875rem'),
+            ownMessageFontWeight: computed(() => props.content?.ownMessageFontWeight || '400'),
+            ownMessageFontFamily: computed(() => props.content?.ownMessageFontFamily || 'inherit'),
             ownMessageBorder,
+            ownMessageRadius: computed(() => props.content?.ownMessageRadius || '18px 18px 18px 18px'),
             inputBgColor,
             inputTextColor,
             inputPlaceholderColor,
@@ -631,6 +685,9 @@ export default {
             removeIcon: computed(() => props.content?.removeIcon || 'x'),
             removeIconColor: computed(() => props.content?.removeIconColor || '#f43f5e'),
             removeIconSize: computed(() => props.content?.removeIconSize || '12px'),
+
+            // Streaming
+            displayMessages,
 
             // Methods
             scrollToBottom,

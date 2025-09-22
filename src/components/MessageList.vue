@@ -24,10 +24,18 @@
                     :same-sender-as-next="isSameSenderAsNext(index)"
                     :message-bg-color="messageBgColor"
                     :message-text-color="messageTextColor"
+                    :message-font-size="messageFontSize"
+                    :message-font-weight="messageFontWeight"
+                    :message-font-family="messageFontFamily"
                     :message-border="messageBorder"
+                    :message-radius="messageRadius"
                     :own-message-bg-color="ownMessageBgColor"
                     :own-message-text-color="ownMessageTextColor"
+                    :own-message-font-size="ownMessageFontSize"
+                    :own-message-font-weight="ownMessageFontWeight"
+                    :own-message-font-family="ownMessageFontFamily"
                     :own-message-border="ownMessageBorder"
+                    :own-message-radius="ownMessageRadius"
                     @attachment-click="handleAttachmentClick"
                     @right-click="handleRightClick"
                 />
@@ -67,6 +75,10 @@ export default {
             type: String,
             default: 'none',
         },
+        messageFontSize: { type: String, default: '0.875rem' },
+        messageFontWeight: { type: String, default: '400' },
+        messageFontFamily: { type: String, default: 'inherit' },
+        messageRadius: { type: String, default: '18px 18px 18px 18px' },
         ownMessageBgColor: {
             type: String,
             default: '#dbeafe',
@@ -75,10 +87,14 @@ export default {
             type: String,
             default: '#1e40af',
         },
+        ownMessageFontSize: { type: String, default: '0.875rem' },
+        ownMessageFontWeight: { type: String, default: '400' },
+        ownMessageFontFamily: { type: String, default: 'inherit' },
         ownMessageBorder: {
             type: String,
             default: '1px solid #bfdbfe',
         },
+        ownMessageRadius: { type: String, default: '18px 18px 18px 18px' },
         emptyMessageText: {
             type: String,
             default: 'No messages yet. Start a conversation!',

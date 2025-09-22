@@ -1,15 +1,56 @@
 ---
-name: ww-chat
-description: A comprehensive chat interface component with customizable styling, user details, and support for messages and attachments.
-keywords:
-    - chat
-    - messaging
-    - conversation
-    - communication
-    - interface
+name: ww-chat-ai
+description: AI-focused chat UI with streaming bubble, refined input UX, attachments, date separators, and rich styling. Simple message schema compatible with ww-chat.
+keywords: [chat, ai, messaging, assistant, streaming]
 ---
 
-#### Chat Component
+#### ww-chat-ai
+
+***Purpose:***
+Chat interface optimized for AI assistants. Supports live streaming text, polished input UX, message grouping and date separators, attachments, and extensive styling. Integrates with WeWeb variables, events, and actions using a flat message schema.
+
+***Features:***
+- Streaming bubble via `streamingText` + `isStreaming` (transient, not persisted)
+- Configurable auto-scroll (instant or smooth)
+- Fixed-height, accessible input with hover/focus states and hidden scrollbars
+- Image previews and file tiles for attachments
+- Locale-aware date separators
+
+***Properties:***
+- User: `userName`, `userAvatar`, `userLocation`, `userStatus`('online'|'offline'|'away'|'busy'), `currentUserId`, `showSelfInHeader`
+- Chat data: `chatHistory`(array of { id, text, senderId, userName, timestamp, attachments? }), `streamingText`(string)
+- Mapping: `mappingMessageId`, `mappingMessageText`, `mappingSenderId`, `mappingUserName`, `mappingTimestamp`, `mappingAttachments`
+- Chat settings: `allowAttachments`, `disabled`, `autoScrollBehavior`('instant'|'smooth')
+- Header styles: `displayHeader`, `headerBgColor`, `headerTextColor`, `headerBorder`, `headerPadding`, `headerNameFontSize`, `headerNameFontWeight`, `headerLocationFontSize`, `headerLocationOpacity`, `headerCloseButtonColor`, `headerCloseButtonBgHover`
+- Messages (others): `messageBgColor`, `messageTextColor`, `messageFontSize`, `messageFontWeight`, `messageFontFamily`, `messageBorder`, `messageRadius`
+- Messages (own): `ownMessageBgColor`, `ownMessageTextColor`, `ownMessageFontSize`, `ownMessageFontWeight`, `ownMessageFontFamily`, `ownMessageBorder`, `ownMessageRadius`
+- Date separator: `dateSeparatorTextColor`, `dateSeparatorLineColor`, `dateSeparatorBgColor`, `dateSeparatorBorderRadius`
+- Input area: `inputBgColor`, `inputTextColor`, `inputPlaceholderColor`, `inputBorder`, `inputMaxHeight`, `inputMinHeight`, `inputBorderRadius`, `inputPlaceholder`
+- Icons: `sendIcon`, `sendIconColor`, `sendIconSize`, `attachmentIcon`, `attachmentIconColor`, `attachmentIconSize`, `removeIcon`, `removeIconColor`, `removeIconSize`
+
+***Exposed Variables:***
+- chatHistory: Conversation array. (path: variables['current_element_uid-chatHistory'])
+- isStreaming: Toggles streaming bubble. (path: variables['current_element_uid-isStreaming'])
+
+***Events:***
+- messageSent: Triggered on send. Payload: { "message": { ... } }
+- messageReceived: Triggered when a non-self message is added. Payload: { "message": { ... } }
+- messageRightClick: Triggered on message right click. Payload: { "message": { ... }, "position": { "x": 0, "y": 0 } }
+- attachmentClick: Triggered when an attachment is clicked. Payload: { "attachment": { ... } }
+- close: Triggered when header close is clicked. No payload
+
+***Exposed Element Actions:***
+- scrollToBottom: (smooth?: boolean) Scroll to last message. Uses element default if omitted
+- clearMessages: (no args) Clear chatHistory
+- addMessage: (message: object) Append a message (id auto-generated if missing)
+
+***Notes:***
+- Streaming: set `isStreaming = true`, write partials to `streamingText`; when done, set `isStreaming = false` and call `addMessage` with the final text
+- Flat schema by design; participants/conversation metadata omitted for AI simplicity
+- Use `autoScrollBehavior` for default scrolling; actions can override per call
+
+***Example:***
+{"uid":"elt_ai_chat","tag":"ww-chat-ai","name":"AI Chat","props":{"default":{"currentUserId":"user-1","displayHeader":true,"allowAttachments":true,"chatHistory":[{"id":"m1","text":"Hello!","senderId":"user-1","userName":"You","timestamp":"2024-01-01T10:00:00Z"}]}},"styles":{"default":{"messageBgColor":"#ffffff","ownMessageBgColor":"#ddf4ff","inputBorder":"1px solid #d0d7de"}}}
 
 Container Properties:
 

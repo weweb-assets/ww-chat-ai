@@ -7,6 +7,7 @@
             :user-avatar="headerUserAvatar"
             :user-location="headerUserLocation"
             :user-status="headerUserStatus"
+            :avatar-bg-color="headerAvatarBgColor"
             :header-bg-color="headerBgColor"
             :text-color="headerTextColor"
             :header-border="headerBorder"

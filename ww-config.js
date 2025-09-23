@@ -27,6 +27,7 @@ export default {
                 'headerLocationOpacity',
                 'headerCloseButtonColor',
                 'headerCloseButtonBgHover',
+                'groupChatAvatarColor',
             ],
             // Messages area styles
             [
@@ -103,6 +104,8 @@ export default {
             ],
             // Chat settings
             ['chatSettingsTitle', 'groupChatTemplate', 'allowAttachments', 'disabled', 'autoScrollBehavior'],
+            // Group avatar settings
+            ['groupAvatarSettingsTitle', 'groupChatAvatar'],
             // Localization settings
             ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
             // Chat data
@@ -464,6 +467,15 @@ export default {
             /* wwEditor:end */
         },
 
+        // Group chat avatar color (for initials fallback in group mode)
+        groupChatAvatarColor: {
+            label: { en: 'Group Avatar Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#4f46e5',
+        },
+
         // Messages area styles
         messagesAreaTitle: {
             type: 'Title',
@@ -625,21 +637,35 @@ export default {
             },
             /* wwEditor:end */
         },
-        messageFontSize: { label: { en: 'Font Size' }, type: 'Length', section: 'style', bindable: true, defaultValue: '0.875rem' },
+        messageFontSize: {
+            label: { en: 'Font Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '0.875rem',
+        },
         messageFontWeight: {
             label: { en: 'Font Weight' },
             type: 'TextSelect',
-            options: { options: [
-                { value: '300', label: { en: 'Light' } },
-                { value: '400', label: { en: 'Normal' } },
-                { value: '500', label: { en: 'Medium' } },
-                { value: '600', label: { en: 'Semi Bold' } },
-            ] },
+            options: {
+                options: [
+                    { value: '300', label: { en: 'Light' } },
+                    { value: '400', label: { en: 'Normal' } },
+                    { value: '500', label: { en: 'Medium' } },
+                    { value: '600', label: { en: 'Semi Bold' } },
+                ],
+            },
             section: 'style',
             bindable: true,
             defaultValue: '400',
         },
-        messageFontFamily: { label: { en: 'Font Family' }, type: 'FontFamily', section: 'style', bindable: true, defaultValue: 'inherit' },
+        messageFontFamily: {
+            label: { en: 'Font Family' },
+            type: 'FontFamily',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'inherit',
+        },
         messageBorder: {
             label: { en: 'Border' },
             type: 'Border',
@@ -653,7 +679,13 @@ export default {
             },
             /* wwEditor:end */
         },
-        messageRadius: { label: { en: 'Border Radius' }, type: 'Spacing', section: 'style', bindable: true, defaultValue: '18px 18px 18px 18px' },
+        messageRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Spacing',
+            section: 'style',
+            bindable: true,
+            defaultValue: '18px 18px 18px 18px',
+        },
 
         // Own message styles
         ownMessageTitle: {
@@ -687,21 +719,35 @@ export default {
             },
             /* wwEditor:end */
         },
-        ownMessageFontSize: { label: { en: 'Font Size' }, type: 'Length', section: 'style', bindable: true, defaultValue: '0.875rem' },
+        ownMessageFontSize: {
+            label: { en: 'Font Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            defaultValue: '0.875rem',
+        },
         ownMessageFontWeight: {
             label: { en: 'Font Weight' },
             type: 'TextSelect',
-            options: { options: [
-                { value: '300', label: { en: 'Light' } },
-                { value: '400', label: { en: 'Normal' } },
-                { value: '500', label: { en: 'Medium' } },
-                { value: '600', label: { en: 'Semi Bold' } },
-            ] },
+            options: {
+                options: [
+                    { value: '300', label: { en: 'Light' } },
+                    { value: '400', label: { en: 'Normal' } },
+                    { value: '500', label: { en: 'Medium' } },
+                    { value: '600', label: { en: 'Semi Bold' } },
+                ],
+            },
             section: 'style',
             bindable: true,
             defaultValue: '400',
         },
-        ownMessageFontFamily: { label: { en: 'Font Family' }, type: 'FontFamily', section: 'style', bindable: true, defaultValue: 'inherit' },
+        ownMessageFontFamily: {
+            label: { en: 'Font Family' },
+            type: 'FontFamily',
+            section: 'style',
+            bindable: true,
+            defaultValue: 'inherit',
+        },
         ownMessageBorder: {
             label: { en: 'Border' },
             type: 'Border',
@@ -715,7 +761,13 @@ export default {
             },
             /* wwEditor:end */
         },
-        ownMessageRadius: { label: { en: 'Border Radius' }, type: 'Spacing', section: 'style', bindable: true, defaultValue: '18px 18px 18px 18px' },
+        ownMessageRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Spacing',
+            section: 'style',
+            bindable: true,
+            defaultValue: '18px 18px 18px 18px',
+        },
 
         // Input area styles
         inputAreaTitle: {
@@ -1047,6 +1099,18 @@ export default {
             type: 'Title',
             label: { en: 'Chat Settings' },
             section: 'settings',
+        },
+        groupAvatarSettingsTitle: {
+            type: 'Title',
+            label: { en: 'Group Avatar' },
+            section: 'settings',
+        },
+        groupChatAvatar: {
+            label: { en: 'Group Avatar URL' },
+            type: 'Text',
+            section: 'settings',
+            bindable: true,
+            defaultValue: '',
         },
         groupChatTemplate: {
             label: { en: 'Group Chat Text' },

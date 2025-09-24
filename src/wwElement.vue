@@ -244,12 +244,22 @@ export default {
         const messagesAreaPadding = computed(() => props.content?.messagesAreaPadding || '16px');
         const messagesAreaHeight = computed(() => props.content?.messagesAreaHeight || 'auto');
 
-        const messagesContainerStyles = computed(() => ({
-            backgroundColor: props.content?.messagesAreaBgColor || '#ffffff',
-            padding: messagesAreaPadding.value,
-            height: messagesAreaHeight.value,
-            maxHeight: messagesAreaHeight.value !== 'auto' ? messagesAreaHeight.value : undefined,
-        }));
+        const messagesContainerStyles = computed(() => {
+            const base = {
+                backgroundColor: props.content?.messagesAreaBgColor || '#ffffff',
+                padding: messagesAreaPadding.value,
+            };
+
+            if (messagesAreaHeight.value !== 'auto') {
+                base.height = messagesAreaHeight.value;
+                base.maxHeight = messagesAreaHeight.value;
+                base.flex = '0 1 auto';
+            } else {
+                base.flex = '1 1 auto';
+            }
+
+            return base;
+        });
 
         // Header styles
         const headerBgColor = computed(() => props.content?.headerBgColor || '#ffffff');
@@ -794,9 +804,10 @@ export default {
     }
 
     &__messages {
-        flex: v-bind("messagesAreaHeight === 'auto' ? '1' : '0 0 auto'");
+        flex: 1 1 auto;
         min-height: 100px;
         height: var(--ww-chat-messages-height);
+        max-height: var(--ww-chat-messages-height);
         overflow-y: auto;
         scroll-behavior: smooth;
         padding: var(--ww-chat-messages-padding);

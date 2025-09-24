@@ -769,7 +769,6 @@ export default {
     flex-direction: column;
     height: 100%;
     min-height: 300px;
-    overflow: hidden;
 
     background-color: var(--ww-chat-bg-color);
     border: var(--ww-chat-border);

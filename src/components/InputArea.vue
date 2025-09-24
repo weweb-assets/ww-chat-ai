@@ -6,6 +6,7 @@
                 <div class="attachment-name">{{ attachment.name }}</div>
                 <button
                     class="attachment-remove"
+                    :disabled="isInteractionLocked"
                     @click.stop="removeAttachment(index)"
                     :title="'Remove ' + attachment.name"
                 >
@@ -25,7 +26,7 @@
                 v-model="inputValue"
                 class="message-input"
                 :placeholder="placeholder"
-                :disabled="isDisabled"
+                :disabled="isInteractionLocked"
                 :style="inputStyles"
                 @keydown.enter.prevent="onEnterPress"
                 @input="resizeTextarea"
@@ -34,7 +35,7 @@
             <!-- Action Button (Send/Attachment) -->
             <transition name="fade">
                 <button
-                    v-if="canSend && !isDisabled"
+                    v-if="canSend && !isInteractionLocked"
                     type="button"
                     class="action-button send-button"
                     :style="{ color: sendIconColor }"
@@ -47,11 +48,17 @@
                     ></span>
                 </button>
                 <label
-                    v-else-if="allowAttachments && !isDisabled"
+                    v-else-if="allowAttachments && !isInteractionLocked"
                     class="action-button attachment-button"
                     :style="{ color: attachmentIconColor }"
                 >
-                    <input type="file" class="file-input" multiple @change="handleAttachment" :disabled="isDisabled" />
+                    <input
+                        type="file"
+                        class="file-input"
+                        multiple
+                        @change="handleAttachment"
+                        :disabled="isInteractionLocked"
+                    />
                     <span
                         class="icon"
                         :style="{ width: attachmentIconSize, height: attachmentIconSize }"
@@ -64,7 +71,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, nextTick, onMounted, inject, watchEffect } from 'vue';
+import { ref, computed, watch, nextTick, inject, watchEffect } from 'vue';
 
 export default {
     name: 'InputArea',
@@ -163,6 +170,7 @@ export default {
         );
         const textareaRef = ref(null);
         const inputValue = ref(props.modelValue);
+        const isInteractionLocked = computed(() => props.isDisabled || isEditing.value);
         const sendIconText = ref(null);
         const attachmentIconText = ref(null);
         const removeIconText = ref(null);
@@ -260,7 +268,10 @@ export default {
             return removeIconText.value || defaultRemoveIcon;
         });
 
-        const canSend = computed(() => inputValue.value.trim().length > 0 || props.pendingAttachments.length > 0);
+        const canSend = computed(() => {
+            if (isInteractionLocked.value) return false;
+            return inputValue.value.trim().length > 0 || props.pendingAttachments.length > 0;
+        });
 
         watch(
             () => props.modelValue,
@@ -286,7 +297,7 @@ export default {
         const onEnterPress = event => {
             if (isEditing.value) return;
 
-            if (!event.shiftKey && canSend.value && !props.isDisabled) {
+            if (!event.shiftKey && canSend.value && !isInteractionLocked.value) {
                 sendMessage();
             } else if (event.shiftKey) {
                 nextTick(resizeTextarea);
@@ -294,7 +305,7 @@ export default {
         };
 
         const sendMessage = () => {
-            if (isEditing.value || !canSend.value || props.isDisabled) return;
+            if (isInteractionLocked.value || !canSend.value) return;
 
             emit('send');
             inputValue.value = '';
@@ -305,7 +316,7 @@ export default {
         };
 
         const handleAttachment = event => {
-            if (isEditing.value || props.isDisabled) return;
+            if (isInteractionLocked.value) return;
 
             const files = event.target.files;
             if (files && files.length > 0) {
@@ -315,7 +326,7 @@ export default {
         };
 
         const removeAttachment = index => {
-            if (isEditing.value || props.isDisabled) return;
+            if (isInteractionLocked.value) return;
             emit('remove-attachment', index);
         };
 
@@ -336,6 +347,7 @@ export default {
             textareaRef,
             inputValue,
             canSend,
+            isInteractionLocked,
             sendIconHtml,
             attachmentIconHtml,
             removeIconHtml,
@@ -353,7 +365,7 @@ export default {
             })),
             iconBtnStyles: computed(() => ({
                 color: props.inputTextColor,
-                opacity: props.isDisabled ? 0.5 : 1,
+                opacity: isInteractionLocked.value ? 0.5 : 1,
             })),
             isImageFile,
             formatFileSize,
@@ -428,6 +440,11 @@ export default {
     border: none;
     padding: 0;
     cursor: pointer;
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
 }
 
 .input-container {

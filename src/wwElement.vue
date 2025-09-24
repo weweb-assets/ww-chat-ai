@@ -778,7 +778,6 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
-    min-height: 300px;
 
     background-color: var(--ww-chat-bg-color);
     border: var(--ww-chat-border);
@@ -805,7 +804,7 @@ export default {
 
     &__messages {
         flex: 1 1 auto;
-        min-height: 100px;
+        min-height: 0;
         height: var(--ww-chat-messages-height);
         max-height: var(--ww-chat-messages-height);
         overflow-y: auto;

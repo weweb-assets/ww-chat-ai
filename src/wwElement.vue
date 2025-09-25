@@ -196,7 +196,13 @@ export default {
 
         const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
         const assistantId = computed(() => props.content?.assistantId || 'assistant');
-        const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
+        const rawMessages = computed(() => {
+            const fromContent = props.content?.chatHistory;
+            if (Array.isArray(fromContent)) return fromContent;
+            if (Array.isArray(chatHistory.value)) return chatHistory.value;
+            if (fromContent && typeof fromContent === 'object') return [fromContent];
+            return [];
+        });
         const streamingText = computed(() => props.content?.streamingText || '');
 
         const messages = computed(() => {
@@ -236,12 +242,16 @@ export default {
         // Flatten frequently used style primitives to avoid nested lookups in <style v-bind>,
         // which can sometimes break in the WeWeb manager preview.
         const containerBgColor = computed(() => props.content?.backgroundColor || '#ffffff');
+        const containerBorder = computed(() => props.content?.containerBorder || '1px solid #e2e8f0');
+        const containerBorderRadius = computed(() => props.content?.containerBorderRadius || '8px');
+        const containerShadow = computed(() => props.content?.containerShadow || '0 2px 8px rgba(0, 0, 0, 0.05)');
+        const containerFontFamily = computed(() => props.content?.fontFamily || 'inherit');
         const containerStyles = computed(() => ({
             backgroundColor: containerBgColor.value,
-            border: props.content?.containerBorder || '1px solid #e2e8f0',
-            borderRadius: props.content?.containerBorderRadius || '8px',
-            boxShadow: props.content?.containerShadow || '0 2px 8px rgba(0, 0, 0, 0.05)',
-            fontFamily: props.content?.fontFamily || 'inherit',
+            border: containerBorder.value,
+            borderRadius: containerBorderRadius.value,
+            boxShadow: containerShadow.value,
+            fontFamily: containerFontFamily.value,
             display: 'flex',
             flexDirection: 'column',
         }));
@@ -641,6 +651,10 @@ export default {
             containerStyles,
             messagesContainerStyles,
             containerBgColor,
+            containerBorder,
+            containerBorderRadius,
+            containerShadow,
+            containerFontFamily,
             messagesBgColor,
             headerBgColor,
             headerTextColor,
@@ -733,10 +747,10 @@ export default {
 <style lang="scss" scoped>
 .ww-chat {
     --ww-chat-bg-color: v-bind('containerBgColor');
-    --ww-chat-border: v-bind('containerStyles.border');
-    --ww-chat-border-radius: v-bind('containerStyles.borderRadius');
-    --ww-chat-shadow: v-bind('containerStyles.boxShadow');
-    --ww-chat-font-family: v-bind('containerStyles.fontFamily');
+    --ww-chat-border: v-bind('containerBorder');
+    --ww-chat-border-radius: v-bind('containerBorderRadius');
+    --ww-chat-shadow: v-bind('containerShadow');
+    --ww-chat-font-family: v-bind('containerFontFamily');
 
     --ww-chat-header-bg: v-bind('headerBgColor');
     --ww-chat-header-text: v-bind('headerTextColor');

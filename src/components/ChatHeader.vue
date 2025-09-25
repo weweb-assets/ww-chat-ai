@@ -157,12 +157,8 @@ export default {
             '--hover-bg-color': props.closeButtonBgHover,
         }));
 
-        const avatarStyles = computed(() => ({
-            backgroundColor: getAvatarColor(props.userName),
-            color: '#ffffff',
-        }));
-
-        const getAvatarColor = name => {
+        // Use a function declaration so it is hoisted and always available
+        function getAvatarColor(name) {
             const colors = [
                 '#4f46e5',
                 '#0891b2',
@@ -185,7 +181,12 @@ export default {
 
             const index = Math.abs(hash) % colors.length;
             return colors[index];
-        };
+        }
+
+        const avatarStyles = computed(() => ({
+            backgroundColor: getAvatarColor(props.userName),
+            color: '#ffffff',
+        }));
 
         return {
             isEditing,

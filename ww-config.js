@@ -1,6 +1,6 @@
 export default {
     editor: {
-        label: { en: 'Chat' },
+        label: { en: 'AI Chat' },
         icon: 'chat',
         customStylePropertiesOrder: [
             // Container styles

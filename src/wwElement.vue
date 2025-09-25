@@ -233,8 +233,11 @@ export default {
         const assistantAvatar = computed(() => props.content?.assistantAvatar || '');
 
         // Style properties
+        // Flatten frequently used style primitives to avoid nested lookups in <style v-bind>,
+        // which can sometimes break in the WeWeb manager preview.
+        const containerBgColor = computed(() => props.content?.backgroundColor || '#ffffff');
         const containerStyles = computed(() => ({
-            backgroundColor: props.content?.backgroundColor || '#ffffff',
+            backgroundColor: containerBgColor.value,
             border: props.content?.containerBorder || '1px solid #e2e8f0',
             borderRadius: props.content?.containerBorderRadius || '8px',
             boxShadow: props.content?.containerShadow || '0 2px 8px rgba(0, 0, 0, 0.05)',
@@ -246,9 +249,10 @@ export default {
         const messagesAreaPadding = computed(() => props.content?.messagesAreaPadding || '16px');
         const messagesAreaHeight = computed(() => props.content?.messagesAreaHeight || 'auto');
 
+        const messagesBgColor = computed(() => props.content?.messagesAreaBgColor || '#ffffff');
         const messagesContainerStyles = computed(() => {
             const base = {
-                backgroundColor: props.content?.messagesAreaBgColor || '#ffffff',
+                backgroundColor: messagesBgColor.value,
                 padding: messagesAreaPadding.value,
                 flex: '1 1 auto',
             };
@@ -636,6 +640,8 @@ export default {
 
             containerStyles,
             messagesContainerStyles,
+            containerBgColor,
+            messagesBgColor,
             headerBgColor,
             headerTextColor,
             headerBorder,
@@ -726,7 +732,7 @@ export default {
 
 <style lang="scss" scoped>
 .ww-chat {
-    --ww-chat-bg-color: v-bind('containerStyles.backgroundColor');
+    --ww-chat-bg-color: v-bind('containerBgColor');
     --ww-chat-border: v-bind('containerStyles.border');
     --ww-chat-border-radius: v-bind('containerStyles.borderRadius');
     --ww-chat-shadow: v-bind('containerStyles.boxShadow');
@@ -744,7 +750,7 @@ export default {
     --ww-chat-header-close-button-color: v-bind('headerCloseButtonColor');
     --ww-chat-header-close-button-bg-hover: v-bind('headerCloseButtonBgHover');
 
-    --ww-chat-messages-bg: v-bind('messagesContainerStyles.backgroundColor');
+    --ww-chat-messages-bg: v-bind('messagesBgColor');
 
     --ww-chat-message-bg: v-bind('messageBgColor');
     --ww-chat-message-text: v-bind('messageTextColor');

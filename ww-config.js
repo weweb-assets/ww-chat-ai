@@ -163,6 +163,8 @@ export default {
             [
                 'chatDataTitle',
                 'messages',
+                'isStreaming',
+                'streamingText',
                 'mappingMessageId',
                 'mappingMessageText',
                 'mappingSenderId',
@@ -1965,6 +1967,11 @@ export default {
             label: { en: 'Chat Settings' },
             section: 'settings',
         },
+        chatDataTitle: {
+            type: 'Title',
+            label: { en: 'Chat Data' },
+            section: 'settings',
+        },
         
 
         allowAttachments: {
@@ -1982,6 +1989,29 @@ export default {
                 tooltip:
                     'Enables attachment uploads in the input area.\n\nPossible values: `true`, `false`',
             },
+            /* wwEditor:end */
+        },
+        // Streaming controls (ephemeral last AI message)
+        isStreaming: {
+            label: { en: 'Is Streaming' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+            /* wwEditor:start */
+            bindingValidation: { type: 'boolean', tooltip: 'When true, displays streamingText as a live AI message at the end of the chat.' },
+            propertyHelp: { tooltip: 'Use with streamingText. Set true while receiving tokens and false when you append the final AI message.' },
+            /* wwEditor:end */
+        },
+        streamingText: {
+            label: { en: 'Streaming Text' },
+            type: 'Textarea',
+            section: 'settings',
+            bindable: true,
+            defaultValue: '',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'The partial content received during AI streaming.' },
+            propertyHelp: { tooltip: 'Updated iteratively during streaming; shown as the last AI message while isStreaming is true.' },
             /* wwEditor:end */
         },
         disabled: {

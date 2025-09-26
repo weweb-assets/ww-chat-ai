@@ -26,7 +26,7 @@
         <!-- Messages Area -->
         <div ref="messagesContainer" class="ww-chat__messages" :style="messagesContainerStyles">
             <MessageList
-                :messages="messages"
+                :messages="displayMessages"
                 :current-user-id="currentUserId"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
@@ -332,6 +332,29 @@ export default {
             });
         });
 
+        // Streaming handling: ephemeral last AI message while streaming
+        const isStreaming = computed(() => props.content?.isStreaming || false);
+        const streamingText = computed(() => props.content?.streamingText ?? '');
+        const displayMessages = computed(() => {
+            const base = messages.value;
+            if (!isStreaming.value) return base;
+            const text = (streamingText.value || '').toString();
+            if (!text) return base;
+            return [
+                ...base,
+                {
+                    id: 'msg-streaming',
+                    text,
+                    senderId: 'ai',
+                    userName: 'AI',
+                    timestamp: new Date().toISOString(),
+                    attachments: [],
+                    userSettings: { userName: 'AI', userAvatar: '', userLocation: '', userStatus: 'online' },
+                    _ephemeral: true,
+                },
+            ];
+        });
+
         const isDisabled = computed(() => props.content?.disabled || false);
         const displayHeader = computed(() => props.content?.displayHeader !== false);
         const allowAttachments = computed(() => props.content?.allowAttachments || false);
@@ -414,7 +437,7 @@ export default {
         );
 
         watch(
-            messages,
+            displayMessages,
             () => {
                 if (!isScrolling.value) scrollToBottom(); // Will use autoScrollBehavior setting
             },
@@ -836,6 +859,7 @@ export default {
             messagesContainer,
             newMessage,
             messages,
+            displayMessages,
             pendingAttachments,
 
             currentUserId,
@@ -944,6 +968,7 @@ export default {
             messagesAttachmentThumbMaxHeight,
             messagesAttachmentThumbBorderRadius,
             headerAvatarBgColor,
+            displayMessages,
         };
     },
     methods: {

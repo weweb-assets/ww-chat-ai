@@ -13,6 +13,8 @@ Unified AI chat UI with two roles: `client` and `ai`. Optional header (via `disp
 - fontFamily: string – Global font family. Example: 'Inter, sans-serif'
 - displayHeader: boolean – Toggle header visibility. Default: false
 - messages: array – Conversation data. Example: [{ id, text, senderId, timestamp, attachments? }]
+- isStreaming: boolean – If true, shows `streamingText` as a live last AI message.
+- streamingText: string – The partial content updated during streaming.
 - allowAttachments: boolean – Enable file attachments. Example: true
 - disabled: boolean – Disable input/actions. Example: false
 - autoScrollBehavior: 'auto'|'smooth' – Scroll mode for new messages. Example: 'auto'
@@ -156,5 +158,5 @@ Attachments Data (visible only when Attachments mapping is set):
 
 ***Example***:
 <elements>
-{"uid":"0","tag":"ww-chat-ai","settings":{},"props":{"default":{"locale":"enUS","disabled":false,"messages":[{"id":"m1","text":"Hello!","senderId":"client","timestamp":"2025-08-29T08:11:48.015Z"}],"displayHeader":false,"messagesAreaBgColor":"transparent","messageBgColor":"transparent","ownMessageBgColor":"transparent","messageBorder":"none","ownMessageBorder":"none"}}}
+{"uid":"0","tag":"ww-chat-ai","settings":{},"props":{"default":{"locale":"enUS","disabled":false,"messages":[{"id":"m1","text":"Hello!","senderId":"client","timestamp":"2025-08-29T08:11:48.015Z"}],"isStreaming":true,"streamingText":"Thinking…","displayHeader":false,"messagesAreaBgColor":"transparent","messageBgColor":"transparent","ownMessageBgColor":"transparent","messageBorder":"none","ownMessageBorder":"none"}}}
 </elements>

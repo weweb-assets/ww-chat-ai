@@ -1,17 +1,50 @@
+// Common helpers for mappingAttachments evaluation
+const __evalCode = (code, type, ctx) => {
+    try {
+        if (typeof code !== 'string') return undefined;
+        const body = type === 'js' ? code : `return (${code});`;
+        // eslint-disable-next-line no-new-func
+        const fn = new Function('context', body);
+        return fn(ctx);
+    } catch {
+        return undefined;
+    }
+};
+
+const __pickTemplateMessageByMapping = (messages, mapping) => {
+    if (mapping?.code && Array.isArray(messages) && messages.length) {
+        for (const msg of messages) {
+            const res = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            if (Array.isArray(res) && res.length) return msg;
+        }
+    }
+    const fallback = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+    return fallback || (messages.length ? messages[0] : null);
+};
+
+const __pickFirstAttachmentByMapping = (messages, mapping) => {
+    if (mapping?.code && Array.isArray(messages) && messages.length) {
+        for (const msg of messages) {
+            const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            if (Array.isArray(arr) && arr.length) return arr[0];
+        }
+    }
+    const withAtt = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+    return withAtt ? withAtt.attachments[0] : null;
+};
+
 export default {
+    inherit: {
+        type: 'ww-layout',
+    },
+    options: {
+        displayAllowedValues: ['flex', 'grid', 'inline-flex', 'inline-grid'],
+    },
     editor: {
-        label: { en: 'AI Chat' },
+        label: { en: 'Chat AI' },
         icon: 'chat',
         customStylePropertiesOrder: [
-            // Container styles
-            [
-                'containerTitle',
-                'backgroundColor',
-                'containerBorder',
-                'containerBorderRadius',
-                'containerShadow',
-                'fontFamily',
-            ],
+            'fontFamily',
             // Header styles
             [
                 'headerTitle',
@@ -19,22 +52,21 @@ export default {
                 'headerBgColor',
                 'headerTextColor',
                 'headerBorder',
-                'headerBoxShadow',
                 'headerPadding',
                 'headerNameFontSize',
                 'headerNameFontWeight',
                 'headerLocationFontSize',
                 'headerLocationOpacity',
+                // Close button controls grouped at the end of header
+                'headerShowCloseButton',
                 'headerCloseButtonColor',
                 'headerCloseButtonBgHover',
-                'groupChatAvatarColor',
             ],
             // Messages area styles
             [
                 'messagesAreaTitle',
                 'messagesAreaBgColor',
                 'messagesAreaPadding',
-                'messagesAreaHeight',
                 'emptyMessageText',
                 'emptyMessageColor',
             ],
@@ -69,57 +101,84 @@ export default {
             [
                 'inputAreaTitle',
                 'inputBgColor',
+                'inputAreaBorder',
+                'textAreaTitle',
+                'textareaBorder',
+                'textareaBorderHover',
+                'textareaBorderFocus',
                 'inputTextColor',
+                'inputFontSize',
+                'inputFontWeight',
+                'inputFontFamily',
                 'inputPlaceholderColor',
-                'inputBorder',
-                'inputMaxHeight',
-                'inputMinHeight',
+                'inputHeight',
                 'inputBorderRadius',
                 'inputPlaceholder',
+                'inputActionAlign',
             ],
             // Icons
             [
-                'iconsTitle',
+                'sendTitle',
                 'sendIcon',
                 'sendIconColor',
                 'sendIconSize',
+                'attachmentTitle',
                 'attachmentIcon',
                 'attachmentIconColor',
                 'attachmentIconSize',
+                'removeTitle',
                 'removeIcon',
                 'removeIconColor',
                 'removeIconSize',
+                'imagePreviewTitle',
+                'messagesAttachmentThumbMaxWidth',
+                'messagesAttachmentThumbMaxHeight',
+                'messagesAttachmentThumbBorderRadius',
+            ],
+            // Send button styles
+            [
+                'sendButtonTitle',
+                'sendButtonBgColor',
+                'sendButtonHoverBgColor',
+                'sendButtonBorder',
+                'sendButtonBorderRadius',
+                'sendButtonSize',
+                'sendButtonBoxShadow',
+            ],
+            // Attachment button styles
+            [
+                'attachmentButtonTitle',
+                'attachmentButtonBgColor',
+                'attachmentButtonHoverBgColor',
+                'attachmentButtonBorder',
+                'attachmentButtonBorderRadius',
+                'attachmentButtonSize',
+                'attachmentButtonBoxShadow',
             ],
         ],
         customSettingsPropertiesOrder: [
-            // User settings
+            // Chat settings (no participants, 2 roles: ai/client)
+            ['chatSettingsTitle', 'allowAttachments', 'disabled', 'autoScrollBehavior'],
+            // Chat data + message mapping
             [
-                'userSettingsTitle',
-                'userName',
-                'userAvatar',
-                'userLocation',
-                'userStatus',
-                'currentUserId',
-                'showSelfInHeader',
-            ],
-            // Chat settings
-            ['chatSettingsTitle', 'groupChatTemplate', 'allowAttachments', 'disabled', 'autoScrollBehavior'],
-            // Group avatar settings
-            ['groupAvatarSettingsTitle', 'groupChatAvatar'],
-            // Localization settings
-            ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
-            // Chat data
-            ['chatDataTitle', 'chatHistory', 'isStreaming', 'streamingText'],
-            // Message data mapping
-            [
-                'messageDataTitle',
+                'chatDataTitle',
+                'messages',
                 'mappingMessageId',
                 'mappingMessageText',
                 'mappingSenderId',
-                'mappingUserName',
                 'mappingTimestamp',
                 'mappingAttachments',
+                // Attachments Data mapping (visible only when mappingAttachments is bound)
+                'attachmentsDataTitle',
+                'mappingAttachmentId',
+                'mappingAttachmentName',
+                'mappingAttachmentUrl',
+                'mappingAttachmentType',
+                'mappingAttachmentSize',
             ],
+            // Participant data removed
+            // Localization settings
+            ['localizationTitle', 'locale', 'timeFormat', 'todayText', 'yesterdayText', 'justNowText'],
         ],
     },
     triggerEvents: [
@@ -133,6 +192,13 @@ export default {
                     senderId: 'current-user',
                     userName: 'User',
                     timestamp: new Date().toISOString(),
+                    attachments: [
+                        {
+                            name: 'demo.txt',
+                            type: 'text/plain',
+                            size: 12,
+                        },
+                    ],
                 },
             },
         },
@@ -146,6 +212,15 @@ export default {
                     senderId: 'other-user',
                     userName: 'Other User',
                     timestamp: new Date().toISOString(),
+                    attachments: [
+                        {
+                            id: 'file-2',
+                            name: 'spec.pdf',
+                            type: 'application/pdf',
+                            size: 102400,
+                            url: 'https://example.com/spec.pdf',
+                        },
+                    ],
                 },
             },
         },
@@ -159,10 +234,21 @@ export default {
                     senderId: 'user-id',
                     userName: 'User Name',
                     timestamp: new Date().toISOString(),
+                    attachments: [
+                        {
+                            id: 'file-2',
+                            name: 'spec.pdf',
+                            type: 'application/pdf',
+                            size: 102400,
+                            url: 'https://example.com/spec.pdf',
+                        },
+                    ],
                 },
                 position: {
-                    x: 100,
-                    y: 200,
+                    elementX: 50, // relative to chat element
+                    elementY: 20,
+                    viewportX: 320, // relative to page top-left
+                    viewportY: 480,
                 },
             },
         },
@@ -177,6 +263,20 @@ export default {
                     size: 1024000,
                     url: 'https://example.com/document.pdf',
                 },
+            },
+        },
+        {
+            name: 'pendingAttachmentClick',
+            label: { en: 'On pending attachment click' },
+            event: {
+                // attachment is a File object (unsent local upload)
+                attachment: {
+                    name: 'image.png',
+                    type: 'image/png',
+                    size: 204800,
+                    // lastModified: 1695489600000
+                },
+                index: 0,
             },
         },
         {
@@ -197,100 +297,28 @@ export default {
                 },
             ],
         },
-        {
-            action: 'clearMessages',
-            label: { en: 'Clear messages' },
-        },
-        {
-            action: 'addMessage',
-            label: { en: 'Add message' },
-            args: [
-                {
-                    name: 'message',
-                    type: 'object',
-                    label: { en: 'Message' },
-                    options: {
-                        item: {
-                            text: { type: 'string', label: { en: 'Text' } },
-                            senderId: { type: 'string', label: { en: 'Sender ID' } },
-                            userName: { type: 'string', label: { en: 'Sender Name' } },
-                        },
-                    },
-                },
-            ],
-        },
     ],
     properties: {
         // ======== APPEARANCE ========
 
         // Container styles
-        containerTitle: {
-            type: 'Title',
-            label: { en: 'Container' },
-            section: 'style',
-        },
-        backgroundColor: {
-            label: { en: 'Background Color' },
-            type: 'Color',
-            section: 'style',
-            bindable: true,
-            defaultValue: '#f5f7fb',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Background color of the chat container',
-            },
-            /* wwEditor:end */
-        },
-        containerBorder: {
-            label: { en: 'Border' },
-            type: 'Border',
-            section: 'style',
-            bindable: true,
-            defaultValue: '1px solid #e2e8f0',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Border of the chat container',
-            },
-            /* wwEditor:end */
-        },
-        containerBorderRadius: {
-            label: { en: 'Border Radius' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
-            defaultValue: '8px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Border radius of the chat container',
-            },
-            /* wwEditor:end */
-        },
-        containerShadow: {
-            label: { en: 'Shadow' },
-            type: 'Shadows',
-            section: 'style',
-            bindable: true,
-            defaultValue: '0 2px 8px rgba(0, 0, 0, 0.05)',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Box shadow of the chat container',
-            },
-            /* wwEditor:end */
-        },
         fontFamily: {
             label: { en: 'Font Family' },
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'inherit',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Font family used throughout the chat',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Font family used across the chat UI.\n\nExample: `Inter`, `Philosopher`, `Roboto`',
             },
             /* wwEditor:end */
         },
@@ -306,7 +334,10 @@ export default {
             type: 'OnOff',
             section: 'style',
             bindable: true,
-            defaultValue: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: false,
             /* wwEditor:start */
             bindingValidation: {
                 type: 'boolean',
@@ -314,7 +345,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Determines whether the chat header with user information is visible or hidden.\n\nThe header displays user details such as name, avatar, status, and location. Turn this off for a more compact chat interface.',
+                    'Show or hide the top header (avatar/name/status/location).\n\nPossible values: `true`, `false`',
             },
             /* wwEditor:end */
         },
@@ -323,104 +354,177 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#ffffff',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'transparent',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the chat header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Background behind the header content.\n\nExample: `#ffffff`, `linear-gradient(180deg,#fff,#f8fafc)`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerTextColor: {
             label: { en: 'Text Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#1e293b',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text color in the chat header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Color for all header text.\n\nExample: `#1e293b`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerBorder: {
-            label: { en: 'Border' },
+            label: { en: 'Border Bottom' },
             type: 'Border',
             section: 'style',
             bindable: true,
-            defaultValue: '1px solid #e2e8f0',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'none',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Border of the chat header',
             },
-            /* wwEditor:end */
-        },
-        headerBoxShadow: {
-            label: { en: 'Shadow' },
-            type: 'Shadows',
-            section: 'style',
-            bindable: true,
-            defaultValue: '0 1px 2px rgba(0, 0, 0, 0.05)',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Box shadow of the chat header',
+            propertyHelp: {
+                tooltip:
+                    'Bottom border separating header from messages.\n\nExample: `1px solid #e2e8f0`, `none`',
             },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
+
         headerPadding: {
             label: { en: 'Padding' },
-            type: 'Length',
+            type: 'Spacing',
             section: 'style',
-            bindable: true,
             defaultValue: '12px 16px',
+            classes: true,
+            states: true,
+            responsive: true,
+            bindable: true,
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Padding of the chat header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Inner spacing of the header.\n\nExample: `12px 16px`, `16px`, `8px 12px 8px 12px`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
+
+        
         headerNameFontSize: {
             label: { en: 'Name Font Size' },
             type: 'Length',
+            options: {
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '1rem',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Font size of the user name in header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Header name font size (px/em/rem).\n\nExample: `1rem`, `18px`, `1.125rem`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerNameFontWeight: {
             label: { en: 'Name Font Weight' },
-            type: 'TextWeight',
+            type: 'TextSelect',
+            options: {
+                options: [
+                    { value: '100', label: { en: '100 - Thin' } },
+                    { value: '200', label: { en: '200 - Extra Light' } },
+                    { value: '300', label: { en: '300 - Light' } },
+                    { value: '400', label: { en: '400 - Normal' } },
+                    { value: '500', label: { en: '500 - Medium' } },
+                    { value: '600', label: { en: '600 - Semi Bold' } },
+                    { value: '700', label: { en: '700 - Bold' } },
+                    { value: '800', label: { en: '800 - Extra Bold' } },
+                    { value: '900', label: { en: '900 - Black' } },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '600',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Font weight of the user name in header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Header name weight.\n\nPossible values: `100`, `400`, `600`, `700`, `900`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerLocationFontSize: {
             label: { en: 'Location Font Size' },
             type: 'Length',
+            options: {
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '0.875rem',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Font size of the location text in header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Header subtitle/location size.\n\nExample: `0.875rem`, `14px`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerLocationOpacity: {
             label: { en: 'Location Opacity' },
@@ -432,48 +536,85 @@ export default {
             },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 0.7,
             /* wwEditor:start */
             bindingValidation: {
                 type: 'number',
                 tooltip: 'Opacity of the location text in header',
             },
+            propertyHelp: {
+                tooltip:
+                    'Subtitle transparency.\n\nExample: `0.7`, `1`, `0.5`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
         headerCloseButtonColor: {
             label: { en: 'Close Button Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the close button (leave empty to inherit from header text color)',
             },
+            propertyHelp: {
+                tooltip:
+                    'Close icon color.\n\nExample: `#64748b`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false || content.headerShowCloseButton === false,
         },
         headerCloseButtonBgHover: {
             label: { en: 'Close Button Hover BG' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'rgba(0, 0, 0, 0.05)',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the close button on hover',
             },
+            propertyHelp: {
+                tooltip:
+                    'Background on hover over the close icon.\n\nExample: `rgba(0,0,0,.05)`',
+            },
             /* wwEditor:end */
+            hidden: content => content.displayHeader === false || content.headerShowCloseButton === false,
         },
 
-        // Group chat avatar color (for initials fallback in group mode)
-        groupChatAvatarColor: {
-            label: { en: 'Group Avatar Color' },
-            type: 'Color',
+        headerShowCloseButton: {
+            label: { en: 'Display Close Button' },
+            type: 'OnOff',
             section: 'style',
             bindable: true,
-            defaultValue: '#4f46e5',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: true,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'Whether to display the close button in the chat header',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Show/hide the close (X) button.\n\nPossible values: `true`, `false`',
+            },
+            /* wwEditor:end */
+            hidden: content => content.displayHeader === false,
         },
 
         // Messages area styles
@@ -487,50 +628,119 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#ffffff',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'transparent',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the messages area',
             },
+            propertyHelp: {
+                tooltip:
+                    'Conversation pane background.\n\nExample: `#ffffff`',
+            },
             /* wwEditor:end */
         },
         messagesAreaPadding: {
             label: { en: 'Padding' },
-            type: 'Length',
+            type: 'Spacing',
             section: 'style',
-            bindable: true,
             defaultValue: '16px',
+            classes: true,
+            states: true,
+            responsive: true,
+            bindable: true,
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Padding of the messages area',
             },
-            /* wwEditor:end */
-        },
-        messagesAreaHeight: {
-            label: { en: 'Height' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
-            defaultValue: '700px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Specific height for the messages area',
+            propertyHelp: {
+                tooltip:
+                    'Inner spacing around messages.\n\nExample: `16px`, `20px 16px`',
             },
             /* wwEditor:end */
         },
+
+        // Attachment thumbnails (messages area)
+        messagesAttachmentThumbMaxWidth: {
+            label: { en: 'Attachment Max Width' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '250px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Maximum width of image attachment thumbnails in the messages area',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Max width of attached images in messages.\n\nExample: `250px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbMaxHeight: {
+            label: { en: 'Attachment Max Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '200px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Maximum height of image attachment thumbnails in the messages area',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Max height of attached images in messages.\n\nExample: `200px`',
+            },
+            /* wwEditor:end */
+        },
+
+        messagesAttachmentThumbBorderRadius: {
+            label: { en: 'Attachment Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '6px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border radius of image attachment thumbnails' },
+            propertyHelp: {
+                tooltip:
+                    'Border radius of attached images in messages.\n\nExample: `6px`',
+            },
+            /* wwEditor:end */
+        },
+
         emptyMessageText: {
             label: { en: 'Empty Message Text' },
             type: 'Text',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'No messages yet',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text to display when there are no messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Text when no messages are present.\n\nExample: `No messages yet`',
             },
             /* wwEditor:end */
         },
@@ -539,11 +749,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#64748b',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the empty message text',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Color for the empty-state text.\n\nExample: `#64748b`',
             },
             /* wwEditor:end */
         },
@@ -557,11 +774,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#64748b',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text color of the date separator',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Color of the date label.\n\nExample: `#64748b`',
             },
             /* wwEditor:end */
         },
@@ -570,11 +794,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#e2e8f0',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the date separator divider line',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Divider line color.\n\nExample: `#e2e8f0`',
             },
             /* wwEditor:end */
         },
@@ -583,11 +814,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#ffffff',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'transparent',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color behind the date text',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Background behind date “pill”.\n\nExample: `#f8fafc`',
             },
             /* wwEditor:end */
         },
@@ -596,11 +834,18 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '4px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Border radius of the date separator',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Corner roundness for the date “pill”.\n\nExample: `4px`',
             },
             /* wwEditor:end */
         },
@@ -616,11 +861,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#f1f5f9',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'transparent',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Bubble background for others.\n\nExample: `#f1f5f9`',
             },
             /* wwEditor:end */
         },
@@ -629,62 +881,149 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#334155',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#111827',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text color of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Text color of others' messages.\n\nExample: `#334155`",
             },
             /* wwEditor:end */
         },
         messageFontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
+            options: {
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
+            },
             section: 'style',
             bindable: true,
-            defaultValue: '0.875rem',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1rem',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font size of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Font size of others' messages.\n\nExample: `0.875rem`, `16px`",
+            },
+            /* wwEditor:end */
         },
         messageFontWeight: {
             label: { en: 'Font Weight' },
             type: 'TextSelect',
             options: {
                 options: [
-                    { value: '300', label: { en: 'Light' } },
-                    { value: '400', label: { en: 'Normal' } },
-                    { value: '500', label: { en: 'Medium' } },
-                    { value: '600', label: { en: 'Semi Bold' } },
+                    { value: '100', label: { en: '100 - Thin' } },
+                    { value: '200', label: { en: '200 - Extra Light' } },
+                    { value: '300', label: { en: '300 - Light' } },
+                    { value: '400', label: { en: '400 - Normal' } },
+                    { value: '500', label: { en: '500 - Medium' } },
+                    { value: '600', label: { en: '600 - Semi Bold' } },
+                    { value: '700', label: { en: '700 - Bold' } },
+                    { value: '800', label: { en: '800 - Extra Bold' } },
+                    { value: '900', label: { en: '900 - Black' } },
                 ],
             },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '400',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font weight of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Font weight of others' messages.\n\nExample: `400`",
+            },
+            /* wwEditor:end */
         },
         messageFontFamily: {
             label: { en: 'Font Family' },
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'inherit',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font family of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Font family for others’ messages.\n\nExample: `inherit`, `Inter, sans-serif`, `Georgia, serif`',
+            },
+            /* wwEditor:end */
         },
         messageBorder: {
             label: { en: 'Border' },
             type: 'Border',
             section: 'style',
             bindable: true,
-            defaultValue: '1px solid #e2e8f0',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'none',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Border of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Border of others' messages bubble.\n\nExample: `1px solid #e2e8f0`",
             },
             /* wwEditor:end */
         },
         messageRadius: {
             label: { en: 'Border Radius' },
             type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '18px 18px 18px 18px',
+            /* wwEditor:start */
+            bindingValidation: {
+                markdown: 'border-radius',
+                type: 'string',
+                cssSupports: 'border-radius',
+                tooltip: 'Border radius of messages from others',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Corner roundness of others' messages bubble.\n\nExample: `18px 18px 18px 18px`, `12px`",
+            },
+            /* wwEditor:end */
         },
 
         // Own message styles
@@ -698,11 +1037,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#dbeafe',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'transparent',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Bubble background for current user's messages.\n\nExample: `#dbeafe`",
             },
             /* wwEditor:end */
         },
@@ -711,62 +1057,149 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#1e40af',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#111827',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text color of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Text color of current user's messages.\n\nExample: `#1e40af`",
             },
             /* wwEditor:end */
         },
         ownMessageFontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
+            options: {
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
+            },
             section: 'style',
             bindable: true,
-            defaultValue: '0.875rem',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1rem',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font size of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Font size of current user's messages.\n\nExample: `0.875rem`",
+            },
+            /* wwEditor:end */
         },
         ownMessageFontWeight: {
             label: { en: 'Font Weight' },
             type: 'TextSelect',
             options: {
                 options: [
-                    { value: '300', label: { en: 'Light' } },
-                    { value: '400', label: { en: 'Normal' } },
-                    { value: '500', label: { en: 'Medium' } },
-                    { value: '600', label: { en: 'Semi Bold' } },
+                    { value: '100', label: { en: '100 - Thin' } },
+                    { value: '200', label: { en: '200 - Extra Light' } },
+                    { value: '300', label: { en: '300 - Light' } },
+                    { value: '400', label: { en: '400 - Normal' } },
+                    { value: '500', label: { en: '500 - Medium' } },
+                    { value: '600', label: { en: '600 - Semi Bold' } },
+                    { value: '700', label: { en: '700 - Bold' } },
+                    { value: '800', label: { en: '800 - Extra Bold' } },
+                    { value: '900', label: { en: '900 - Black' } },
                 ],
             },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '400',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font weight of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Font weight of current user's messages.\n\nExample: `400`",
+            },
+            /* wwEditor:end */
         },
         ownMessageFontFamily: {
             label: { en: 'Font Family' },
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'inherit',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font family of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Font family for current user's messages.\n\nExample: `Inter`",
+            },
+            /* wwEditor:end */
         },
         ownMessageBorder: {
             label: { en: 'Border' },
             type: 'Border',
             section: 'style',
             bindable: true,
-            defaultValue: '1px solid #bfdbfe',
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'none',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Border of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Border of current user's messages bubble.\n\nExample: `1px solid #bfdbfe`",
             },
             /* wwEditor:end */
         },
         ownMessageRadius: {
             label: { en: 'Border Radius' },
             type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '18px 18px 18px 18px',
+            /* wwEditor:start */
+            bindingValidation: {
+                markdown: 'border-radius',
+                type: 'string',
+                cssSupports: 'border-radius',
+                tooltip: 'Border radius of your own messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    "Border radius of current user's messages bubble.\n\nExample: `18px 18px 18px 18px`, `12px`",
+            },
+            /* wwEditor:end */
         },
 
         // Input area styles
@@ -780,11 +1213,103 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#ffffff',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Background color of the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Background color of input area.\n\nExample: `#ffffff`',
+            },
+            /* wwEditor:end */
+        },
+        inputAreaBorder: {
+            label: { en: 'Input Area Border Top' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border top of the input area container',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Top border separating messages from input.\n\nExample: `1px solid #e2e8f0`',
+            },
+            /* wwEditor:end */
+        },
+        textAreaTitle: {
+            type: 'Title',
+            label: { en: 'Text Area' },
+            section: 'style',
+        },
+        textareaBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the textarea',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Border of text input.\n\nExample: `1px solid #e2e8f0`',
+            },
+            /* wwEditor:end */
+        },
+        textareaBorderHover: {
+            label: { en: 'Border (Hover)' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #cbd5e1',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the textarea on hover',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Border of text input on hover.\n\nExample: `1px solid #cbd5e1`',
+            },
+            /* wwEditor:end */
+        },
+        textareaBorderFocus: {
+            label: { en: 'Border (Focus)' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #3b82f6',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Border of the textarea when focused',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Border of text input on focus.\n\nExample: `1px solid #3b82f6`',
             },
             /* wwEditor:end */
         },
@@ -793,11 +1318,98 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#334155',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Text color of the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Text color of text input.\n\nExample: `#334155`',
+            },
+            /* wwEditor:end */
+        },
+        inputFontSize: {
+            label: { en: 'Font Size' },
+            type: 'Length',
+            options: {
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
+            },
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '0.875rem',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font size of the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Font size of text input.\n\nExample: `0.875rem`, `1rem`',
+            },
+            /* wwEditor:end */
+        },
+        inputFontWeight: {
+            label: { en: 'Font Weight' },
+            type: 'TextSelect',
+            options: {
+                options: [
+                    { value: '100', label: { en: '100 - Thin' } },
+                    { value: '200', label: { en: '200 - Extra Light' } },
+                    { value: '300', label: { en: '300 - Light' } },
+                    { value: '400', label: { en: '400 - Normal' } },
+                    { value: '500', label: { en: '500 - Medium' } },
+                    { value: '600', label: { en: '600 - Semi Bold' } },
+                    { value: '700', label: { en: '700 - Bold' } },
+                    { value: '800', label: { en: '800 - Extra Bold' } },
+                    { value: '900', label: { en: '900 - Black' } },
+                ],
+            },
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '400',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font weight of the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Font weight of text input.\n\nPossible values:`400`',
+            },
+            /* wwEditor:end */
+        },
+        inputFontFamily: {
+            label: { en: 'Font Family' },
+            type: 'FontFamily',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'inherit',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Font family of the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Font family of text input.\n\nExample: `monospace`',
             },
             /* wwEditor:end */
         },
@@ -806,187 +1418,539 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#94a3b8',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Placeholder text color in the message input',
             },
-            /* wwEditor:end */
-        },
-        inputBorder: {
-            label: { en: 'Border' },
-            type: 'Border',
-            section: 'style',
-            bindable: true,
-            defaultValue: '1px solid #e2e8f0',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Border of the message input',
+            propertyHelp: {
+                tooltip:
+                    'Color of placeholder text in text input.\n\nExample: `#94a3b8`',
             },
             /* wwEditor:end */
         },
-        inputMaxHeight: {
-            label: { en: 'Input Max Height' },
+        inputHeight: {
+            label: { en: 'Height' },
             type: 'Length',
             section: 'style',
             bindable: true,
-            defaultValue: '120px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Maximum height of the input area before scrolling',
-            },
-            /* wwEditor:end */
-        },
-        inputMinHeight: {
-            label: { en: 'Input Min Height' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '38px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'Minimum height of the input area',
+                tooltip: 'Fixed height of the input area',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Height of text input.\n\nExample: `38px`',
             },
             /* wwEditor:end */
         },
         inputBorderRadius: {
-            label: { en: 'Input Border Radius' },
-            type: 'Length',
+            label: { en: 'Border Radius' },
+            type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '20px',
             /* wwEditor:start */
             bindingValidation: {
+                markdown: 'border-radius',
                 type: 'string',
-                tooltip: 'Border radius of the input field',
+                cssSupports: 'border-radius',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Border radius of text input.\n\nExample: `20px`',
+            },
+            /* wwEditor:end */
+        },
+        inputActionAlign: {
+            label: { en: 'Action Align' },
+            type: 'TextSelect',
+            options: {
+                options: [
+                    { value: 'start', label: { en: 'Start' } },
+                    { value: 'center', label: { en: 'Center' } },
+                    { value: 'end', label: { en: 'End' } },
+                ],
+            },
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'end',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                enum: ['start', 'center', 'end'],
+                tooltip: 'Vertical alignment of the action buttons (send/attachment) within the input row',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Vertical alignment of action buttons beside the text input.\n\nPossible values: `start`, `center`, `end`',
+            },
+            /* wwEditor:end */
+        },
+        inputPlaceholder: {
+            label: { en: 'Placeholder Text' },
+            type: 'Text',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'Type a message...',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Placeholder text displayed in the message input',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Placeholder text shown in text input when empty.\n\nExample: `Type a message...`',
             },
             /* wwEditor:end */
         },
 
         // Icon properties
-        iconsTitle: {
+        sendTitle: {
             type: 'Title',
-            label: { en: 'Icons' },
+            label: { en: 'Send Icon' },
             section: 'style',
         },
         sendIcon: {
-            label: { en: 'Send Icon' },
+            label: { en: 'Icon' },
             type: 'SystemIcon',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'send',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Icon for the send button',
             },
+            propertyHelp: {
+                tooltip:
+                    'Icon used for the send button.\n\nExample: `lucide/send`, `lucide/chevron-right`',
+            },
             /* wwEditor:end */
         },
         sendIconColor: {
-            label: { en: 'Send Icon Color' },
+            label: { en: 'Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#334155',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the send button icon',
             },
+            propertyHelp: {
+                tooltip:
+                    'Send button icon color.\n\nExample: `#334155`',
+            },
             /* wwEditor:end */
         },
         sendIconSize: {
-            label: { en: 'Send Icon Size' },
+            label: { en: 'Size' },
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '20px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Size of the send button icon',
             },
+            propertyHelp: {
+                tooltip:
+                    'Send button icon size.\n\nExample: `20px`',
+            },
             /* wwEditor:end */
         },
-        attachmentIcon: {
+        attachmentTitle: {
+            type: 'Title',
             label: { en: 'Attachment Icon' },
+            section: 'style',
+        },
+        attachmentIcon: {
+            label: { en: 'Icon' },
             type: 'SystemIcon',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'paperclip',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Icon for the attachment button',
             },
+            propertyHelp: {
+                tooltip:
+                    'Icon for adding attachments button.\n\nExample: `lucide/paperclip`, `lucide/plus`',
+            },
             /* wwEditor:end */
         },
         attachmentIconColor: {
-            label: { en: 'Attachment Icon Color' },
+            label: { en: 'Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#334155',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the attachment button icon',
             },
+            propertyHelp: {
+                tooltip:
+                    'Attachment button icon color.\n\nExample: `#334155`',
+            },
             /* wwEditor:end */
         },
         attachmentIconSize: {
-            label: { en: 'Attachment Icon Size' },
+            label: { en: 'Size' },
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '20px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Size of the attachment button icon',
             },
+            propertyHelp: {
+                tooltip:
+                    'Attachment button icon size.\n\nExample: `20px`',
+            },
             /* wwEditor:end */
         },
-        removeIcon: {
+        removeTitle: {
+            type: 'Title',
             label: { en: 'Remove Attachment Icon' },
+            section: 'style',
+        },
+        removeIcon: {
+            label: { en: 'Icon' },
             type: 'SystemIcon',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'x',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Icon for the remove attachment button',
             },
+            propertyHelp: {
+                tooltip:
+                    'Icon used for remove attachment button.\n\nExample: `lucide/x`, `lucide/trash`',
+            },
             /* wwEditor:end */
         },
         removeIconColor: {
-            label: { en: 'Remove Icon Color' },
+            label: { en: 'Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '#334155',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Color of the remove attachment button icon',
             },
+            propertyHelp: {
+                tooltip:
+                    'Remove button icon color.\n\nExample: `#334155`',
+            },
             /* wwEditor:end */
         },
         removeIconSize: {
-            label: { en: 'Remove Icon Size' },
+            label: { en: 'Size' },
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: '16px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
                 tooltip: 'Size of the remove attachment button icon',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Remove button icon size.\n\nExample: `16px`',
+            },
+            /* wwEditor:end */
+        },
+
+        // Image preview (thumbnails inside messages)
+        imagePreviewTitle: {
+            type: 'Title',
+            label: { en: 'Image Preview' },
+            section: 'style',
+        },
+
+        // Send button styles
+        sendButtonTitle: {
+            type: 'Title',
+            label: { en: 'Send Button' },
+            section: 'style',
+        },
+        sendButtonBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Background (color or gradient) for the send button',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Background color of send button.\n\nExample: `#2563eb`, `linear-gradient(135deg,#3b82f6,#2563eb)`',
+            },
+            /* wwEditor:end */
+        },
+        sendButtonHoverBgColor: {
+            label: { en: 'Hover Background' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Hover background for the send button' },
+            propertyHelp: {
+                tooltip:
+                    'Background color of send button on hover.\n\nExample: `linear-gradient(135deg,#2563eb,#1d4ed8)`, `#1d4ed8`',
+            },
+            /* wwEditor:end */
+        },
+        sendButtonBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'none',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border for the send button' },
+            propertyHelp: {
+                tooltip:
+                    'Border of send button.\n\nExample: `1px solid #e2e8f0`',
+            },
+            /* wwEditor:end */
+        },
+        sendButtonBorderRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '12px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border radius of the send button' },
+            propertyHelp: {
+                tooltip:
+                    'Border radius of send button.\n\nExample: `12px`, `100%`',
+            },
+            /* wwEditor:end */
+        },
+        sendButtonSize: {
+            label: { en: 'Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '42px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Square size of the send button' },
+            propertyHelp: {
+                tooltip:
+                    'Width & height of send button.\n\nExample: `42px`',
+            },
+            /* wwEditor:end */
+        },
+        sendButtonBoxShadow: {
+            label: { en: 'Shadow' },
+            type: 'Shadows',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '0 2px 4px rgba(59, 130, 246, 0.3)',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Shadow applied to the send button' },
+            propertyHelp: {
+                tooltip:
+                    'Background shadow of send button.\n\nExample: `0 2px 4px rgba(59,130,246,.3)`',
+            },
+            /* wwEditor:end */
+        },
+
+        // Attachment button styles
+        attachmentButtonTitle: {
+            type: 'Title',
+            label: { en: 'Attachment Button' },
+            section: 'style',
+        },
+        attachmentButtonBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#f8fafc',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Background for the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Background color of attachment button.\n\nExample: `#f8fafc`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonHoverBgColor: {
+            label: { en: 'Hover Background' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#f1f5f9',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Hover background for the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Background color of attachment button on hover.\n\nExample: `#f1f5f9`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border for the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Border of attachment button.\n\nExample: `1px solid #e2e8f0`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBorderRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '12px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border radius of the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Border radius of attachment button.\n\nExample: `12px`, `8px`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonSize: {
+            label: { en: 'Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '42px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Square size of the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Width & height of attachment button.\n\nExample: `42px`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBoxShadow: {
+            label: { en: 'Shadow' },
+            type: 'Shadows',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '0 1px 2px rgba(0, 0, 0, 0.06)',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Shadow applied to the attachment button' },
+            propertyHelp: {
+                tooltip:
+                    'Background shadow of attachment button.\n\nExample: `0 1px 2px rgba(0,0,0,.06)`',
             },
             /* wwEditor:end */
         },
@@ -994,105 +1958,6 @@ export default {
         // ======== SETTINGS ========
 
         // User settings
-        userSettingsTitle: {
-            type: 'Title',
-            label: { en: 'User Settings' },
-            section: 'settings',
-        },
-        userName: {
-            label: { en: 'User Name' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: 'User',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Name to display for the current user',
-            },
-            propertyHelp: {
-                tooltip:
-                    'The display name for the current user that will appear on their messages and potentially in the header.\n\n**Examples**: John Doe, Customer Service, Support Agent',
-            },
-            /* wwEditor:end */
-        },
-        userAvatar: {
-            label: { en: 'User Avatar URL' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: '',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'URL of the user avatar image (initials will be used if empty)',
-            },
-            propertyHelp: {
-                tooltip:
-                    "URL to the image that will be displayed as the user's avatar. If left empty, the user's initials will be displayed instead.\n\n**Example**: https://example.com/avatars/user.jpg",
-            },
-            /* wwEditor:end */
-        },
-        userLocation: {
-            label: { en: 'User Location' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: '',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Location to display under the user name (optional)',
-            },
-            propertyHelp: {
-                tooltip:
-                    "Optional information to display under the user's name in the header, such as their location or status.\n\n**Examples**: New York USA, Online, Available until 5 PM",
-            },
-            /* wwEditor:end */
-        },
-        userStatus: {
-            label: { en: 'User Status' },
-            type: 'TextSelect',
-            options: {
-                options: [
-                    { value: 'online', label: { en: 'Online' } },
-                    { value: 'offline', label: { en: 'Offline' } },
-                    { value: 'away', label: { en: 'Away' } },
-                    { value: 'busy', label: { en: 'Busy' } },
-                ],
-            },
-            section: 'settings',
-            bindable: true,
-            defaultValue: 'online',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                enum: ['online', 'offline', 'away', 'busy'],
-                tooltip: 'Current status of the user',
-            },
-            propertyHelp: {
-                tooltip:
-                    'The current availability status of the user, displayed as a colored indicator in the chat header.\n\nEach status has a specific color: online (green), offline (gray), away (yellow), busy (red).',
-            },
-            /* wwEditor:end */
-        },
-        currentUserId: {
-            label: { en: 'Current User ID' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: 'current-user',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Unique identifier for the current user (used to identify your messages)',
-            },
-            propertyHelp: {
-                tooltip:
-                    'A unique ID that identifies the current user. This is used to determine which messages belong to the user versus other participants.\n\nThe component uses this ID to style messages differently depending on whether they are sent by the current user or others.\n\n**Examples**: user-123, customer-456, agent-789',
-            },
-            /* wwEditor:end */
-        },
 
         // Chat settings
         chatSettingsTitle: {
@@ -1100,35 +1965,8 @@ export default {
             label: { en: 'Chat Settings' },
             section: 'settings',
         },
-        groupAvatarSettingsTitle: {
-            type: 'Title',
-            label: { en: 'Group Avatar' },
-            section: 'settings',
-        },
-        groupChatAvatar: {
-            label: { en: 'Group Avatar URL' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: '',
-        },
-        groupChatTemplate: {
-            label: { en: 'Group Chat Text' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: 'Group Chat ({count} participants)',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Template for group chat header text. Use {count} as placeholder for number of participants.',
-            },
-            propertyHelp: {
-                tooltip:
-                    'The text displayed in the header when there are multiple chat participants.\n\nUse {count} as a placeholder which will be replaced with the actual number of participants in the conversation.\n\n**Examples**: Group Conversation ({count}), Chat Room - {count} people, Team Discussion',
-            },
-            /* wwEditor:end */
-        },
+        
+
         allowAttachments: {
             label: { en: 'Allow Attachments' },
             type: 'OnOff',
@@ -1142,7 +1980,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Enables the attachment button in the chat input, allowing users to send files and images.\n\nWhen enabled, an attachment button appears next to the input field. Images will be displayed with thumbnails, and other files will show appropriate icons.',
+                    'Enables attachment uploads in the input area.\n\nPossible values: `true`, `false`',
             },
             /* wwEditor:end */
         },
@@ -1159,7 +1997,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'When enabled, the entire chat component becomes inactive and users cannot send messages.\n\nUse this setting to temporarily disable chat functionality while maintaining the UI. The component will appear faded when disabled.',
+                    'Disables the entire chat UI and sending.\n\nPossible values: `true`, `false`',
             },
             /* wwEditor:end */
         },
@@ -1168,13 +2006,24 @@ export default {
             type: 'TextSelect',
             options: {
                 options: [
-                    { value: 'instant', label: { en: 'Instant' } },
                     { value: 'smooth', label: { en: 'Smooth' } },
+                    { value: 'auto', label: { en: 'Instant' } },
                 ],
             },
             section: 'settings',
             bindable: true,
-            defaultValue: 'smooth',
+            defaultValue: 'auto',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                enum: ['smooth', 'auto'],
+                tooltip: 'Behavior when automatically scrolling to new messages',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Scroll behavior when scrolling to new messages.\n\nPossible values: `smooth`, `auto`',
+            },
+            /* wwEditor:end */
         },
 
         // Localization settings
@@ -1275,7 +2124,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Sets the language and regional format for displaying dates and times in the chat.\n\nThis affects how dates, times, and relative time expressions (like "2 hours ago") are formatted according to regional standards.\n\n**Examples**:\n- enUS - "Today at 3:45 PM"\n- fr - "Aujourd\'hui à 15:45"\n- ptBR - "Hoje às 15:45"',
+                    'Language & regional format for dates/times.\n\nExample: `enUS`, `enGB`, `fr`, `de`, `es`',
             },
             /* wwEditor:end */
         },
@@ -1292,7 +2141,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Determines how time is displayed in the chat using date-fns format patterns.\n\nUses date-fns formatting tokens: h (hours 1-12), H (hours 0-23), mm (minutes), a (am/pm), etc.\n\n**Examples**:\n- h:mm a - "3:45 pm"\n- HH:mm - "15:45"\n- h:mm:ss a - "3:45:30 pm"\n\nSee [date-fns format documentation](https://date-fns.org/docs/format) for all pattern options.',
+                    'Controls the format of displayed times in the chat.\n\nExample: `h:mm a`, `HH:mm`, `h:mm:ss a`',
             },
             /* wwEditor:end */
         },
@@ -1309,7 +2158,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    "The text displayed for today's date in the date separator.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: Today, Aujourd'hui, Hoje, 今日",
+                    'Text used for “today” in date separators.\n\nExample: `Today`, `Aujourd’hui`, `Hoy`',
             },
             /* wwEditor:end */
         },
@@ -1326,7 +2175,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    "The text displayed for yesterday's date in the date separator.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: Yesterday, Hier, Ontem, 昨日",
+                    'Text used for “yesterday” in separators.\n\nExample: `Yesterday`, `Hier`, `Ayer`',
             },
             /* wwEditor:end */
         },
@@ -1343,7 +2192,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    "The text displayed for messages that were sent within the last minute.\n\nCustomize this text to match the language of your interface.\n\n**Examples**: just now, à l'instant, agora mesmo, 今すぐ",
+                    'Text for very recent messages (< 1 min).\n\nExample: `just now`, `à l’instant`, `ahora mismo`',
             },
             /* wwEditor:end */
         },
@@ -1354,81 +2203,12 @@ export default {
             label: { en: 'Chat Data' },
             section: 'settings',
         },
-        chatHistory: {
-            label: { en: 'Chat History' },
-            type: 'Array',
+        messages: {
+            label: { en: 'Messages' },
+            type: 'Info',
             section: 'settings',
             bindable: true,
             defaultValue: [],
-            options: {
-                item: {
-                    type: 'Object',
-                    defaultValue: {
-                        id: 'msg-1',
-                        text: 'Hello there!',
-                        senderId: 'user-1',
-                        userName: 'John Doe',
-                        timestamp: new Date().toISOString(),
-                    },
-                    options: {
-                        item: {
-                            id: {
-                                label: { en: 'Message ID' },
-                                type: 'Text',
-                            },
-                            text: {
-                                label: { en: 'Message Text' },
-                                type: 'Textarea',
-                            },
-                            senderId: {
-                                label: { en: 'Sender ID' },
-                                type: 'Text',
-                            },
-                            userName: {
-                                label: { en: 'Sender Name' },
-                                type: 'Text',
-                            },
-                            timestamp: {
-                                label: { en: 'Timestamp' },
-                                type: 'Text',
-                            },
-                            attachments: {
-                                label: { en: 'Attachments' },
-                                type: 'Array',
-                                options: {
-                                    item: {
-                                        type: 'Object',
-                                        options: {
-                                            item: {
-                                                id: {
-                                                    label: { en: 'ID' },
-                                                    type: 'Text',
-                                                },
-                                                name: {
-                                                    label: { en: 'Name' },
-                                                    type: 'Text',
-                                                },
-                                                type: {
-                                                    label: { en: 'MIME Type' },
-                                                    type: 'Text',
-                                                },
-                                                size: {
-                                                    label: { en: 'Size (bytes)' },
-                                                    type: 'Number',
-                                                },
-                                                url: {
-                                                    label: { en: 'URL' },
-                                                    type: 'Text',
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
             /* wwEditor:start */
             bindingValidation: {
                 type: 'array',
@@ -1436,35 +2216,15 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'An array of message objects that represent the conversation history.\n\nEach message should include id, text, senderId, userName, and timestamp properties. Optionally can include attachments.\n\n**Example**: \n```json\n[{ \n  "id": "msg-1", \n  "text": "Hello!", \n  "senderId": "user-1", \n  "userName": "John", \n  "timestamp": "2023-06-01T10:30:00Z" \n}]\n```',
+                    'A list of messages that represent the conversation history.\n\nEach message should include id, text, senderId, userName, and timestamp properties. Optionally can include attachments.\n\nExample:\n```json\n[{\n  "id": "msg-1",\n  "text": "Hello!",\n  "senderId": "user-1",\n  "userName": "John",\n  "timestamp": "2025-06-01T10:30:00Z",\n  "attachments": [\n    { "id": "file-1", "name": "image.png", "type": "image/png", "size": 204800, "url": "https://..." }\n  ]\n}]\n```',
             },
             /* wwEditor:end */
         },
-        streamingText: {
-            label: { en: 'Streaming Text' },
-            type: 'Text',
-            section: 'settings',
-            bindable: true,
-            defaultValue: '',
-        },
-        isStreaming: {
-            label: { en: 'Is Streaming' },
-            type: 'OnOff',
-            section: 'settings',
-            bindable: true,
-            defaultValue: false,
-        },
-        messageDataTitle: {
-            type: 'Title',
-            label: { en: 'Message Data Mapping' },
-            section: 'settings',
-        },
         mappingMessageId: {
-            label: { en: 'Message ID Mapping' },
+            label: { en: 'Message ID' },
             type: 'Formula',
             options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
             }),
             defaultValue: {
                 type: 'f',
@@ -1472,18 +2232,22 @@ export default {
             },
             section: 'settings',
             /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the unique message ID from each message object',
+            },
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the message ID from your data structure.\n\nThis formula is executed for each message in the chat history to determine its unique identifier.\n\n**Examples**:\n- `context.mapping?.["id"]`\n- `context.mapping?.["messageId"]`\n- `"msg-" + context.mapping?.["index"]`',
+                    'Mapping to the unique message ID in your `Messages` data.\n\nExample mapping: `context.mapping?.["id"]`\nExample value: `msg-1`',
             },
             /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingMessageText: {
-            label: { en: 'Message Text Mapping' },
+            label: { en: 'Message Text' },
             type: 'Formula',
             options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
             }),
             defaultValue: {
                 type: 'f',
@@ -1491,18 +2255,22 @@ export default {
             },
             section: 'settings',
             /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the message text content from each message object',
+            },
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the message text content from your data structure.\n\nThis formula is executed for each message in the chat history to get the text that will be displayed.\n\n**Examples**:\n- `context.mapping?.["text"]`\n- `context.mapping?.["content"]`\n- `context.mapping?.["message"]`',
+                    'Mapping to the message text in your `Messages` data.\n\nExample mapping: `context.mapping?.["text"]`\nExample value: `Hello! How are you?`',
             },
             /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingSenderId: {
-            label: { en: 'Sender ID Mapping' },
+            label: { en: 'Sender ID' },
             type: 'Formula',
             options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
             }),
             defaultValue: {
                 type: 'f',
@@ -1510,37 +2278,23 @@ export default {
             },
             section: 'settings',
             /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the sender ID from each message object',
+            },
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the sender ID from your data structure.\n\nThis formula is executed for each message to determine who sent it. This is compared with the currentUserId to style messages differently.\n\n**Examples**:\n- `context.mapping?.["senderId"]`\n- `context.mapping?.["userId"]`\n- `context.mapping?.["from"]`',
+                    'Mapping to the sender ID in your `Messages` data.\n\nExample mapping: `context.mapping?.["senderId"]`\nExample value `user-1`',
             },
             /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
-        mappingUserName: {
-            label: { en: 'User Name Mapping' },
-            type: 'Formula',
-            options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
-            }),
-            defaultValue: {
-                type: 'f',
-                code: "context.mapping?.['userName']",
-            },
-            section: 'settings',
-            /* wwEditor:start */
-            propertyHelp: {
-                tooltip:
-                    'Formula to extract the user display name from your data structure.\n\nThis formula is executed for each message to get the display name of the sender shown above their messages.\n\n**Examples**:\n- `context.mapping?.["userName"]`\n- `context.mapping?.["senderName"]`\n- `context.mapping?.["from_name"]`',
-            },
-            /* wwEditor:end */
-        },
+
         mappingTimestamp: {
-            label: { en: 'Timestamp Mapping' },
+            label: { en: 'Timestamp' },
             type: 'Formula',
             options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
             }),
             defaultValue: {
                 type: 'f',
@@ -1548,30 +2302,195 @@ export default {
             },
             section: 'settings',
             /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the timestamp from each message object',
+            },
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the timestamp from your data structure.\n\nThis formula is executed for each message to get the time when it was sent. Should return an ISO date string or Date object.\n\n**Examples**:\n- `context.mapping?.["timestamp"]`\n- `context.mapping?.["sentAt"]`\n- `context.mapping?.["date"]`',
+                    'Mapping to the timestamp in your `Messages` data.\n\nExample mapping: `context.mapping?.["timestamp"]`\nExample value: `2025-06-01T10:30:00Z`',
             },
             /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingAttachments: {
-            label: { en: 'Attachments Mapping' },
+            label: { en: 'Attachments' },
             type: 'Formula',
-            options: content => ({
-                template:
-                    Array.isArray(content.chatHistory) && content.chatHistory.length ? content.chatHistory[0] : null,
-            }),
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickTemplateMessageByMapping(messages, mapping) };
+            },
             defaultValue: {
                 type: 'f',
                 code: "context.mapping?.['attachments']",
             },
             section: 'settings',
             /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the attachments array from each message object',
+            },
             propertyHelp: {
                 tooltip:
-                    'Formula to extract the attachments array from your data structure.\n\nThis formula should return an array of attachment objects, each with id, name, type, size, and url properties.\n\n**Examples**:\n- `context.mapping?.["attachments"]`\n- `context.mapping?.["files"]`\n- `context.mapping?.["media"]`',
+                    'Mapping to the attachments in your `Messages` data.   \n\nExample mapping: `context.mapping?.["attachments"]`\nExample value:\n```json\n[{ \n  "id": "file-1", \n  "name": "image.png", \n  "type": "image/png", \n  "size": 204800, \n  "url": "https://www.file.com" \n}]\n```',
             },
             /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
+
+        // Attachments Data (visible only when mappingAttachments is provided)
+        attachmentsDataTitle: {
+            type: 'Title',
+            label: { en: 'Attachments Data' },
+            section: 'settings',
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentId: {
+            label: { en: 'ID' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['id']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment unique id' },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the unique ID in your `Attachments` data. \n\nExample mapping: `context.mapping?.["id"]`\nExample value: `file-1`',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentName: {
+            label: { en: 'Name' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['name']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the display name' },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the display name in your `Attachments` data. \n\nExample mapping: `context.mapping?.["name"]`\nExample value: `report.pdf`',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentUrl: {
+            label: { en: 'URL' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['url'] ?? context.mapping?.['href']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment URL' },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the file URL in your `Attachments` data. \n\nExample mapping: `context.mapping?.["url"]`\nExample value: `https://example.com/file.pdf`',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentType: {
+            label: { en: 'MIME Type' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['type'] ?? context.mapping?.['mime']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment MIME type' },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the MIME type in your `Attachments` data.   \n\nExample mapping: `context.mapping?.["type"]`\nExample value: `image/png`',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentSize: {
+            label: { en: 'Size (bytes)' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                const evalCode = (code, type, ctx) => {
+                    try {
+                        if (typeof code !== 'string') return undefined;
+                        const body = type === 'js' ? code : `return (${code});`;
+                        // eslint-disable-next-line no-new-func
+                        const fn = new Function('context', body);
+                        return fn(ctx);
+                    } catch (e) {
+                        return undefined;
+                    }
+                };
+                let attachment = null;
+                if (mapping?.code && messages.length) {
+                    for (const msg of messages) {
+                        const arr = evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+                        if (Array.isArray(arr) && arr.length) {
+                            attachment = arr[0];
+                            break;
+                        }
+                    }
+                }
+                if (!attachment) {
+                    const withAtt = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+                    attachment = withAtt ? withAtt.attachments[0] : null;
+                }
+                return { template: attachment };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['size'] ?? context.mapping?.['length']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment size in bytes' },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the file size in your `Attachments` data. \n\nExample mapping: `context.mapping?.["size"]`\nExample value: `102400`',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+
+        
     },
 };

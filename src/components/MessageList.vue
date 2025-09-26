@@ -65,20 +65,32 @@ export default {
         },
         messageBgColor: {
             type: String,
-            default: 'transparent',
+            default: '#f1f5f9',
         },
         messageTextColor: {
             type: String,
             default: '#334155',
         },
+        messageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        messageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        messageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         messageBorder: {
             type: String,
-            default: 'none',
+            default: '1px solid #e2e8f0',
         },
-        messageFontSize: { type: String, default: '0.875rem' },
-        messageFontWeight: { type: String, default: '400' },
-        messageFontFamily: { type: String, default: 'inherit' },
-        messageRadius: { type: String, default: '18px 18px 18px 18px' },
+        messageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
+        },
         ownMessageBgColor: {
             type: String,
             default: '#dbeafe',
@@ -87,17 +99,29 @@ export default {
             type: String,
             default: '#1e40af',
         },
-        ownMessageFontSize: { type: String, default: '0.875rem' },
-        ownMessageFontWeight: { type: String, default: '400' },
-        ownMessageFontFamily: { type: String, default: 'inherit' },
+        ownMessageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        ownMessageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        ownMessageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         ownMessageBorder: {
             type: String,
             default: '1px solid #bfdbfe',
         },
-        ownMessageRadius: { type: String, default: '18px 18px 18px 18px' },
+        ownMessageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
+        },
         emptyMessageText: {
             type: String,
-            default: 'No messages yet. Start a conversation!',
+            default: 'No messages yet',
         },
         emptyMessageColor: {
             type: String,
@@ -213,9 +237,17 @@ export default {
             emit('attachment-click', attachment);
         };
 
-        const handleRightClick = ({ message, x, y }) => {
+        const handleRightClick = ({ message, elementX, elementY, viewportX, viewportY }) => {
             if (isEditing.value) return;
-            emit('message-right-click', { message, position: { x, y } });
+            emit('message-right-click', {
+                message,
+                position: {
+                    elementX,
+                    elementY,
+                    viewportX,
+                    viewportY,
+                },
+            });
         };
 
         return {
@@ -236,15 +268,12 @@ export default {
 .ww-message-list {
     display: flex;
     flex-direction: column;
-    width: 100%;
 
     &__empty {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        min-height: 100px;
         opacity: 0.5;
     }
 
@@ -259,7 +288,6 @@ export default {
         justify-content: center;
         margin: 16px 0;
         position: relative;
-        width: 100%;
 
         &::before,
         &::after {
@@ -273,7 +301,7 @@ export default {
             padding: 0 12px;
             font-size: 0.75rem;
             color: var(--date-separator-text-color, #64748b);
-            background-color: var(--date-separator-bg-color, #ffffff);
+            background-color: var(--date-separator-bg-color, transparent);
             border-radius: var(--date-separator-border-radius, 4px);
         }
     }
@@ -282,15 +310,16 @@ export default {
 // Message transition animations
 .message-transition-enter-active,
 .message-transition-leave-active {
-    transition: opacity 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .message-transition-enter-from,
 .message-transition-leave-to {
     opacity: 0;
+    transform: translateY(10px);
 }
 
 .message-transition-move {
-    transition: transform 0.2s;
+    transition: transform 0.3s;
 }
 </style>

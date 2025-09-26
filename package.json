@@ -1,5 +1,5 @@
 {
-    "name": "ww-chat-ai",
+    "name": "ai-chat",
     "repository": {
         "type": "git",
         "url": "https://github.com/weweb-assets/ww-chat-ai"
@@ -19,9 +19,6 @@
     },
     "license": "MIT",
     "dependencies": {
-        "date-fns": "^4.1.0",
-        "prismjs": "^1.30.0",
-        "shiki": "^3.2.1",
-        "showdown": "^2.1.0"
+        "date-fns": "^4.1.0"
     }
 }

@@ -3,7 +3,6 @@
         class="ww-message-item"
         :class="{
             'ww-message-item--own': isOwnMessage,
-            'ww-message-item--ai': !isOwnMessage,
             'ww-message-item--continued': sameSenderAsPrevious,
             'ww-message-item--continue-next': sameSenderAsNext,
         }"
@@ -11,10 +10,7 @@
         <!-- Message content -->
         <div
             class="ww-message-item__content"
-            :class="{
-                'ww-message-item__content--own': isOwnMessage,
-                'ww-message-item__content--ai': !isOwnMessage,
-            }"
+            :class="{ 'ww-message-item__content--own': isOwnMessage }"
             :style="messageStyles"
             @contextmenu.prevent="handleRightClick"
         >
@@ -27,24 +23,35 @@
                 {{ message.userName }}
             </div>
 
-            <!-- Message text with Markdown -->
-            <div class="ww-message-item__text" v-html="formattedText"></div>
+            <!-- Message text -->
+            <div class="ww-message-item__text">
+                {{ message.text }}
+            </div>
 
             <!-- Attachments if any -->
-            <div v-if="message.attachments && message.attachments.length" class="ww-message-item__attachments">
+            <div v-if="formattedAttachments.length" class="ww-message-item__attachments">
                 <div
-                    v-for="attachment in message.attachments"
-                    :key="attachment.id"
+                    v-for="(attachmentMeta, index) in formattedAttachments"
+                    :key="attachmentMeta.attachment.id ?? index"
                     class="ww-message-item__attachment"
-                    @click="handleAttachmentClick(attachment)"
+                    :class="{ 'ww-message-item__attachment--own': isOwnMessage }"
+                    @click="handleAttachmentClick(attachmentMeta.attachment)"
                 >
                     <!-- Image preview for image files -->
-                    <div v-if="isImageFile(attachment)" class="ww-message-item__attachment-preview">
-                        <img :src="attachment.url" :alt="attachment.name" />
+                    <div
+                        v-if="attachmentMeta.isImage"
+                        class="ww-message-item__attachment-preview"
+                        :class="{ 'ww-message-item__attachment-preview--own': isOwnMessage }"
+                    >
+                        <img :src="attachmentMeta.attachment.url" :alt="attachmentMeta.attachment.name" />
                     </div>
 
                     <!-- File icon for non-image files -->
-                    <div v-else class="ww-message-item__attachment-file">
+                    <div
+                        v-else
+                        class="ww-message-item__attachment-file"
+                        :class="{ 'ww-message-item__attachment-file--own': isOwnMessage }"
+                    >
                         <div class="ww-message-item__attachment-icon">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -63,8 +70,10 @@
                             </svg>
                         </div>
                         <div class="ww-message-item__attachment-info">
-                            <div class="ww-message-item__attachment-name">{{ attachment.name }}</div>
-                            <div class="ww-message-item__attachment-size">{{ formatFileSize(attachment.size) }}</div>
+                            <div class="ww-message-item__attachment-name">{{ attachmentMeta.attachment.name }}</div>
+                            <div v-if="attachmentMeta.formattedSize" class="ww-message-item__attachment-size">
+                                {{ attachmentMeta.formattedSize }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -81,7 +90,6 @@
 <script>
 import { computed, inject } from 'vue';
 import { formatTime } from '../utils/dateTimeFormatter';
-import showdown from 'showdown';
 
 export default {
     name: 'MessageItem',
@@ -110,9 +118,18 @@ export default {
             type: String,
             default: '#334155',
         },
-        messageFontSize: { type: String, default: '0.875rem' },
-        messageFontWeight: { type: String, default: '400' },
-        messageFontFamily: { type: String, default: 'inherit' },
+        messageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        messageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        messageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         messageBorder: {
             type: String,
             default: '1px solid #e2e8f0',
@@ -125,15 +142,30 @@ export default {
             type: String,
             default: '#1e40af',
         },
-        ownMessageFontSize: { type: String, default: '0.875rem' },
-        ownMessageFontWeight: { type: String, default: '400' },
-        ownMessageFontFamily: { type: String, default: 'inherit' },
+        ownMessageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        ownMessageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        ownMessageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         ownMessageBorder: {
             type: String,
             default: '1px solid #bfdbfe',
         },
-        messageRadius: { type: String, default: '18px 18px 18px 18px' },
-        ownMessageRadius: { type: String, default: '18px 18px 18px 18px' },
+        messageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
+        },
+        ownMessageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
+        },
     },
     emits: ['attachment-click', 'right-click'],
     setup(props, { emit }) {
@@ -141,33 +173,12 @@ export default {
             'isEditing',
             computed(() => false)
         );
+        const chatRootEl = inject('chatRootEl', null);
 
         const dateTimeOptions = inject(
             'dateTimeOptions',
             computed(() => ({}))
         );
-
-        const converter = new showdown.Converter({
-            tables: true,
-            tasklists: true,
-            strikethrough: true,
-            emoji: true,
-            openLinksInNewWindow: true,
-            ghCodeBlocks: true,
-            simpleLineBreaks: true,
-            parseImgDimensions: true,
-            simplifiedAutoLink: true,
-            literalMidWordUnderscores: true,
-            literalMidWordAsterisks: true,
-            noHeaderId: true,
-            headerLevelStart: 3,
-            disableForced4SpacesIndentedSublists: true,
-        });
-
-        const formattedText = computed(() => {
-            if (!props.message.text) return '';
-            return converter.makeHtml(props.message.text);
-        });
 
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
@@ -182,10 +193,12 @@ export default {
                 };
             } else {
                 return {
-                    width: '100%',
+                    backgroundColor: props.messageBgColor,
+                    color: props.messageTextColor,
                     fontSize: props.messageFontSize,
                     fontWeight: props.messageFontWeight,
                     fontFamily: props.messageFontFamily,
+                    border: props.messageBorder,
                     '--message-radius': props.messageRadius,
                 };
             }
@@ -196,13 +209,25 @@ export default {
             return attachment.type.startsWith('image/');
         };
 
-        const formatFileSize = bytes => {
-            if (!bytes || bytes === 0) return '0 Bytes';
+        const formatFileSize = rawSize => {
+            const bytes = Number(rawSize);
+            if (!Number.isFinite(bytes) || bytes < 0) return '';
+            if (bytes === 0) return '0 Bytes';
 
             const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
+            const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), sizes.length - 1);
+            const value = bytes / Math.pow(1024, index);
+            return `${parseFloat(value.toFixed(2))} ${sizes[index]}`;
         };
+
+        const formattedAttachments = computed(() => {
+            const attachments = Array.isArray(props.message.attachments) ? props.message.attachments : [];
+            return attachments.map(attachment => ({
+                attachment,
+                isImage: isImageFile(attachment),
+                formattedSize: formatFileSize(attachment.size),
+            }));
+        });
 
         const formatMessageTime = timestamp => {
             return formatTime(timestamp, dateTimeOptions.value);
@@ -214,17 +239,38 @@ export default {
         };
 
         const handleRightClick = event => {
-            const rect = event.target.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            emit('right-click', { message: props.message, x, y });
+            // Coordinates relative to the chat root element
+            let elementX = 0;
+            let elementY = 0;
+            const root = chatRootEl && chatRootEl.value ? chatRootEl.value : null;
+            if (root && typeof root.getBoundingClientRect === 'function') {
+                const chatRect = root.getBoundingClientRect();
+                elementX = event.clientX - chatRect.left;
+                elementY = event.clientY - chatRect.top;
+            } else {
+                // Fallback: treat client coords as element-relative if root not found
+                elementX = event.clientX;
+                elementY = event.clientY;
+            }
+
+            // Coordinates relative to page top-left
+            const viewportX = event.pageX;
+            const viewportY = event.pageY;
+
+            emit('right-click', {
+                message: props.message,
+                elementX,
+                elementY,
+                viewportX,
+                viewportY,
+            });
         };
 
         return {
             messageStyles,
-            formattedText,
             isImageFile,
             formatFileSize,
+            formattedAttachments,
             formatMessageTime,
             handleAttachmentClick,
             handleRightClick,
@@ -237,42 +283,36 @@ export default {
 .ww-message-item {
     display: flex;
     margin-bottom: 4px;
-    width: 100%;
 
     &--own {
         justify-content: flex-end;
     }
 
-    &--ai {
-        justify-content: flex-start;
-        width: 100%;
-    }
-
     &__content {
+        max-width: 70%;
+        padding: 0; /* backgroundless, ChatGPT-like */
+        border-radius: var(--message-radius, 18px 18px 18px 18px);
         position: relative;
+        box-shadow: none;
 
         &:not(.ww-message-item--continued) {
             margin-top: 8px;
         }
 
-        &--own {
-            max-width: 70%;
-            padding: 10px 12px;
-            border-radius: var(--message-radius, 18px 18px 18px 18px);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        .ww-message-item--continued & {
+            margin-top: 2px;
         }
 
-        &--ai {
-            width: 100%;
-            padding: 4px 0;
+        .ww-message-item--continue-next & {
+            margin-bottom: 2px;
         }
     }
 
     &__sender {
         font-weight: 600;
         font-size: 0.75rem;
-        margin-bottom: 2px;
-        opacity: 0.8;
+        margin-bottom: 4px;
+        opacity: 0.6; /* subtle */
 
         &--own {
             text-align: right;
@@ -280,85 +320,8 @@ export default {
     }
 
     &__text {
-        font-size: 0.9375rem;
-        line-height: 1.5;
+        line-height: 1.4;
         word-break: break-word;
-
-        :deep(a) {
-            color: inherit;
-            text-decoration: underline;
-        }
-
-        :deep(pre) {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 12px;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-family: monospace;
-            white-space: pre;
-            margin: 12px 0;
-        }
-
-        :deep(code) {
-            font-family: monospace;
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-
-        :deep(:not(pre) > code) {
-            white-space: pre-wrap;
-        }
-
-        :deep(pre > code) {
-            white-space: pre;
-            display: block;
-            padding: 0;
-            background-color: transparent;
-        }
-
-        :deep(blockquote) {
-            border-left: 3px solid rgba(0, 0, 0, 0.1);
-            padding-left: 10px;
-            margin: 12px 0 12px 0;
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        :deep(ul, ol) {
-            padding-left: 20px;
-            margin: 8px 0;
-        }
-
-        :deep(p) {
-            margin: 8px 0;
-        }
-
-        :deep(h3, h4, h5, h6) {
-            margin: 16px 0 8px 0;
-        }
-
-        :deep(img) {
-            max-width: 100%;
-            margin: 8px 0;
-            border-radius: 4px;
-        }
-
-        :deep(table) {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 12px 0;
-
-            th,
-            td {
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                padding: 8px;
-                text-align: left;
-            }
-
-            th {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-        }
     }
 
     &__time {
@@ -374,6 +337,11 @@ export default {
         display: flex;
         flex-direction: column;
         gap: 8px;
+        align-items: flex-start;
+
+        .ww-message-item--own & {
+            align-items: flex-end;
+        }
     }
 
     &__attachment {
@@ -382,22 +350,27 @@ export default {
         background-color: rgba(255, 255, 255, 0.1);
         cursor: pointer;
 
-        &:hover {
-            opacity: 0.9;
+        &--own {
+            align-self: flex-end;
         }
     }
 
     &__attachment-preview {
-        max-width: 250px;
-        max-height: 200px;
+        max-width: var(--ww-chat-attachment-thumb-max-width, 250px);
+        max-height: var(--ww-chat-attachment-thumb-max-height, 200px);
         display: flex;
         align-items: center;
         justify-content: center;
 
+        &--own {
+            justify-content: flex-end;
+        }
+
         img {
             max-width: 100%;
-            max-height: 200px;
+            max-height: var(--ww-chat-attachment-thumb-max-height, 200px);
             object-fit: contain;
+            border-radius: var(--ww-chat-attachment-thumb-radius, 6px);
         }
     }
 
@@ -407,6 +380,24 @@ export default {
         padding: 8px;
         background-color: rgba(255, 255, 255, 0.15);
         border-radius: 6px;
+        max-width: 200px;
+
+        &:hover {
+            opacity: 0.9;
+        }
+
+        &--own {
+            flex-direction: row-reverse;
+
+            .ww-message-item__attachment-icon {
+                margin-right: 0;
+                margin-left: 8px;
+            }
+
+            .ww-message-item__attachment-info {
+                text-align: right;
+            }
+        }
     }
 
     &__attachment-icon {

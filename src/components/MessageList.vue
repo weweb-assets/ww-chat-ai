@@ -19,7 +19,7 @@
                 <message-item
                     v-else
                     :message="message"
-                    :is-own-message="message.senderId === currentUserId"
+                    :is-own-message="message.role === 'user'"
                     :same-sender-as-previous="isSameSenderAsPrevious(index)"
                     :same-sender-as-next="isSameSenderAsNext(index)"
                     :message-bg-color="messageBgColor"
@@ -36,11 +36,41 @@
                     :own-message-font-family="ownMessageFontFamily"
                     :own-message-border="ownMessageBorder"
                     :own-message-radius="ownMessageRadius"
+                    :user-label="userLabel"
+                    :assistant-label="assistantLabel"
                     @attachment-click="handleAttachmentClick"
                     @right-click="handleRightClick"
                 />
             </div>
         </transition-group>
+
+        <!-- Streaming message -->
+        <div v-if="isStreaming && streamingText" class="ww-message-list__streaming">
+            <message-item
+                :message="streamingMessage"
+                :is-own-message="false"
+                :same-sender-as-previous="false"
+                :same-sender-as-next="false"
+                :message-bg-color="messageBgColor"
+                :message-text-color="messageTextColor"
+                :message-font-size="messageFontSize"
+                :message-font-weight="messageFontWeight"
+                :message-font-family="messageFontFamily"
+                :message-border="messageBorder"
+                :message-radius="messageRadius"
+                :own-message-bg-color="ownMessageBgColor"
+                :own-message-text-color="ownMessageTextColor"
+                :own-message-font-size="ownMessageFontSize"
+                :own-message-font-weight="ownMessageFontWeight"
+                :own-message-font-family="ownMessageFontFamily"
+                :own-message-border="ownMessageBorder"
+                :own-message-radius="ownMessageRadius"
+                :user-label="userLabel"
+                :assistant-label="assistantLabel"
+                @attachment-click="handleAttachmentClick"
+                @right-click="handleRightClick"
+            />
+        </div>
     </div>
 </template>
 
@@ -63,9 +93,25 @@ export default {
             type: String,
             required: true,
         },
+        userLabel: {
+            type: String,
+            default: 'You',
+        },
+        assistantLabel: {
+            type: String,
+            default: 'Assistant',
+        },
+        isStreaming: {
+            type: Boolean,
+            default: false,
+        },
+        streamingText: {
+            type: String,
+            default: '',
+        },
         messageBgColor: {
             type: String,
-            default: '#f1f5f9',
+            default: 'transparent',
         },
         messageTextColor: {
             type: String,
@@ -196,6 +242,15 @@ export default {
             return result;
         });
 
+        const streamingMessage = computed(() => ({
+            id: 'streaming',
+            text: props.streamingText,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+            userName: props.assistantLabel,
+            attachments: [],
+        }));
+
         const isSameSenderAsPrevious = index => {
             if (index === 0) return false;
 
@@ -206,7 +261,7 @@ export default {
             while (prevIndex >= 0) {
                 const prevMessage = groupedMessages.value[prevIndex];
                 if (prevMessage.type !== 'date-separator') {
-                    return currentMessage.senderId === prevMessage.senderId;
+                    return currentMessage.role === prevMessage.role;
                 }
                 prevIndex--;
             }
@@ -224,7 +279,7 @@ export default {
             while (nextIndex < groupedMessages.value.length) {
                 const nextMessage = groupedMessages.value[nextIndex];
                 if (nextMessage.type !== 'date-separator') {
-                    return currentMessage.senderId === nextMessage.senderId;
+                    return currentMessage.role === nextMessage.role;
                 }
                 nextIndex++;
             }
@@ -252,6 +307,7 @@ export default {
 
         return {
             groupedMessages,
+            streamingMessage,
             isSameSenderAsPrevious,
             isSameSenderAsNext,
             handleAttachmentClick,
@@ -301,7 +357,7 @@ export default {
             padding: 0 12px;
             font-size: 0.75rem;
             color: var(--date-separator-text-color, #64748b);
-            background-color: var(--date-separator-bg-color, transparent);
+            background-color: var(--date-separator-bg-color, #ffffff);
             border-radius: var(--date-separator-border-radius, 4px);
         }
     }

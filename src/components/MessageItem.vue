@@ -3,6 +3,7 @@
         class="ww-message-item"
         :class="{
             'ww-message-item--own': isOwnMessage,
+            'ww-message-item--assistant': isAssistantMessage,
             'ww-message-item--continued': sameSenderAsPrevious,
             'ww-message-item--continue-next': sameSenderAsNext,
         }"
@@ -10,17 +11,23 @@
         <!-- Message content -->
         <div
             class="ww-message-item__content"
-            :class="{ 'ww-message-item__content--own': isOwnMessage }"
+            :class="{
+                'ww-message-item__content--own': isOwnMessage,
+                'ww-message-item__content--assistant': isAssistantMessage
+            }"
             :style="messageStyles"
             @contextmenu.prevent="handleRightClick"
         >
             <!-- Sender name if first in group -->
             <div
-                v-if="!sameSenderAsPrevious"
+                v-if="!sameSenderAsPrevious && showSenderName"
                 class="ww-message-item__sender"
-                :class="{ 'ww-message-item__sender--own': isOwnMessage }"
+                :class="{
+                    'ww-message-item__sender--own': isOwnMessage,
+                    'ww-message-item__sender--assistant': isAssistantMessage
+                }"
             >
-                {{ message.userName }}
+                {{ senderDisplayName }}
             </div>
 
             <!-- Message text -->
@@ -112,7 +119,7 @@ export default {
         },
         messageBgColor: {
             type: String,
-            default: '#f1f5f9',
+            default: 'transparent',
         },
         messageTextColor: {
             type: String,
@@ -132,15 +139,15 @@ export default {
         },
         messageBorder: {
             type: String,
-            default: '1px solid #e2e8f0',
+            default: 'none',
         },
         ownMessageBgColor: {
             type: String,
-            default: '#dbeafe',
+            default: '#f4f4f4',
         },
         ownMessageTextColor: {
             type: String,
-            default: '#1e40af',
+            default: '#1e1e1e',
         },
         ownMessageFontSize: {
             type: String,
@@ -156,15 +163,23 @@ export default {
         },
         ownMessageBorder: {
             type: String,
-            default: '1px solid #bfdbfe',
+            default: '1px solid #d0d0d0',
         },
         messageRadius: {
             type: String,
-            default: '18px 18px 18px 18px',
+            default: '0px',
         },
         ownMessageRadius: {
             type: String,
-            default: '18px 18px 18px 18px',
+            default: '18px',
+        },
+        userLabel: {
+            type: String,
+            default: 'You',
+        },
+        assistantLabel: {
+            type: String,
+            default: 'Assistant',
         },
     },
     emits: ['attachment-click', 'right-click'],
@@ -179,6 +194,21 @@ export default {
             'dateTimeOptions',
             computed(() => ({}))
         );
+
+        const isAssistantMessage = computed(() => {
+            return props.message.role === 'assistant';
+        });
+
+        const senderDisplayName = computed(() => {
+            if (props.isOwnMessage) {
+                return props.userLabel;
+            }
+            return props.message.userName || props.assistantLabel;
+        });
+
+        const showSenderName = computed(() => {
+            return true;
+        });
 
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
@@ -267,6 +297,9 @@ export default {
         };
 
         return {
+            isAssistantMessage,
+            senderDisplayName,
+            showSenderName,
             messageStyles,
             isImageFile,
             formatFileSize,
@@ -288,12 +321,27 @@ export default {
         justify-content: flex-end;
     }
 
+    &--assistant {
+        justify-content: flex-start;
+    }
+
     &__content {
         max-width: 70%;
-        padding: 0; /* backgroundless, ChatGPT-like */
+        padding: 10px 12px;
         border-radius: var(--message-radius, 18px 18px 18px 18px);
         position: relative;
-        box-shadow: none;
+
+        &--own {
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        &--assistant {
+            padding: 12px 0;
+            max-width: 100%;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
 
         &:not(.ww-message-item--continued) {
             margin-top: 8px;
@@ -311,8 +359,8 @@ export default {
     &__sender {
         font-weight: 600;
         font-size: 0.75rem;
-        margin-bottom: 4px;
-        opacity: 0.6; /* subtle */
+        margin-bottom: 2px;
+        opacity: 0.8;
 
         &--own {
             text-align: right;

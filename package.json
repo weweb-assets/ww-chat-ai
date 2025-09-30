@@ -1,10 +1,10 @@
 {
-    "name": "ai-chat",
+    "name": "ww-chat-ai",
     "repository": {
         "type": "git",
         "url": "https://github.com/weweb-assets/ww-chat-ai"
     },
-    "version": "3.3.0",
+    "version": "1.0.0",
     "scripts": {
         "build": "weweb build",
         "serve": "weweb serve"

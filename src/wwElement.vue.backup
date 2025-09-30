@@ -1,14 +1,33 @@
 <template>
-    <div ref="chatRoot" class="ww-chat-ai" :class="{ 'ww-chat-ai--disabled': isDisabled }" :style="containerStyles">
+    <div ref="chatRoot" class="ww-chat" :class="{ 'ww-chat--disabled': isDisabled }" :style="containerStyles">
+        <!-- Chat Header -->
+        <ChatHeader
+            v-if="displayHeader"
+            :user-name="headerUserName"
+            :user-avatar="headerUserAvatar"
+            :user-location="headerUserLocation"
+            :user-status="headerUserStatus"
+            :avatar-bg-color="headerAvatarBgColor"
+            :header-bg-color="headerBgColor"
+            :text-color="headerTextColor"
+            :header-border="headerBorder"
+            :header-padding="headerPadding"
+            :name-font-size="headerNameFontSize"
+            :name-font-weight="headerNameFontWeight"
+            :location-font-size="headerLocationFontSize"
+            :location-opacity="headerLocationOpacity"
+            :close-button-color="headerCloseButtonColor"
+            :close-button-bg-hover="headerCloseButtonBgHover"
+            :show-close-button="headerShowCloseButton"
+            :participants="headerParticipants"
+            @close="handleClose"
+        />
+
         <!-- Messages Area -->
-        <div ref="messagesContainer" class="ww-chat-ai__messages" :style="messagesContainerStyles">
+        <div ref="messagesContainer" class="ww-chat__messages" :style="messagesContainerStyles">
             <MessageList
                 :messages="messages"
-                :current-user-id="'user'"
-                :user-label="userLabel"
-                :assistant-label="assistantLabel"
-                :is-streaming="isStreaming"
-                :streaming-text="streamingText"
+                :current-user-id="currentUserId"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -25,6 +44,12 @@
                 :own-message-radius="ownMessageRadius"
                 :empty-message-text="emptyMessageText"
                 :empty-message-color="emptyMessageColor"
+                :date-separator-text-color="dateSeparatorTextColor"
+                :date-separator-line-color="dateSeparatorLineColor"
+                :date-separator-bg-color="dateSeparatorBgColor"
+                :date-separator-border-radius="dateSeparatorBorderRadius"
+                @attachment-click="handleAttachmentClick"
+                @message-right-click="handleMessageRightClick"
             />
         </div>
 
@@ -32,8 +57,8 @@
         <InputArea
             v-model="newMessage"
             :is-disabled="isDisabled"
-            :allow-attachments="false"
-            :pending-attachments="[]"
+            :allow-attachments="allowAttachments"
+            :pending-attachments="pendingAttachments"
             :input-bg-color="inputBgColor"
             :input-text-color="inputTextColor"
             :input-font-size="inputFontSize"
@@ -51,19 +76,35 @@
             :send-icon="sendIcon"
             :send-icon-color="sendIconColor"
             :send-icon-size="sendIconSize"
+            :attachment-icon="attachmentIcon"
+            :attachment-icon-color="attachmentIconColor"
+            :attachment-icon-size="attachmentIconSize"
+            :remove-icon="removeIcon"
+            :remove-icon-color="removeIconColor"
+            :remove-icon-size="removeIconSize"
             :send-button-bg-color="sendButtonBgColor"
             :send-button-hover-bg-color="sendButtonHoverBgColor"
             :send-button-border="sendButtonBorder"
             :send-button-border-radius="sendButtonBorderRadius"
             :send-button-size="sendButtonSize"
             :send-button-box-shadow="sendButtonBoxShadow"
+            :attachment-button-bg-color="attachmentButtonBgColor"
+            :attachment-button-hover-bg-color="attachmentButtonHoverBgColor"
+            :attachment-button-border="attachmentButtonBorder"
+            :attachment-button-border-radius="attachmentButtonBorderRadius"
+            :attachment-button-size="attachmentButtonSize"
+            :attachment-button-box-shadow="attachmentButtonBoxShadow"
             @send="sendMessage"
+            @attachment="handleAttachment"
+            @remove-attachment="handleRemoveAttachment"
+            @pending-attachment-click="handlePendingAttachmentClick"
         />
     </div>
 </template>
 
 <script>
 import { ref, computed, watch, nextTick, provide, onMounted } from 'vue';
+import ChatHeader from './components/ChatHeader.vue';
 import MessageList from './components/MessageList.vue';
 import InputArea from './components/InputArea.vue';
 
@@ -122,8 +163,9 @@ import {
 } from 'date-fns/locale';
 
 export default {
-    name: 'ChatAI',
+    name: 'Chat',
     components: {
+        ChatHeader,
         MessageList,
         InputArea,
     },
@@ -153,6 +195,7 @@ export default {
         const messagesContainer = ref(null);
         const newMessage = ref('');
         const isScrolling = ref(false);
+        const pendingAttachments = ref([]);
 
         const debounce = (func, delay) => {
             let timeoutId;
@@ -196,11 +239,37 @@ export default {
             return false;
         });
 
-        // Labels for user and assistant
-        const userLabel = computed(() => props.content?.userLabel || 'You');
-        const assistantLabel = computed(() => props.content?.assistantLabel || 'Assistant');
-        const isStreaming = computed(() => props.content?.isStreaming || false);
-        const streamingText = computed(() => props.content?.streamingText || '');
+        // Participants mapping
+        const resolveParticipantMapping = (obj, formula, fallbackKey) => {
+            if (!obj || typeof obj !== 'object') return undefined;
+            if (!formula) return obj[fallbackKey];
+            return resolveMappingFormula(formula, obj);
+        };
+
+        const rawParticipants = computed(() => props.content?.participants || []);
+
+        const participants = computed(() => {
+            if (!Array.isArray(rawParticipants.value)) return [];
+            return rawParticipants.value
+                .map(p => {
+                    const id = resolveParticipantMapping(p, props.content?.mappingParticipantId, 'id');
+                    const name =
+                        resolveParticipantMapping(p, props.content?.mappingParticipantName, 'name') ||
+                        resolveParticipantMapping(p, props.content?.mappingParticipantName, 'userName') ||
+                        'User';
+                    const avatar =
+                        resolveParticipantMapping(p, props.content?.mappingParticipantAvatar, 'avatar') ||
+                        resolveParticipantMapping(p, props.content?.mappingParticipantAvatar, 'avatarUrl') ||
+                        '';
+                    const location = resolveParticipantMapping(p, props.content?.mappingParticipantLocation, 'location') || '';
+                    const status = resolveParticipantMapping(p, props.content?.mappingParticipantStatus, 'status') || 'online';
+                    const isCurrentUser = !!resolveParticipantMapping(p, props.content?.mappingIsCurrentUser, 'isCurrentUser');
+                    return { id, name, avatar, location, status, isCurrentUser };
+                })
+                .filter(p => !!p.id);
+        });
+
+        const currentUserId = computed(() => participants.value.find(p => p.isCurrentUser)?.id || '');
         const rawMessages = computed(() => {
             // Ensure we always have an array to work with
             const messagesContent = props.content?.messages;
@@ -215,33 +284,86 @@ export default {
         });
 
         const messages = computed(() => {
+            const mapAttachmentField = (obj, formula, fallbackKey) => {
+                if (!obj || typeof obj !== 'object') return undefined;
+                if (!formula) return obj[fallbackKey];
+                return resolveMappingFormula(formula, obj);
+            };
+
             return rawMessages.value.map(message => {
                 if (!message || typeof message !== 'object') {
                     return {
                         id: `msg-${wwLib.wwUtils.getUid()}`,
                         text: '',
-                        role: 'assistant',
-                        timestamp: new Date().toISOString(),
-                        userName: assistantLabel.value,
+                        senderId: '',
+                        userName: '',
+                        avatar: '',
+                        location: '',
+                        status: '',
+                        timestamp: '',
+                        attachments: [],
+                        userSettings: {},
+                        _originalData: message,
                     };
                 }
 
-                const text = resolveMapping(message, props.content?.mappingMessageText, 'text') || '';
-                const role = resolveMapping(message, props.content?.mappingRole, 'role') || 'assistant';
-                const timestamp = resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') || new Date().toISOString();
+                const senderId = resolveMapping(message, props.content?.mappingSenderId, 'senderId') || '';
+                const participant = participants.value.find(p => p.id === senderId);
+                const displayUserName = participant?.name || 'Unknown User';
+                const userSettings = {
+                    userName: participant?.name || '',
+                    userAvatar: participant?.avatar || '',
+                    userLocation: participant?.location || '',
+                    userStatus: participant?.status || 'online',
+                };
+
+                // Map attachments with optional field mappings
+                const rawAttachments = resolveMapping(message, props.content?.mappingAttachments, 'attachments');
+                let attachments;
+                if (Array.isArray(rawAttachments)) {
+                    attachments = rawAttachments.map(att => {
+                        if (!att || typeof att !== 'object') return att;
+                        return {
+                            id: mapAttachmentField(att, props.content?.mappingAttachmentId, 'id'),
+                            name: mapAttachmentField(att, props.content?.mappingAttachmentName, 'name'),
+                            url: mapAttachmentField(att, props.content?.mappingAttachmentUrl, 'url'),
+                            type: mapAttachmentField(att, props.content?.mappingAttachmentType, 'type'),
+                            size: mapAttachmentField(att, props.content?.mappingAttachmentSize, 'size'),
+                            // Preserve local upload File if present
+                            file: att.file,
+                        };
+                    });
+                } else {
+                    attachments = rawAttachments;
+                }
 
                 return {
-                    id: `msg-${wwLib.wwUtils.getUid()}`,
-                    text,
-                    role: role === 'user' ? 'user' : 'assistant',
-                    timestamp,
-                    userName: role === 'user' ? userLabel.value : assistantLabel.value,
+                    id:
+                        resolveMapping(message, props.content?.mappingMessageId, 'id') ||
+                        `msg-${wwLib.wwUtils.getUid()}`,
+                    text: resolveMapping(message, props.content?.mappingMessageText, 'text') || '',
+                    senderId: senderId,
+                    userName: displayUserName,
+                    avatar: userSettings.userAvatar,
+                    location: userSettings.userLocation,
+                    status: userSettings.userStatus,
+                    timestamp:
+                        resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') ||
+                        new Date().toISOString(),
+                    attachments,
+                    userSettings: userSettings,
+                    _originalData: message,
                 };
             });
         });
 
         const isDisabled = computed(() => props.content?.disabled || false);
-        const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Message...');
+        const displayHeader = computed(() => props.content?.displayHeader !== false);
+        const allowAttachments = computed(() => props.content?.allowAttachments || false);
+        const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Type a message...');
+
+        // User properties - use direct props since we no longer have global user settings
+        const currentUserParticipant = computed(() => participants.value.find(p => p.isCurrentUser));
 
         // Style properties
         const containerStyles = computed(() => ({
@@ -255,22 +377,35 @@ export default {
             padding: messagesAreaPadding.value,
         }));
 
+        // Header styles
+        const headerBgColor = computed(() => props.content?.headerBgColor || '#ffffff');
+        const headerTextColor = computed(() => props.content?.headerTextColor || '#1e293b');
+        const headerBorder = computed(() => props.content?.headerBorder || '1px solid #e2e8f0');
+
+        const headerPadding = computed(() => props.content?.headerPadding || '16px');
+        const headerNameFontSize = computed(() => props.content?.headerNameFontSize || '18px');
+        const headerNameFontWeight = computed(() => props.content?.headerNameFontWeight || '600');
+        const headerLocationFontSize = computed(() => props.content?.headerLocationFontSize || '14px');
+        const headerLocationOpacity = computed(() => props.content?.headerLocationOpacity || '0.7');
+        const headerCloseButtonColor = computed(() => props.content?.headerCloseButtonColor || '#334155');
+        const headerCloseButtonBgHover = computed(() => props.content?.headerCloseButtonBgHover || '#dbeafe');
+
         // Message styles
-        const messageBgColor = computed(() => props.content?.messageBgColor || 'transparent');
+        const messageBgColor = computed(() => props.content?.messageBgColor || '#f1f5f9');
         const messageTextColor = computed(() => props.content?.messageTextColor || '#334155');
         const messageFontSize = computed(() => props.content?.messageFontSize || '0.875rem');
         const messageFontWeight = computed(() => props.content?.messageFontWeight || '400');
         const messageFontFamily = computed(() => props.content?.messageFontFamily || 'inherit');
-        const messageBorder = computed(() => props.content?.messageBorder || 'none');
-        const messageRadius = computed(() => props.content?.messageRadius || '0px');
+        const messageBorder = computed(() => props.content?.messageBorder || '1px solid #e2e8f0');
+        const messageRadius = computed(() => props.content?.messageRadius || '18px 18px 18px 18px');
 
-        const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#f4f4f4');
-        const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e1e1e');
+        const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#dbeafe');
+        const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e40af');
         const ownMessageFontSize = computed(() => props.content?.ownMessageFontSize || '0.875rem');
         const ownMessageFontWeight = computed(() => props.content?.ownMessageFontWeight || '400');
         const ownMessageFontFamily = computed(() => props.content?.ownMessageFontFamily || 'inherit');
-        const ownMessageBorder = computed(() => props.content?.ownMessageBorder || '1px solid #d0d0d0');
-        const ownMessageRadius = computed(() => props.content?.ownMessageRadius || '18px');
+        const ownMessageBorder = computed(() => props.content?.ownMessageBorder || '1px solid #bfdbfe');
+        const ownMessageRadius = computed(() => props.content?.ownMessageRadius || '18px 18px 18px 18px');
 
         // Input styles
         const inputBgColor = computed(() => props.content?.inputBgColor || '#ffffff');
@@ -290,6 +425,12 @@ export default {
         const emptyMessageText = computed(() => props.content?.emptyMessageText || 'No messages yet');
         const emptyMessageColor = computed(() => props.content?.emptyMessageColor || '#64748b');
 
+        // Date separator styles
+        const dateSeparatorTextColor = computed(() => props.content?.dateSeparatorTextColor || '#64748b');
+        const dateSeparatorLineColor = computed(() => props.content?.dateSeparatorLineColor || '#e2e8f0');
+        const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
+        const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
+
         // Messages attachments thumbnail sizing (in messages area)
         const messagesAttachmentThumbMaxWidth = computed(() => props.content?.messagesAttachmentThumbMaxWidth || '250px');
         const messagesAttachmentThumbMaxHeight = computed(() => props.content?.messagesAttachmentThumbMaxHeight || '200px');
@@ -298,7 +439,7 @@ export default {
         );
 
         watch(
-            [messages, isStreaming, streamingText],
+            messages,
             () => {
                 if (!isScrolling.value) scrollToBottom(); // Will use autoScrollBehavior setting
             },
@@ -322,12 +463,32 @@ export default {
         };
 
         const sendMessage = () => {
-            if (isEditing.value || isDisabled.value || !newMessage.value.trim()) return;
+            if (isEditing.value || isDisabled.value || (!newMessage.value.trim() && pendingAttachments.value.length === 0)) return;
+
+            const attachments = [...pendingAttachments.value];
+            // For the emitted event, only expose File objects (no id/url metadata)
+            const attachmentsForEvent = attachments
+                .map(att => att && att.file)
+                .filter(file => !!file);
+            // Clear local pending attachments right after snapshotting
+            pendingAttachments.value = [];
 
             const message = {
+                id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
-                role: 'user',
+                senderId: currentUserId.value,
+                userName: currentUserParticipant.value?.name || 'You',
                 timestamp: new Date().toISOString(),
+                // Emit attachments as File[] only, without id/url/name duplication
+                attachments: attachmentsForEvent.length > 0 ? attachmentsForEvent : undefined,
+                userSettings: currentUserParticipant.value
+                    ? {
+                          userName: currentUserParticipant.value.name,
+                          userAvatar: currentUserParticipant.value.avatar,
+                          userLocation: currentUserParticipant.value.location,
+                          userStatus: currentUserParticipant.value.status,
+                      }
+                    : {},
             };
 
             newMessage.value = '';
@@ -338,6 +499,66 @@ export default {
             });
         };
 
+        const handleAttachment = files => {
+            if (isEditing.value || isDisabled.value) return;
+
+            const attachmentFiles = Array.from(files).map(file => ({
+                id: `file-${wwLib.wwUtils.getUid()}`,
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                url: URL.createObjectURL(file),
+                file,
+            }));
+
+            pendingAttachments.value = [...pendingAttachments.value, ...attachmentFiles];
+        };
+
+        const handleRemoveAttachment = index => {
+            if (isEditing.value || isDisabled.value) return;
+
+            // Release the object URL to avoid memory leaks
+            if (pendingAttachments.value[index]?.url) {
+                URL.revokeObjectURL(pendingAttachments.value[index].url);
+            }
+
+            pendingAttachments.value.splice(index, 1);
+        };
+
+        const handleAttachmentClick = attachment => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'attachmentClick',
+                event: { attachment },
+            });
+        };
+
+        const handlePendingAttachmentClick = ({ attachment, index }) => {
+            const file = attachment && attachment.file ? attachment.file : attachment;
+            emit('trigger-event', {
+                name: 'pendingAttachmentClick',
+                event: { attachment: file, index },
+            });
+        };
+
+        const handleMessageRightClick = ({ message, position }) => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'messageRightClick',
+                event: { message, position },
+            });
+        };
+
+        const handleClose = () => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'close',
+                event: {},
+            });
+        };
 
         const addMessage = message => {
             if (isEditing.value) return;
@@ -849,23 +1070,50 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ww-chat-ai {
+.ww-chat {
     --ww-chat-font-family: v-bind('containerStyles.fontFamily');
+
+    --ww-chat-header-bg: v-bind('headerBgColor');
+    --ww-chat-header-text: v-bind('headerTextColor');
+    --ww-chat-header-border: v-bind('headerBorder');
+
+    --ww-chat-header-padding: v-bind('headerPadding');
+    --ww-chat-header-name-font-size: v-bind('headerNameFontSize');
+    --ww-chat-header-name-font-weight: v-bind('headerNameFontWeight');
+    --ww-chat-header-location-font-size: v-bind('headerLocationFontSize');
+    --ww-chat-header-location-opacity: v-bind('headerLocationOpacity');
+    --ww-chat-header-close-button-color: v-bind('headerCloseButtonColor');
+    --ww-chat-header-close-button-bg-hover: v-bind('headerCloseButtonBgHover');
+
     --ww-chat-messages-bg: v-bind('messagesContainerStyles.backgroundColor');
+
     --ww-chat-message-bg: v-bind('messageBgColor');
     --ww-chat-message-text: v-bind('messageTextColor');
     --ww-chat-message-font-size: v-bind('messageFontSize');
     --ww-chat-message-font-weight: v-bind('messageFontWeight');
     --ww-chat-message-font-family: v-bind('messageFontFamily');
     --ww-chat-message-border: v-bind('messageBorder');
+
     --ww-chat-own-message-bg: v-bind('ownMessageBgColor');
     --ww-chat-own-message-text: v-bind('ownMessageTextColor');
     --ww-chat-own-message-font-size: v-bind('ownMessageFontSize');
     --ww-chat-own-message-font-weight: v-bind('ownMessageFontWeight');
     --ww-chat-own-message-font-family: v-bind('ownMessageFontFamily');
     --ww-chat-own-message-border: v-bind('ownMessageBorder');
+
     --ww-chat-empty-message-text: v-bind('emptyMessageText');
     --ww-chat-empty-message-color: v-bind('emptyMessageColor');
+
+    --ww-chat-date-separator-text-color: v-bind('dateSeparatorTextColor');
+    --ww-chat-date-separator-line-color: v-bind('dateSeparatorLineColor');
+    --ww-chat-date-separator-bg-color: v-bind('dateSeparatorBgColor');
+    --ww-chat-date-separator-border-radius: v-bind('dateSeparatorBorderRadius');
+
+    /* Attachment thumbnails in messages area */
+    --ww-chat-attachment-thumb-max-width: v-bind('messagesAttachmentThumbMaxWidth');
+    --ww-chat-attachment-thumb-max-height: v-bind('messagesAttachmentThumbMaxHeight');
+    --ww-chat-attachment-thumb-radius: v-bind('messagesAttachmentThumbBorderRadius');
+
     --ww-chat-input-bg: v-bind('inputBgColor');
     --ww-chat-input-text: v-bind('inputTextColor');
     --ww-chat-input-font-size: v-bind('inputFontSize');
@@ -878,11 +1126,13 @@ export default {
     --ww-chat-textarea-border-focus: v-bind('textareaBorderFocus');
     --ww-chat-input-height: v-bind('inputHeight');
     --ww-chat-input-border-radius: v-bind('inputBorderRadius');
+
     --ww-chat-messages-padding: v-bind('messagesAreaPadding');
 
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
     font-family: var(--ww-chat-font-family);
 
     &--disabled {
@@ -890,6 +1140,10 @@ export default {
         pointer-events: none;
     }
 
+    .ww-chat-header {
+        flex-shrink: 0;
+        z-index: 2;
+    }
     &__messages {
         flex: 1;
         min-height: 0;

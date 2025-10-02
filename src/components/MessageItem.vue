@@ -217,7 +217,7 @@ export default {
                     color: props.ownMessageTextColor,
                     fontSize: props.ownMessageFontSize,
                     fontWeight: props.ownMessageFontWeight,
-                    fontFamily: props.ownMessageFontFamily,
+                    fontFamily: props.ownMessageFontFamily ?? 'inherit',
                     border: props.ownMessageBorder,
                     '--message-radius': props.ownMessageRadius,
                 };
@@ -227,7 +227,7 @@ export default {
                     color: props.messageTextColor,
                     fontSize: props.messageFontSize,
                     fontWeight: props.messageFontWeight,
-                    fontFamily: props.messageFontFamily,
+                    fontFamily: props.messageFontFamily ?? 'inherit',
                     border: props.messageBorder,
                     '--message-radius': props.messageRadius,
                 };

@@ -324,6 +324,7 @@ export default {
         watch(
             messages,
             () => {
+                console.log('[WATCH] messages changed, scrolling');
                 if (!isScrolling.value) scrollToBottom();
             },
             { deep: true }
@@ -333,11 +334,14 @@ export default {
         watch(
             isStreaming,
             (newVal, oldVal) => {
+                console.log('[WATCH] isStreaming changed:', { newVal, oldVal });
                 if (newVal && !oldVal) {
                     // Streaming just started
+                    console.log('[WATCH] Streaming started, setting flag');
                     scrollOnNextStream = true;
                 } else if (!newVal && oldVal) {
                     // Streaming just stopped
+                    console.log('[WATCH] Streaming stopped, scrolling');
                     scrollToBottom();
                 }
             }
@@ -347,8 +351,10 @@ export default {
         watch(
             streamingText,
             (newVal) => {
+                console.log('[WATCH] streamingText changed:', { length: newVal?.length, flag: scrollOnNextStream });
                 if (scrollOnNextStream && newVal) {
                     scrollOnNextStream = false;
+                    console.log('[WATCH] First streaming text, scrolling once');
                     nextTick(() => {
                         if (!isScrolling.value) scrollToBottom();
                     });
@@ -364,6 +370,15 @@ export default {
                 // Use the autoScrollBehavior setting if smooth parameter is not explicitly provided
                 const behavior =
                     smooth !== null ? (smooth ? 'smooth' : 'auto') : props.content?.autoScrollBehavior || 'auto';
+
+                console.log('[SCROLL DEBUG]', {
+                    scrollHeight: messagesContainer.value.scrollHeight,
+                    clientHeight: messagesContainer.value.clientHeight,
+                    scrollTop: messagesContainer.value.scrollTop,
+                    needsScroll: messagesContainer.value.scrollHeight > messagesContainer.value.clientHeight,
+                    isStreaming: isStreaming.value,
+                    streamingTextLength: streamingText.value?.length || 0,
+                });
 
                 messagesContainer.value.scrollTo({
                     top: messagesContainer.value.scrollHeight,

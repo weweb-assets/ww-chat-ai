@@ -31,7 +31,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - mappingAttachmentType: Formula – Extract attachment MIME type. Default: context.mapping?.['type']
 - mappingAttachmentSize: Formula – Extract attachment size in bytes. Default: context.mapping?.['size']
 
-**Streaming (OpenAI):**
+**Streaming:**
 - isStreaming: boolean – Indicates if AI is currently streaming a response. Example: false
 - streamingText: string – Current streaming text from AI (bindable to OpenAI stream). Example: 'The answer is...'
 

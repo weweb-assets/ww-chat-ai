@@ -24,6 +24,12 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - mappingMessageText: Formula – Extract message text. Default: context.mapping?.['text']
 - mappingRole: Formula – Extract message role ('user' or 'assistant'). Default: context.mapping?.['role']
 - mappingTimestamp: Formula – Extract timestamp. Default: context.mapping?.['timestamp']
+- mappingAttachments: Formula – Extract attachments array from message. Default: context.mapping?.['attachments']
+- mappingAttachmentId: Formula – Extract attachment ID field. Default: context.mapping?.['id']
+- mappingAttachmentName: Formula – Extract attachment name field. Default: context.mapping?.['name']
+- mappingAttachmentUrl: Formula – Extract attachment URL field. Default: context.mapping?.['url']
+- mappingAttachmentType: Formula – Extract attachment MIME type. Default: context.mapping?.['type']
+- mappingAttachmentSize: Formula – Extract attachment size in bytes. Default: context.mapping?.['size']
 
 **Streaming (OpenAI):**
 - isStreaming: boolean – Indicates if AI is currently streaming a response. Example: false
@@ -155,6 +161,13 @@ streamingText: variables['openai-response-text']
 ```javascript
 [
   { text: "What is the weather?", role: "user", timestamp: "2025-01-15T10:30:00Z" },
-  { text: "The weather is sunny today.", role: "assistant", timestamp: "2025-01-15T10:30:05Z" }
+  {
+    text: "The weather is sunny today.",
+    role: "assistant",
+    timestamp: "2025-01-15T10:30:05Z",
+    attachments: [
+      { id: "img-1", name: "weather.jpg", url: "https://example.com/weather.jpg", type: "image/jpeg", size: 245600 }
+    ]
+  }
 ]
 ```

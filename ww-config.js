@@ -1,3 +1,37 @@
+// Helper functions for attachment mapping
+const __evalCode = (code, type, ctx) => {
+    try {
+        if (typeof code !== 'string') return undefined;
+        const body = type === 'js' ? code : `return (${code});`;
+        // eslint-disable-next-line no-new-func
+        const fn = new Function('context', body);
+        return fn(ctx);
+    } catch {
+        return undefined;
+    }
+};
+
+const __pickTemplateMessageByMapping = (messages, mapping) => {
+    if (mapping?.code && Array.isArray(messages) && messages.length) {
+        for (const msg of messages) {
+            const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            if (Array.isArray(arr) && arr.length) return msg;
+        }
+    }
+    return messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? null;
+};
+
+const __pickFirstAttachmentByMapping = (messages, mapping) => {
+    if (mapping?.code && Array.isArray(messages) && messages.length) {
+        for (const msg of messages) {
+            const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            if (Array.isArray(arr) && arr.length) return arr[0];
+        }
+    }
+    const withAtt = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+    return withAtt ? withAtt.attachments[0] : null;
+};
+
 export default {
     inherit: {
         type: 'ww-layout',
@@ -85,6 +119,13 @@ export default {
                 'mappingMessageText',
                 'mappingRole',
                 'mappingTimestamp',
+                'mappingAttachments',
+                'attachmentsDataTitle',
+                'mappingAttachmentId',
+                'mappingAttachmentName',
+                'mappingAttachmentUrl',
+                'mappingAttachmentType',
+                'mappingAttachmentSize',
             ],
             [
                 'streamingTitle',
@@ -593,6 +634,16 @@ export default {
                 code: "context.mapping?.['text']",
             },
             section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the message text from each message object',
+            },
+            propertyHelp: {
+                tooltip: 'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["text"]\nExample value: "Hello, how can I help?"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingRole: {
             label: { en: 'Message Role' },
@@ -605,6 +656,16 @@ export default {
                 code: "context.mapping?.['role']",
             },
             section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the role from each message object',
+            },
+            propertyHelp: {
+                tooltip: 'Mapping to the role in your Messages data.\n\nExample mapping: context.mapping?.["role"]\nExample values: "user" or "assistant"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingTimestamp: {
             label: { en: 'Timestamp' },
@@ -617,6 +678,162 @@ export default {
                 code: "context.mapping?.['timestamp']",
             },
             section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the timestamp from each message object',
+            },
+            propertyHelp: {
+                tooltip: 'Mapping to the timestamp in your Messages data.\n\nExample mapping: context.mapping?.["timestamp"]\nExample value: "2025-10-02T10:30:00Z"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
+        },
+        mappingAttachments: {
+            label: { en: 'Attachments' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickTemplateMessageByMapping(messages, mapping) };
+            },
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['attachments']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the attachments array from each message object',
+            },
+            propertyHelp: {
+                tooltip: 'Mapping to the attachments in your Messages data.\n\nExample mapping: context.mapping?.["attachments"]\nExample value: [{ id: "file-1", name: "image.png", type: "image/png", size: 204800, url: "https://example.com/file.png" }]',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
+        },
+
+        // Attachments Data
+        attachmentsDataTitle: {
+            type: 'Title',
+            label: { en: 'Attachments Data' },
+            section: 'settings',
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentId: {
+            label: { en: 'ID' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['id']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment unique id' },
+            propertyHelp: {
+                tooltip: 'Mapping to the unique ID in your Attachments data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "file-1"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentName: {
+            label: { en: 'Name' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['name']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment display name' },
+            propertyHelp: {
+                tooltip: 'Mapping to the display name in your Attachments data.\n\nExample mapping: context.mapping?.["name"]\nExample value: "report.pdf"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentUrl: {
+            label: { en: 'URL' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['url'] ?? context.mapping?.['href']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment URL' },
+            propertyHelp: {
+                tooltip: 'Mapping to the file URL in your Attachments data.\n\nExample mapping: context.mapping?.["url"]\nExample value: "https://example.com/file.pdf"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentType: {
+            label: { en: 'MIME Type' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['type'] ?? context.mapping?.['mime']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment MIME type' },
+            propertyHelp: {
+                tooltip: 'Mapping to the MIME type in your Attachments data.\n\nExample mapping: context.mapping?.["type"]\nExample value: "image/png"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
+        },
+        mappingAttachmentSize: {
+            label: { en: 'Size (bytes)' },
+            type: 'Formula',
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickFirstAttachmentByMapping(messages, mapping) };
+            },
+            defaultValue: { type: 'f', code: "context.mapping?.['size']" },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment size in bytes' },
+            propertyHelp: {
+                tooltip: 'Mapping to the size in your Attachments data.\n\nExample mapping: context.mapping?.["size"]\nExample value: 204800',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => {
+                const hasMessages = !!boundProps?.messages;
+                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
+                return !(hasMessages && hasAttachmentsMapping);
+            },
         },
 
         // Streaming

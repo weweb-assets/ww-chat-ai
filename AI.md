@@ -144,30 +144,9 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - Component includes built-in input area; do NOT add custom message input
 - No header or participants system (simplified for AI chat use cases)
 
-***OpenAI Integration Example:***
-```javascript
-// Bind to workflow that streams from OpenAI
-isStreaming: workflows['openai-stream'].isRunning
-streamingText: variables['openai-response-text']
+***Example:***
+<elements>
+{"uid":"chat-1","tag":"ww-chat-ai","name":"Chat AI","props":{"default":{"messages":{"js":"return variables['messages-variable']"},"userLabel":"You","assistantLabel":"AI Assistant","enableMarkdown":true,"allowAttachments":true,"isStreaming":{"js":"return variables['is-streaming']"},"streamingText":{"js":"return variables['stream-text']"},"fontFamily":"Inter, sans-serif","messagesAreaBgColor":"#ffffff","messageBgColor":"transparent","messageTextColor":"#334155","ownMessageBgColor":"#f4f4f4","ownMessageTextColor":"#1e1e1e","inputPlaceholder":"Ask me anything...","autoScrollBehavior":"smooth"}},"styles":{"default":{"width":"100%","height":"600px","display":"flex"}}}
+</elements>
 
-// On messageSent event:
-// 1. Add user message to messages array
-// 2. Trigger OpenAI streaming workflow
-// 3. Bind streamingText to accumulating response
-// 4. When stream completes, add assistant message to array
-```
-
-***Example Message Data Structure:***
-```javascript
-[
-  { text: "What is the weather?", role: "user", timestamp: "2025-01-15T10:30:00Z" },
-  {
-    text: "The weather is sunny today.",
-    role: "assistant",
-    timestamp: "2025-01-15T10:30:05Z",
-    attachments: [
-      { id: "img-1", name: "weather.jpg", url: "https://example.com/weather.jpg", type: "image/jpeg", size: 245600 }
-    ]
-  }
-]
-```
+Expected messages data structure: [{"text":"Hello","role":"user","timestamp":"2025-01-15T10:30:00Z"},{"text":"Hi there!","role":"assistant","timestamp":"2025-01-15T10:30:05Z","attachments":[{"id":"img-1","name":"chart.png","url":"https://example.com/chart.png","type":"image/png","size":245600}]}]

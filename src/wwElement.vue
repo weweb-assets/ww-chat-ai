@@ -320,14 +320,19 @@ export default {
 
         // Track if we should scroll on next streamingText update
         let scrollOnNextStream = false;
+        let lastMessageCount = 0;
 
         watch(
             messages,
-            () => {
-                console.log('[WATCH] messages changed, scrolling');
-                if (!isScrolling.value) scrollToBottom();
-            },
-            { deep: true }
+            (newMessages) => {
+                // Only scroll if the number of messages changed (message added/removed)
+                // Not when message content changes
+                if (newMessages.length !== lastMessageCount) {
+                    console.log('[WATCH] messages count changed:', lastMessageCount, '->', newMessages.length);
+                    lastMessageCount = newMessages.length;
+                    if (!isScrolling.value) scrollToBottom();
+                }
+            }
         );
 
         // Scroll when streaming starts
@@ -656,6 +661,8 @@ export default {
         provide('_wwChat:localContext', currentLocalContext);
 
         onMounted(() => {
+            // Initialize message count tracker
+            lastMessageCount = messages.value.length;
             // Ensure we show latest messages on mount
             scrollToBottom();
         });

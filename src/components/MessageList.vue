@@ -4,7 +4,7 @@
             <div class="ww-message-list__empty-message" :style="emptyMessageStyle">{{ emptyMessageText }}</div>
         </div>
 
-        <transition-group name="message-transition" tag="div">
+        <div>
             <div v-for="(message, index) in groupedMessages" :key="message.key">
                 <!-- Date separator -->
                 <div
@@ -42,7 +42,7 @@
                     @right-click="handleRightClick"
                 />
             </div>
-        </transition-group>
+        </div>
 
         <!-- Streaming message -->
         <div v-if="isStreaming && streamingText" class="ww-message-list__streaming">

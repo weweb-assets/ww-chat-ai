@@ -692,18 +692,13 @@ export default {
         mappingAttachments: {
             label: { en: 'Attachments' },
             type: 'Formula',
-            options: () => ({
-                // Always provide example template since content.messages is already processed
-                template: {
-                    text: 'Example message',
-                    role: 'assistant',
-                    timestamp: '2025-10-02T10:00:00Z',
-                    attachments: [
-                        { id: 'file-1', name: 'example.jpg', url: 'https://example.com/image.jpg', type: 'image/jpeg', size: 245600 },
-                        { id: 'file-2', name: 'document.pdf', url: 'https://example.com/doc.pdf', type: 'application/pdf', size: 1024000 }
-                    ]
-                }
-            }),
+            options: (content, _, boundProps) => {
+                // Provide first message as template, or example data structure
+                const messages = Array.isArray(content.messages) && content.messages.length
+                    ? content.messages
+                    : [{ attachments: [{ id: 'file-1', name: 'example.pdf', url: 'https://...', type: 'application/pdf', size: 102400 }] }];
+                return { template: messages[0] };
+            },
             defaultValue: {
                 type: 'f',
                 code: "context.mapping?.['attachments']",

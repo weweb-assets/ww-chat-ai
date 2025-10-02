@@ -12,13 +12,16 @@ const __evalCode = (code, type, ctx) => {
 };
 
 const __pickTemplateMessageByMapping = (messages, mapping) => {
+    console.log('[ATTACHMENT MAPPING TEMPLATE]', { messages, mapping });
     if (mapping?.code && Array.isArray(messages) && messages.length) {
         for (const msg of messages) {
             const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            console.log('[EVAL ATTACHMENT]', { msg, arr });
             if (Array.isArray(arr) && arr.length) return msg;
         }
     }
     const result = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? (messages.length ? messages[0] : null);
+    console.log('[TEMPLATE RESULT]', result);
     return result;
 };
 

@@ -14,33 +14,23 @@ const __evalCode = (code, type, ctx) => {
 const __pickTemplateMessageByMapping = (messages, mapping) => {
     if (mapping?.code && Array.isArray(messages) && messages.length) {
         for (const msg of messages) {
-            const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
-            if (Array.isArray(arr) && arr.length) return msg;
+            const res = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
+            if (Array.isArray(res) && res.length) return msg;
         }
     }
-    return messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? (messages.length ? messages[0] : null);
+    const fallback = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+    return fallback || (messages.length ? messages[0] : null);
 };
 
 const __pickFirstAttachmentByMapping = (messages, mapping) => {
-    console.log('[PICK FIRST ATTACHMENT] Messages:', messages);
     if (mapping?.code && Array.isArray(messages) && messages.length) {
         for (const msg of messages) {
-            console.log('[PICK FIRST ATTACHMENT] Checking message:', msg);
             const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
-            console.log('[PICK FIRST ATTACHMENT] Eval result:', arr);
-            if (Array.isArray(arr) && arr.length) {
-                console.log('[PICK FIRST ATTACHMENT] Returning:', arr[0]);
-                return arr[0];
-            }
+            if (Array.isArray(arr) && arr.length) return arr[0];
         }
     }
-    const withAtt = messages.find(m => {
-        console.log('[PICK FIRST ATTACHMENT] Fallback checking:', m, 'has attachments?', Array.isArray(m?.attachments) && m.attachments.length);
-        return Array.isArray(m?.attachments) && m.attachments.length;
-    });
-    const result = withAtt ? withAtt.attachments[0] : null;
-    console.log('[PICK FIRST ATTACHMENT] Final result:', result);
-    return result;
+    const withAtt = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
+    return withAtt ? withAtt.attachments[0] : null;
 };
 
 export default {

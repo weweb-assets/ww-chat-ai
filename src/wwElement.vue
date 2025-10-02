@@ -354,12 +354,19 @@ export default {
             }
         );
 
-        // Scroll once when streamingText first appears
+        // Scroll when streamingText changes during streaming
         watch(
             streamingText,
-            (newVal) => {
+            (newVal, oldVal) => {
+                // First time streaming text appears
                 if (scrollOnNextStream && newVal) {
                     scrollOnNextStream = false;
+                    nextTick(() => {
+                        if (!isScrolling.value) scrollToBottom();
+                    });
+                }
+                // Continue scrolling as streaming text grows (only if streaming is active)
+                else if (isStreaming.value && newVal && newVal.length > (oldVal?.length || 0)) {
                     nextTick(() => {
                         if (!isScrolling.value) scrollToBottom();
                     });

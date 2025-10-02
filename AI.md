@@ -1,13 +1,13 @@
 ---
 name: ww-chat-ai
-description: ChatGPT-style AI chat interface with role-based messaging (user/assistant), streaming support, and simplified configuration.
-keywords: [chat, ai, assistant, chatgpt, openai, streaming, conversation]
+description: ChatGPT-style AI chat interface with role-based messaging (user/assistant), streaming support, attachments, and date separators.
+keywords: [chat, ai, assistant, chatgpt, openai, streaming, conversation, attachments]
 ---
 
 #### ww-chat-ai
 
 ***Purpose:***
-AI-focused chat UI with ChatGPT-style design: transparent assistant messages, user message bubbles, role-based system (user/assistant), and real-time streaming support for OpenAI-style responses.
+AI-focused chat UI with ChatGPT-style design: transparent assistant messages, user message bubbles, role-based system (user/assistant), real-time streaming support for OpenAI-style responses, optional attachments for vision/document AI models, and date separators.
 
 ***Properties:***
 
@@ -15,6 +15,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - userLabel: string – Label for user messages. Example: 'You'
 - assistantLabel: string – Label for AI assistant messages. Example: 'Assistant'
 - disabled: boolean – Disable input/actions. Example: false
+- allowAttachments: boolean – Enable file attachments (for vision models, document analysis). Example: false
 - autoScrollBehavior: 'auto'|'smooth' – Scroll mode for new messages. Example: 'auto'
 
 **Chat Data:**
@@ -34,6 +35,12 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - emptyMessageText: string – Text when no messages. Example: 'No messages yet'
 - emptyMessageColor: string – Empty state color. Example: '#64748b'
 
+**Style - Date Separators:**
+- dateSeparatorTextColor: string – Date separator text color. Example: '#64748b'
+- dateSeparatorLineColor: string – Date separator line color. Example: '#e2e8f0'
+- dateSeparatorBgColor: string – Date separator background. Example: '#ffffff'
+- dateSeparatorBorderRadius: string – Date separator border radius. Example: '8px'
+
 **Style - Assistant Messages (ChatGPT-style):**
 - messageBgColor: string – Assistant message background. Example: 'transparent' (default: no bubble)
 - messageTextColor: string – Assistant message text. Example: '#334155'
@@ -51,6 +58,11 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - ownMessageFontSize: string – User font size. Example: '0.875rem'
 - ownMessageFontWeight: string – User font weight. Example: '400'
 - ownMessageFontFamily: string – User font family. Example: 'inherit'
+
+**Style - Attachment Thumbnails:**
+- messagesAttachmentThumbMaxWidth: string – Max width for attachment thumbnails. Example: '250px'
+- messagesAttachmentThumbMaxHeight: string – Max height for attachment thumbnails. Example: '200px'
+- messagesAttachmentThumbBorderRadius: string – Border radius for thumbnails. Example: '6px'
 
 **Style - Input Area:**
 - inputBgColor: string – Input area container bg. Example: '#ffffff'
@@ -79,20 +91,50 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - sendButtonSize: string – Send button size. Example: '42px'
 - sendButtonBoxShadow: string – Send button shadow. Example: '0 2px 4px rgba(59,130,246,.3)'
 
+**Style - Attachment Button:**
+- attachmentIcon: string – Attachment icon name. Example: 'paperclip'
+- attachmentIconColor: string – Attachment icon color. Example: '#334155'
+- attachmentIconSize: string – Attachment icon size. Example: '20px'
+- removeIcon: string – Remove attachment icon name. Example: 'x'
+- removeIconColor: string – Remove icon color. Example: '#f43f5e'
+- removeIconSize: string – Remove icon size. Example: '12px'
+- attachmentButtonBgColor: string – Attachment button bg. Example: '#f8fafc'
+- attachmentButtonHoverBgColor: string – Attachment button hover. Example: '#f1f5f9'
+- attachmentButtonBorder: string – Attachment button border. Example: '1px solid #e2e8f0'
+- attachmentButtonBorderRadius: string – Attachment button radius. Example: '12px'
+- attachmentButtonSize: string – Attachment button size. Example: '42px'
+- attachmentButtonBoxShadow: string – Attachment button shadow. Example: '0 1px 2px rgba(0,0,0,.06)'
+
+***Context data (only accessible to this element and its children):***
+- context.local.data?.['chat']?.messages - Array of all messages with isOwn, isFirst, isLast properties
+- context.local.data?.['chat']?.utils.messageCount - Total number of messages
+- context.local.data?.['chat']?.utils.isDisabled - Whether chat is disabled
+
+***Exposed Variables:***
+- chatState: ***READ ONLY*** Contains messages array and utils object. (path: variables['current_element_uid-chatState'])
+
 ***Events:***
 - messageSent: Triggered when the user sends a message. Payload: { message: { text, role: 'user', timestamp } }
+- messageReceived: Triggered when a new assistant message is detected. Payload: { message }
+- attachmentClick: Triggered when user clicks an attachment in a message. Payload: { attachment: { id, name, url, type, size } }
+- pendingAttachmentClick: Triggered when user clicks a pending attachment before sending. Payload: { attachment, index }
+- messageRightClick: Triggered when user right-clicks a message. Payload: { message, position: { x, y } }
 
 ***Exposed Element Actions:***
 - scrollToBottom: (smooth?: boolean) Scroll to the latest message; uses `autoScrollBehavior` when arg omitted.
+- addMessage: (message: { text, role, timestamp?, ...rest }) Add a message programmatically to the chat.
 
 ***Notes:***
 - **Role-based system**: Messages use `role` property with values 'user' or 'assistant' (not participants)
 - **ChatGPT-style by default**: Assistant messages have transparent background and no border; user messages have bubble style
 - **Streaming support**: Bind `isStreaming` and `streamingText` to show real-time AI responses from OpenAI or similar APIs
-- **Simplified configuration**: No header, no participants, no attachments, no date separators
+- **Attachments for AI**: Enable `allowAttachments` for vision models (ChatGPT Vision, Claude with vision) or document analysis
+- **Date separators**: Automatically shown between messages from different days
+- **Message right-click**: Use for custom context menus or message actions
 - **All styles configurable**: Despite ChatGPT defaults, you can fully customize appearance via properties
 - Enter sends message; Shift+Enter inserts newline
 - Component includes built-in input area; do NOT add custom message input
+- No header or participants system (simplified for AI chat use cases)
 
 ***OpenAI Integration Example:***
 ```javascript

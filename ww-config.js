@@ -12,17 +12,13 @@ const __evalCode = (code, type, ctx) => {
 };
 
 const __pickTemplateMessageByMapping = (messages, mapping) => {
-    console.log('[ATTACHMENT MAPPING TEMPLATE]', { messages, mapping });
     if (mapping?.code && Array.isArray(messages) && messages.length) {
         for (const msg of messages) {
             const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
-            console.log('[EVAL ATTACHMENT]', { msg, arr });
             if (Array.isArray(arr) && arr.length) return msg;
         }
     }
-    const result = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? (messages.length ? messages[0] : null);
-    console.log('[TEMPLATE RESULT]', result);
-    return result;
+    return messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? (messages.length ? messages[0] : null);
 };
 
 const __pickFirstAttachmentByMapping = (messages, mapping) => {
@@ -697,10 +693,11 @@ export default {
             label: { en: 'Attachments' },
             type: 'Formula',
             options: (content, _, boundProps) => {
-                console.log('[MAPPING ATTACHMENTS OPTIONS]', { content_messages: content.messages, boundProps_messages: boundProps?.messages });
-                const messages = Array.isArray(content.messages) ? content.messages : [];
-                const mapping = content?.mappingAttachments;
-                return { template: __pickTemplateMessageByMapping(messages, mapping) };
+                // Provide first message as template, or example data structure
+                const messages = Array.isArray(content.messages) && content.messages.length
+                    ? content.messages
+                    : [{ attachments: [{ id: 'file-1', name: 'example.pdf', url: 'https://...', type: 'application/pdf', size: 102400 }] }];
+                return { template: messages[0] };
             },
             defaultValue: {
                 type: 'f',

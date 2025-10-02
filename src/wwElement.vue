@@ -319,7 +319,7 @@ export default {
         );
 
         watch(
-            [messages, isStreaming, streamingText],
+            [messages, isStreaming],
             () => {
                 if (!isScrolling.value) scrollToBottom(); // Will use autoScrollBehavior setting
             },

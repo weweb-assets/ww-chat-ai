@@ -216,6 +216,12 @@ export default {
         const groupedMessages = computed(() => {
             if (!props.messages || props.messages.length === 0) return [];
 
+            console.log('[GROUPED MESSAGES] Processing messages:', props.messages.map(m => ({
+                role: m.role,
+                textLength: m.text?.length || 0,
+                textPreview: m.text?.substring(0, 30)
+            })));
+
             const result = [];
             let currentDate = null;
 
@@ -242,14 +248,21 @@ export default {
             return result;
         });
 
-        const streamingMessage = computed(() => ({
-            id: 'streaming',
-            text: props.streamingText,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-            userName: props.assistantLabel,
-            attachments: [],
-        }));
+        const streamingMessage = computed(() => {
+            console.log('[STREAMING MESSAGE]', {
+                isStreaming: props.isStreaming,
+                streamingTextLength: props.streamingText?.length || 0,
+                streamingText: props.streamingText?.substring(0, 50)
+            });
+            return {
+                id: 'streaming',
+                text: props.streamingText,
+                role: 'assistant',
+                timestamp: new Date().toISOString(),
+                userName: props.assistantLabel,
+                attachments: [],
+            };
+        });
 
         const isSameSenderAsPrevious = index => {
             if (index === 0) return false;

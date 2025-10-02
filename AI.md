@@ -16,6 +16,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - assistantLabel: string – Label for AI assistant messages. Example: 'Assistant'
 - disabled: boolean – Disable input/actions. Example: false
 - allowAttachments: boolean – Enable file attachments (for vision models, document analysis). Example: false
+- enableMarkdown: boolean – Enable markdown rendering with syntax highlighting. When false, uses white-space: pre-line to respect \n. Example: false
 - autoScrollBehavior: 'auto'|'smooth' – Scroll mode for new messages. Example: 'auto'
 
 **Chat Data:**
@@ -128,6 +129,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - **Role-based system**: Messages use `role` property with values 'user' or 'assistant' (not participants)
 - **ChatGPT-style by default**: Assistant messages have transparent background and no border; user messages have bubble style
 - **Streaming support**: Bind `isStreaming` and `streamingText` to show real-time AI responses from OpenAI or similar APIs
+- **Markdown rendering**: Enable `enableMarkdown` to render bold, italic, code blocks, links, lists, headers with syntax highlighting. When disabled, newlines (\n) are still respected via CSS
 - **Attachments for AI**: Enable `allowAttachments` for vision models (ChatGPT Vision, Claude with vision) or document analysis
 - **Date separators**: Automatically shown between messages from different days
 - **Message right-click**: Use for custom context menus or message actions

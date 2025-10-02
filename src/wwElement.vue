@@ -9,6 +9,7 @@
                 :assistant-label="assistantLabel"
                 :is-streaming="isStreaming"
                 :streaming-text="streamingText"
+                :enable-markdown="enableMarkdown"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -262,6 +263,7 @@ export default {
 
         const isDisabled = computed(() => props.content?.disabled || false);
         const allowAttachments = computed(() => props.content?.allowAttachments || false);
+        const enableMarkdown = computed(() => props.content?.enableMarkdown || false);
         const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Message...');
 
         // Style properties
@@ -674,6 +676,7 @@ export default {
             messages,
             isDisabled,
             inputPlaceholder,
+            enableMarkdown,
             userLabel,
             assistantLabel,
             isStreaming,

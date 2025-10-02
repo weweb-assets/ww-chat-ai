@@ -22,6 +22,7 @@
                     :is-own-message="message.role === 'user'"
                     :same-sender-as-previous="isSameSenderAsPrevious(index)"
                     :same-sender-as-next="isSameSenderAsNext(index)"
+                    :enable-markdown="enableMarkdown"
                     :message-bg-color="messageBgColor"
                     :message-text-color="messageTextColor"
                     :message-font-size="messageFontSize"
@@ -51,6 +52,7 @@
                 :is-own-message="false"
                 :same-sender-as-previous="false"
                 :same-sender-as-next="false"
+                :enable-markdown="enableMarkdown"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -108,6 +110,10 @@ export default {
         streamingText: {
             type: String,
             default: '',
+        },
+        enableMarkdown: {
+            type: Boolean,
+            default: false,
         },
         messageBgColor: {
             type: String,

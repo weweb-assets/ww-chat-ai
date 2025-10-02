@@ -31,7 +31,15 @@
             </div>
 
             <!-- Message text -->
-            <div class="ww-message-item__text">
+            <div
+                v-if="enableMarkdown"
+                class="ww-message-item__text ww-message-item__text--markdown"
+                v-html="renderedMarkdown"
+            ></div>
+            <div
+                v-else
+                class="ww-message-item__text"
+            >
                 {{ message.text }}
             </div>
 
@@ -97,6 +105,23 @@
 <script>
 import { computed, inject } from 'vue';
 import { formatTime } from '../utils/dateTimeFormatter';
+import MarkdownIt from 'markdown-it';
+import hljs from 'highlight.js';
+
+// Initialize markdown-it with highlight.js
+const md = new MarkdownIt({
+    html: false, // Disable HTML tags for security
+    linkify: true, // Auto-convert URLs to links
+    breaks: true, // Convert \n to <br>
+    highlight: function (str, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return hljs.highlight(str, { language: lang }).value;
+            } catch (__) {}
+        }
+        return ''; // use external default escaping
+    }
+});
 
 export default {
     name: 'MessageItem',
@@ -106,6 +131,10 @@ export default {
             required: true,
         },
         isOwnMessage: {
+            type: Boolean,
+            default: false,
+        },
+        enableMarkdown: {
             type: Boolean,
             default: false,
         },
@@ -210,6 +239,13 @@ export default {
             return true;
         });
 
+        const renderedMarkdown = computed(() => {
+            if (!props.enableMarkdown || !props.message.text) {
+                return '';
+            }
+            return md.render(props.message.text);
+        });
+
         const messageStyles = computed(() => {
             if (props.isOwnMessage) {
                 return {
@@ -300,6 +336,7 @@ export default {
             isAssistantMessage,
             senderDisplayName,
             showSenderName,
+            renderedMarkdown,
             messageStyles,
             isImageFile,
             formatFileSize,
@@ -370,6 +407,70 @@ export default {
     &__text {
         line-height: 1.4;
         word-break: break-word;
+        white-space: pre-line; // Respect \n in non-markdown mode
+
+        &--markdown {
+            white-space: normal; // Let markdown handle formatting
+
+            // Markdown styling
+            :deep(p) {
+                margin: 0 0 0.5em 0;
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            :deep(code) {
+                background-color: rgba(0, 0, 0, 0.05);
+                padding: 0.125em 0.25em;
+                border-radius: 3px;
+                font-family: 'Courier New', monospace;
+                font-size: 0.9em;
+            }
+
+            :deep(pre) {
+                background-color: rgba(0, 0, 0, 0.05);
+                padding: 0.75em;
+                border-radius: 6px;
+                overflow-x: auto;
+                margin: 0.5em 0;
+
+                code {
+                    background-color: transparent;
+                    padding: 0;
+                }
+            }
+
+            :deep(a) {
+                color: #3b82f6;
+                text-decoration: underline;
+            }
+
+            :deep(ul), :deep(ol) {
+                margin: 0.5em 0;
+                padding-left: 1.5em;
+            }
+
+            :deep(li) {
+                margin: 0.25em 0;
+            }
+
+            :deep(strong) {
+                font-weight: 600;
+            }
+
+            :deep(em) {
+                font-style: italic;
+            }
+
+            :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+                margin: 0.75em 0 0.5em 0;
+                font-weight: 600;
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+        }
     }
 
     &__time {

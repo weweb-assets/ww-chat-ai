@@ -75,6 +75,8 @@ export default {
                 'userLabel',
                 'assistantLabel',
                 'disabled',
+                'enableMarkdown',
+                'allowAttachments',
                 'autoScrollBehavior'
             ],
             [
@@ -531,6 +533,20 @@ export default {
         },
         disabled: {
             label: { en: 'Disabled' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+        },
+        enableMarkdown: {
+            label: { en: 'Enable Markdown' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: false,
+        },
+        allowAttachments: {
+            label: { en: 'Allow Attachments' },
             type: 'OnOff',
             section: 'settings',
             bindable: true,

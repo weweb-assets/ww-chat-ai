@@ -18,7 +18,8 @@ const __pickTemplateMessageByMapping = (messages, mapping) => {
             if (Array.isArray(arr) && arr.length) return msg;
         }
     }
-    return messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? null;
+    const result = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length) ?? (messages.length ? messages[0] : null);
+    return result;
 };
 
 const __pickFirstAttachmentByMapping = (messages, mapping) => {

@@ -25,6 +25,12 @@
                 :own-message-radius="ownMessageRadius"
                 :empty-message-text="emptyMessageText"
                 :empty-message-color="emptyMessageColor"
+                :date-separator-text-color="dateSeparatorTextColor"
+                :date-separator-line-color="dateSeparatorLineColor"
+                :date-separator-bg-color="dateSeparatorBgColor"
+                :date-separator-border-radius="dateSeparatorBorderRadius"
+                @attachment-click="handleAttachmentClick"
+                @message-right-click="handleMessageRightClick"
             />
         </div>
 
@@ -32,8 +38,8 @@
         <InputArea
             v-model="newMessage"
             :is-disabled="isDisabled"
-            :allow-attachments="false"
-            :pending-attachments="[]"
+            :allow-attachments="allowAttachments"
+            :pending-attachments="pendingAttachments"
             :input-bg-color="inputBgColor"
             :input-text-color="inputTextColor"
             :input-font-size="inputFontSize"
@@ -51,13 +57,28 @@
             :send-icon="sendIcon"
             :send-icon-color="sendIconColor"
             :send-icon-size="sendIconSize"
+            :attachment-icon="attachmentIcon"
+            :attachment-icon-color="attachmentIconColor"
+            :attachment-icon-size="attachmentIconSize"
+            :remove-icon="removeIcon"
+            :remove-icon-color="removeIconColor"
+            :remove-icon-size="removeIconSize"
             :send-button-bg-color="sendButtonBgColor"
             :send-button-hover-bg-color="sendButtonHoverBgColor"
             :send-button-border="sendButtonBorder"
             :send-button-border-radius="sendButtonBorderRadius"
             :send-button-size="sendButtonSize"
             :send-button-box-shadow="sendButtonBoxShadow"
+            :attachment-button-bg-color="attachmentButtonBgColor"
+            :attachment-button-hover-bg-color="attachmentButtonHoverBgColor"
+            :attachment-button-border="attachmentButtonBorder"
+            :attachment-button-border-radius="attachmentButtonBorderRadius"
+            :attachment-button-size="attachmentButtonSize"
+            :attachment-button-box-shadow="attachmentButtonBoxShadow"
             @send="sendMessage"
+            @attachment="handleAttachment"
+            @remove-attachment="handleRemoveAttachment"
+            @pending-attachment-click="handlePendingAttachmentClick"
         />
     </div>
 </template>
@@ -153,6 +174,7 @@ export default {
         const messagesContainer = ref(null);
         const newMessage = ref('');
         const isScrolling = ref(false);
+        const pendingAttachments = ref([]);
 
         const debounce = (func, delay) => {
             let timeoutId;
@@ -168,15 +190,7 @@ export default {
             type: 'object',
             defaultValue: {
                 messages: [],
-                conversation: {
-                    type: 'private',
-                    participantCount: 1,
-                    otherParticipantCount: 0,
-                    participants: [],
-                    allParticipants: [],
-                },
-                currentUser: { id: '', name: '', avatar: '', location: '', status: 'online' },
-                utils: { messageCount: 0, isDisabled: false, allowAttachments: false, displayHeader: true },
+                utils: { messageCount: 0, isDisabled: false },
             },
         });
 
@@ -241,6 +255,7 @@ export default {
         });
 
         const isDisabled = computed(() => props.content?.disabled || false);
+        const allowAttachments = computed(() => props.content?.allowAttachments || false);
         const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Message...');
 
         // Style properties
@@ -289,6 +304,12 @@ export default {
         // Empty message styles
         const emptyMessageText = computed(() => props.content?.emptyMessageText || 'No messages yet');
         const emptyMessageColor = computed(() => props.content?.emptyMessageColor || '#64748b');
+
+        // Date separator styles
+        const dateSeparatorTextColor = computed(() => props.content?.dateSeparatorTextColor || '#64748b');
+        const dateSeparatorLineColor = computed(() => props.content?.dateSeparatorLineColor || '#e2e8f0');
+        const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
+        const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
 
         // Messages attachments thumbnail sizing (in messages area)
         const messagesAttachmentThumbMaxWidth = computed(() => props.content?.messagesAttachmentThumbMaxWidth || '250px');
@@ -345,16 +366,8 @@ export default {
             const newMessageRaw = {
                 id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
                 text: message.text || '',
-                senderId: message.senderId || '',
-                userName: message.userName || '',
+                role: message.role || 'assistant',
                 timestamp: message.timestamp || new Date().toISOString(),
-                attachments: message.attachments,
-                userSettings: message.userSettings || {
-                    userName: message.userName || '',
-                    userAvatar: message.userAvatar || '',
-                    userLocation: message.userLocation || '',
-                    userStatus: message.userStatus || 'online',
-                },
                 ...message,
             };
 
@@ -367,6 +380,58 @@ export default {
             scrollToBottom();
 
             return newMessageRaw;
+        };
+
+        const handleAttachment = files => {
+            if (isEditing.value || isDisabled.value) return;
+
+            const attachmentFiles = Array.from(files).map(file => ({
+                id: `file-${wwLib.wwUtils.getUid()}`,
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                url: URL.createObjectURL(file),
+                file,
+            }));
+
+            pendingAttachments.value = [...pendingAttachments.value, ...attachmentFiles];
+        };
+
+        const handleRemoveAttachment = index => {
+            if (isEditing.value || isDisabled.value) return;
+
+            // Release the object URL to avoid memory leaks
+            if (pendingAttachments.value[index]?.url) {
+                URL.revokeObjectURL(pendingAttachments.value[index].url);
+            }
+
+            pendingAttachments.value.splice(index, 1);
+        };
+
+        const handleAttachmentClick = attachment => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'attachmentClick',
+                event: { attachment },
+            });
+        };
+
+        const handlePendingAttachmentClick = ({ attachment, index }) => {
+            const file = attachment && attachment.file ? attachment.file : attachment;
+            emit('trigger-event', {
+                name: 'pendingAttachmentClick',
+                event: { attachment: file, index },
+            });
+        };
+
+        const handleMessageRightClick = ({ message, position }) => {
+            if (isEditing.value) return;
+
+            emit('trigger-event', {
+                name: 'messageRightClick',
+                event: { message, position },
+            });
         };
 
         // Emit messageReceived for new external messages (not initial history, not own messages)
@@ -390,7 +455,7 @@ export default {
                     if (!id) continue;
                     if (_seenMessageIds.has(id)) continue;
                     _seenMessageIds.add(id);
-                    if (m.senderId && m.senderId !== currentUserId.value) {
+                    if (m.role === 'assistant') {
                         emit('trigger-event', {
                             name: 'messageReceived',
                             event: { message: m },
@@ -486,103 +551,6 @@ export default {
         provide('dateTimeOptions', dateTimeOptions);
         provide('chatRootEl', chatRoot);
 
-        const chatPartners = computed(() => {
-            // If no messages, return current user info as fallback
-            if (participants.value.length === 0) {
-                return { name: '', avatar: '', location: '', status: 'online', participants: [], participantsString: '', isGroup: false };
-            }
-
-            if (messages.value.length === 0) {
-                return {
-                    name: currentUserParticipant.value?.name || '',
-                    avatar: currentUserParticipant.value?.avatar || '',
-                    location: currentUserParticipant.value?.location || '',
-                    status: currentUserParticipant.value?.status || 'online',
-                    participants: [],
-                    participantsString: '',
-                    isGroup: false,
-                };
-            }
-
-            // Get all unique sender IDs from messages
-            const allSenderIds = [...new Set(messages.value.map(msg => msg.senderId))];
-            const otherSenderIds = allSenderIds.filter(id => id !== currentUserId.value);
-
-            const others = participants.value.filter(p => otherSenderIds.includes(p.id));
-            const names = others.map(p => p.name);
-            const participantsString = names.join(', ');
-
-            // If no other participants (only current user messages), show current user
-            if (otherSenderIds.length === 0) {
-                return {
-                    name: currentUserParticipant.value?.name || '',
-                    avatar: currentUserParticipant.value?.avatar || '',
-                    location: currentUserParticipant.value?.location || '',
-                    status: currentUserParticipant.value?.status || 'online',
-                    participants: [],
-                    participantsString: '',
-                };
-            }
-
-            // Two participants total (current user + 1 other) - show recipient info
-            if (allSenderIds.length === 2 || (otherSenderIds.length === 1 && !props.content?.showSelfInHeader)) {
-                const otherUserId = otherSenderIds[0];
-                const p = participants.value.find(p => p.id === otherUserId);
-                return {
-                    name: p?.name || 'Unknown User',
-                    avatar: p?.avatar || '',
-                    location: p?.location || '',
-                    status: p?.status || 'online',
-                    participants: names,
-                    participantsString,
-                    isGroup: false,
-                };
-            }
-
-            // Multiple participants (3+) - show group chat info
-            const lastOtherMsg = [...messages.value]
-                .filter(msg => msg.senderId !== currentUserId.value)
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-
-            // Use groupChatText if defined, otherwise use default template
-            let groupChatName;
-            if (props.content?.groupChatText && props.content.groupChatText.trim() !== '') {
-                groupChatName = props.content.groupChatText;
-            } else {
-                const totalParticipants = others.length + (currentUserParticipant.value ? 1 : 0);
-                groupChatName = `Group Chat (${totalParticipants} participants)`;
-            }
-
-            // For group chat location, use userSettings from the last message sender
-            let groupLocation = '';
-            if (lastOtherMsg) {
-                const displayName = lastOtherMsg.userName;
-                groupLocation = `Last message from ${displayName}`;
-            }
-
-            return {
-                name: groupChatName,
-                avatar: props.content?.groupChatAvatar || '',
-                location: groupLocation,
-                status: 'online',
-                participants,
-                participantsString,
-                isGroup: true,
-            };
-        });
-
-        const headerUserName = computed(() => chatPartners.value?.name || '');
-        const headerUserAvatar = computed(() => chatPartners.value?.avatar || '');
-        const headerUserLocation = computed(() => chatPartners.value?.location || '');
-        const headerUserStatus = computed(() => chatPartners.value?.status || 'online');
-        const headerParticipants = computed(() => chatPartners.value?.participantsString || '');
-        const headerAvatarBgColor = computed(() => {
-            if (chatPartners.value?.isGroup) {
-                return props.content?.groupChatAvatarColor || '';
-            }
-            return '';
-        });
-
         // Local context functionality
         const currentLocalContext = ref({});
 
@@ -591,115 +559,37 @@ export default {
             currentLocalContext.value = { data, markdown };
         };
 
-        // Chat local context data
-        const conversationData = computed(() => {
-            const others = participants.value.filter(p => p.id !== currentUserId.value);
-            const all = participants.value.map(p => ({ ...p, isCurrentUser: p.id === currentUserId.value }));
-
-            return {
-                type: all.length <= 2 ? 'private' : 'group',
-                participantCount: all.length,
-                otherParticipantCount: others.length,
-                participants: others.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    avatar: p.avatar || '',
-                    location: p.location || '',
-                    status: p.status || 'online',
-                    lastMessageTime: messages.value
-                        .filter(m => m.senderId === p.id)
-                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]?.timestamp,
-                })),
-                allParticipants: all.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    avatar: p.avatar || '',
-                    location: p.location || '',
-                    status: p.status || 'online',
-                    isCurrentUser: p.isCurrentUser,
-                    lastMessageTime: messages.value
-                        .filter(m => m.senderId === p.id)
-                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]?.timestamp,
-                })),
-            };
-        });
-
+        // Chat local context data for AI chat
         const chatData = computed(() => ({
             messages: messages.value.map((message, index) => ({
                 ...message,
-                isOwn: message.senderId === currentUserId.value,
-                isFirst: index === 0 || messages.value[index - 1].senderId !== message.senderId,
-                isLast: index === messages.value.length - 1 || messages.value[index + 1].senderId !== message.senderId,
-                participantInfo: conversationData.value.allParticipants.find(p => p.id === message.senderId) || {
-                    id: message.senderId,
-                    name: message.userSettings?.userName || message.userName || 'Unknown User',
-                    avatar: message.userSettings?.userAvatar || message.avatar || '',
-                    location: message.userSettings?.userLocation || message.location || '',
-                    status: message.userSettings?.userStatus || message.status || 'online',
-                    isCurrentUser: message.senderId === currentUserId.value,
-                },
+                isOwn: message.role === 'user',
+                isFirst: index === 0 || messages.value[index - 1].role !== message.role,
+                isLast: index === messages.value.length - 1 || messages.value[index + 1].role !== message.role,
             })),
-            conversation: conversationData.value,
-            currentUser: {
-                id: currentUserId.value,
-                name: currentUserParticipant.value?.name || '',
-                avatar: currentUserParticipant.value?.avatar || '',
-                location: currentUserParticipant.value?.location || '',
-                status: currentUserParticipant.value?.status || 'online',
-            },
             utils: {
                 messageCount: messages.value.length,
                 isDisabled: isDisabled.value,
-                allowAttachments: allowAttachments.value,
-                displayHeader: displayHeader.value,
             },
         }));
 
-        const chatMarkdown = `### Chat local information
+        const chatMarkdown = `### Chat AI local information
 
         #### messages
-        Array of all messages in the conversation. Each message contains:
+        Array of all messages in the AI conversation. Each message contains:
         - \`id\`: Unique message identifier
         - \`text\`: Message content
-        - \`senderId\`: ID of the message sender
-        - \`userName\`: Name of the message sender
+        - \`role\`: Message role ('user' or 'assistant')
+        - \`userName\`: Display name (based on role and labels)
         - \`timestamp\`: Message timestamp (ISO string)
-        - \`attachments\`: Message attachments (if any)
-        - \`isOwn\`: Boolean indicating if message is from current user
-        - \`isFirst\`: Boolean indicating if this is first message in a group from this sender
-        - \`isLast\`: Boolean indicating if this is last message in a group from this sender
-        - \`participantInfo\`: Information about the sender (id, name, avatar, isCurrentUser)
-
-        #### conversation
-        Information about the conversation:
-        - \`type\`: Conversation type ('private' for 2 participants, 'group' for 3+)
-        - \`participantCount\`: Total number of participants including current user
-        - \`otherParticipantCount\`: Number of other participants (excluding current user)
-        - \`participants\`: Array of other participants (excluding current user)
-        - \`allParticipants\`: Array of all participants including current user
-
-        #### currentUser
-        Information about the current user:
-        - \`id\`: Current user ID
-        - \`name\`: Current user name
-        - \`avatar\`: Current user avatar URL
-        - \`location\`: Current user location
-        - \`status\`: Current user status
-
-        #### userSettings (per message)
-        Each message contains a userSettings object with user information:
-        - \`userName\`: User's display name
-        - \`userAvatar\`: User's avatar URL
-        - \`userLocation\`: User's location
-        - \`userStatus\`: User's status (online, offline, away, busy)
-        - Automatically updated for current user's messages when settings change
+        - \`isOwn\`: Boolean indicating if message is from user
+        - \`isFirst\`: Boolean indicating if this is first message in a group from this role
+        - \`isLast\`: Boolean indicating if this is last message in a group from this role
 
         #### utils
         Component state information:
         - \`messageCount\`: Total number of messages
-        - \`isDisabled\`: Boolean indicating if chat is disabled
-        - \`allowAttachments\`: Boolean indicating if attachments are allowed
-        - \`displayHeader\`: Boolean indicating if header is displayed`;
+        - \`isDisabled\`: Boolean indicating if chat is disabled`;
 
         // Sync chatState with local context data
         watch(
@@ -730,36 +620,15 @@ export default {
             messagesContainer,
             newMessage,
             messages,
-            pendingAttachments,
-
-            currentUserId,
-            participants,
             isDisabled,
-            displayHeader,
-            allowAttachments,
             inputPlaceholder,
-            
-
-            headerUserName,
-            headerUserAvatar,
-            headerUserLocation,
-            headerUserStatus,
-            headerParticipants,
+            userLabel,
+            assistantLabel,
+            isStreaming,
+            streamingText,
 
             containerStyles,
             messagesContainerStyles,
-            headerBgColor,
-            headerTextColor,
-            headerBorder,
-
-            headerPadding,
-            headerNameFontSize,
-            headerNameFontWeight,
-            headerLocationFontSize,
-            headerLocationOpacity,
-            headerCloseButtonColor,
-            headerCloseButtonBgHover,
-            headerShowCloseButton: computed(() => props.content?.headerShowCloseButton !== false),
             messageBgColor,
             messageTextColor,
             messageFontSize,
@@ -825,19 +694,20 @@ export default {
             // Methods
             scrollToBottom,
             sendMessage,
+            addMessage,
             handleAttachment,
             handleRemoveAttachment,
             handlePendingAttachmentClick,
             handleAttachmentClick,
             handleMessageRightClick,
-            handleClose,
-            addMessage,
             currentLocalContext,
-            // exposed for CSS variables
+            pendingAttachments,
+            allowAttachments,
+
+            // Exposed for CSS variables
             messagesAttachmentThumbMaxWidth,
             messagesAttachmentThumbMaxHeight,
             messagesAttachmentThumbBorderRadius,
-            headerAvatarBgColor,
         };
     },
     methods: {
@@ -866,6 +736,17 @@ export default {
     --ww-chat-own-message-border: v-bind('ownMessageBorder');
     --ww-chat-empty-message-text: v-bind('emptyMessageText');
     --ww-chat-empty-message-color: v-bind('emptyMessageColor');
+
+    --ww-chat-date-separator-text-color: v-bind('dateSeparatorTextColor');
+    --ww-chat-date-separator-line-color: v-bind('dateSeparatorLineColor');
+    --ww-chat-date-separator-bg-color: v-bind('dateSeparatorBgColor');
+    --ww-chat-date-separator-border-radius: v-bind('dateSeparatorBorderRadius');
+
+    /* Attachment thumbnails in messages area */
+    --ww-chat-attachment-thumb-max-width: v-bind('messagesAttachmentThumbMaxWidth');
+    --ww-chat-attachment-thumb-max-height: v-bind('messagesAttachmentThumbMaxHeight');
+    --ww-chat-attachment-thumb-radius: v-bind('messagesAttachmentThumbBorderRadius');
+
     --ww-chat-input-bg: v-bind('inputBgColor');
     --ww-chat-input-text: v-bind('inputTextColor');
     --ww-chat-input-font-size: v-bind('inputFontSize');

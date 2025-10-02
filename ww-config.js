@@ -88,12 +88,7 @@ export default {
                 'inputPlaceholder',
                 'inputActionAlign',
             ],
-            [
-                'sendTitle',
-                'sendIcon',
-                'sendIconColor',
-                'sendIconSize',
-            ],
+            ['sendTitle', 'sendIcon', 'sendIconColor', 'sendIconSize'],
             [
                 'sendButtonTitle',
                 'sendButtonBgColor',
@@ -112,7 +107,7 @@ export default {
                 'disabled',
                 'enableMarkdown',
                 'allowAttachments',
-                'autoScrollBehavior'
+                'autoScrollBehavior',
             ],
             [
                 'chatDataTitle',
@@ -128,11 +123,7 @@ export default {
                 'mappingAttachmentType',
                 'mappingAttachmentSize',
             ],
-            [
-                'streamingTitle',
-                'isStreaming',
-                'streamingText',
-            ],
+            ['streamingTitle', 'isStreaming', 'streamingText'],
         ],
     },
     triggerEvents: [
@@ -145,6 +136,68 @@ export default {
                     role: 'user',
                     timestamp: new Date().toISOString(),
                 },
+            },
+        },
+        {
+            name: 'messageReceived',
+            label: { en: 'On message received' },
+            event: {
+                message: {
+                    id: 'msg-2',
+                    text: 'New assistant message received',
+                    role: 'assistant',
+                    timestamp: new Date().toISOString(),
+                    attachments: [
+                        {
+                            id: 'file-1',
+                            name: 'result.pdf',
+                            type: 'application/pdf',
+                            size: 102400,
+                            url: 'https://example.com/result.pdf',
+                        },
+                    ],
+                },
+            },
+        },
+        {
+            name: 'messageRightClick',
+            label: { en: 'On message right click' },
+            event: {
+                message: {
+                    id: 'msg-1',
+                    text: 'Message content',
+                    role: 'user',
+                    timestamp: new Date().toISOString(),
+                },
+                position: {
+                    x: 100,
+                    y: 200,
+                },
+            },
+        },
+        {
+            name: 'attachmentClick',
+            label: { en: 'On attachment click' },
+            event: {
+                attachment: {
+                    id: 'file-1',
+                    name: 'document.pdf',
+                    type: 'application/pdf',
+                    size: 1024000,
+                    url: 'https://example.com/document.pdf',
+                },
+            },
+        },
+        {
+            name: 'pendingAttachmentClick',
+            label: { en: 'On pending attachment click' },
+            event: {
+                attachment: {
+                    name: 'image.png',
+                    type: 'image/png',
+                    size: 204800,
+                },
+                index: 0,
             },
         },
     ],
@@ -641,7 +694,8 @@ export default {
                 tooltip: 'Formula to extract the message text from each message object',
             },
             propertyHelp: {
-                tooltip: 'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["text"]\nExample value: "Hello, how can I help?"',
+                tooltip:
+                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["text"]\nExample value: "Hello, how can I help?"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -663,7 +717,8 @@ export default {
                 tooltip: 'Formula to extract the role from each message object',
             },
             propertyHelp: {
-                tooltip: 'Mapping to the role in your Messages data.\n\nExample mapping: context.mapping?.["role"]\nExample values: "user" or "assistant"',
+                tooltip:
+                    'Mapping to the role in your Messages data.\n\nExample mapping: context.mapping?.["role"]\nExample values: "user" or "assistant"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -685,7 +740,8 @@ export default {
                 tooltip: 'Formula to extract the timestamp from each message object',
             },
             propertyHelp: {
-                tooltip: 'Mapping to the timestamp in your Messages data.\n\nExample mapping: context.mapping?.["timestamp"]\nExample value: "2025-10-02T10:30:00Z"',
+                tooltip:
+                    'Mapping to the timestamp in your Messages data.\n\nExample mapping: context.mapping?.["timestamp"]\nExample value: "2025-10-02T10:30:00Z"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -709,7 +765,8 @@ export default {
                 tooltip: 'Formula to extract the attachments array from each message object',
             },
             propertyHelp: {
-                tooltip: 'Mapping to the attachments in your Messages data.\n\nExample mapping: context.mapping?.["attachments"]\nExample value: [{ id: "file-1", name: "image.png", type: "image/png", size: 204800, url: "https://example.com/file.png" }]',
+                tooltip:
+                    'Mapping to the attachments in your Messages data.\n\nExample mapping: context.mapping?.["attachments"]\nExample value: [{ id: "file-1", name: "image.png", type: "image/png", size: 204800, url: "https://example.com/file.png" }]',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -739,7 +796,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment unique id' },
             propertyHelp: {
-                tooltip: 'Mapping to the unique ID in your Attachments data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "file-1"',
+                tooltip:
+                    'Mapping to the unique ID in your Attachments data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "file-1"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -761,7 +819,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment display name' },
             propertyHelp: {
-                tooltip: 'Mapping to the display name in your Attachments data.\n\nExample mapping: context.mapping?.["name"]\nExample value: "report.pdf"',
+                tooltip:
+                    'Mapping to the display name in your Attachments data.\n\nExample mapping: context.mapping?.["name"]\nExample value: "report.pdf"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -783,7 +842,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment URL' },
             propertyHelp: {
-                tooltip: 'Mapping to the file URL in your Attachments data.\n\nExample mapping: context.mapping?.["url"]\nExample value: "https://example.com/file.pdf"',
+                tooltip:
+                    'Mapping to the file URL in your Attachments data.\n\nExample mapping: context.mapping?.["url"]\nExample value: "https://example.com/file.pdf"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -805,7 +865,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment MIME type' },
             propertyHelp: {
-                tooltip: 'Mapping to the MIME type in your Attachments data.\n\nExample mapping: context.mapping?.["type"]\nExample value: "image/png"',
+                tooltip:
+                    'Mapping to the MIME type in your Attachments data.\n\nExample mapping: context.mapping?.["type"]\nExample value: "image/png"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -827,7 +888,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment size in bytes' },
             propertyHelp: {
-                tooltip: 'Mapping to the size in your Attachments data.\n\nExample mapping: context.mapping?.["size"]\nExample value: 204800',
+                tooltip:
+                    'Mapping to the size in your Attachments data.\n\nExample mapping: context.mapping?.["size"]\nExample value: 204800',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -840,7 +902,7 @@ export default {
         // Streaming
         streamingTitle: {
             type: 'Title',
-            label: { en: 'Streaming (OpenAI)' },
+            label: { en: 'Streaming' },
             section: 'settings',
         },
         isStreaming: {

@@ -260,6 +260,7 @@ export default {
 
                 // Map attachments with optional field mappings
                 const rawAttachments = resolveMapping(message, props.content?.mappingAttachments, 'attachments');
+                console.log('[ATTACHMENT RESOLUTION]', { message, rawAttachments, hasMapping: !!props.content?.mappingAttachments });
                 let attachments;
                 if (Array.isArray(rawAttachments)) {
                     attachments = rawAttachments.map(att => {

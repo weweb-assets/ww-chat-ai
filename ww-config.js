@@ -696,7 +696,8 @@ export default {
         mappingAttachments: {
             label: { en: 'Attachments' },
             type: 'Formula',
-            options: content => {
+            options: (content, _, boundProps) => {
+                console.log('[MAPPING ATTACHMENTS OPTIONS]', { content_messages: content.messages, boundProps_messages: boundProps?.messages });
                 const messages = Array.isArray(content.messages) ? content.messages : [];
                 const mapping = content?.mappingAttachments;
                 return { template: __pickTemplateMessageByMapping(messages, mapping) };

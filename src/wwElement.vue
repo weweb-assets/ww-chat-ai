@@ -348,8 +348,10 @@ export default {
                     // Streaming just started
                     scrollOnNextStream = true;
                 } else if (!newVal && oldVal) {
-                    // Streaming just stopped
-                    scrollToBottom();
+                    // Streaming just stopped - wait a bit for final message to be added
+                    setTimeout(() => {
+                        scrollToBottom();
+                    }, 50);
                 }
             }
         );

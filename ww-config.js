@@ -692,12 +692,10 @@ export default {
         mappingAttachments: {
             label: { en: 'Attachments' },
             type: 'Formula',
-            options: (content, _, boundProps) => {
-                // Provide first message as template, or example data structure
-                const messages = Array.isArray(content.messages) && content.messages.length
-                    ? content.messages
-                    : [{ attachments: [{ id: 'file-1', name: 'example.pdf', url: 'https://...', type: 'application/pdf', size: 102400 }] }];
-                return { template: messages[0] };
+            options: content => {
+                const messages = Array.isArray(content.messages) ? content.messages : [];
+                const mapping = content?.mappingAttachments;
+                return { template: __pickTemplateMessageByMapping(messages, mapping) };
             },
             defaultValue: {
                 type: 'f',

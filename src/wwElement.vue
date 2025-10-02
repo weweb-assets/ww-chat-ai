@@ -220,12 +220,6 @@ export default {
             // Ensure we always have an array to work with
             const messagesContent = props.content?.messages;
 
-            console.log('[RAW MESSAGES FROM PROPS]', messagesContent?.map(m => ({
-                role: m.role,
-                text: m.text?.substring(0, 50),
-                textLength: m.text?.length || 0
-            })));
-
             // Check if messages is a valid array
             if (Array.isArray(messagesContent)) {
                 return messagesContent;
@@ -260,7 +254,6 @@ export default {
 
                 // Map attachments with optional field mappings
                 const rawAttachments = resolveMapping(message, props.content?.mappingAttachments, 'attachments');
-                console.log('[ATTACHMENT RESOLUTION]', { message, rawAttachments, hasMapping: !!props.content?.mappingAttachments });
                 let attachments;
                 if (Array.isArray(rawAttachments)) {
                     attachments = rawAttachments.map(att => {

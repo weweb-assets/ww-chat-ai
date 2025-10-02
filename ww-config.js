@@ -584,33 +584,39 @@ export default {
         },
         mappingMessageText: {
             label: { en: 'Message Text' },
-            type: 'Info',
-            section: 'settings',
-            bindable: true,
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Field name for message text (default: "text")',
+            type: 'Formula',
+            options: content => ({
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['text']",
             },
+            section: 'settings',
         },
         mappingRole: {
             label: { en: 'Message Role' },
-            type: 'Info',
-            section: 'settings',
-            bindable: true,
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Field name for message role - "user" or "assistant" (default: "role")',
+            type: 'Formula',
+            options: content => ({
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['role']",
             },
+            section: 'settings',
         },
         mappingTimestamp: {
             label: { en: 'Timestamp' },
-            type: 'Info',
-            section: 'settings',
-            bindable: true,
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'Field name for timestamp (default: "timestamp")',
+            type: 'Formula',
+            options: content => ({
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['timestamp']",
             },
+            section: 'settings',
         },
 
         // Streaming

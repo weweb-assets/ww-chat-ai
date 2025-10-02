@@ -318,12 +318,42 @@ export default {
             () => props.content?.messagesAttachmentThumbBorderRadius || '6px'
         );
 
+        // Track if we should scroll on next streamingText update
+        let scrollOnNextStream = false;
+
         watch(
-            [messages, isStreaming],
+            messages,
             () => {
-                if (!isScrolling.value) scrollToBottom(); // Will use autoScrollBehavior setting
+                if (!isScrolling.value) scrollToBottom();
             },
             { deep: true }
+        );
+
+        // Scroll when streaming starts
+        watch(
+            isStreaming,
+            (newVal, oldVal) => {
+                if (newVal && !oldVal) {
+                    // Streaming just started
+                    scrollOnNextStream = true;
+                } else if (!newVal && oldVal) {
+                    // Streaming just stopped
+                    scrollToBottom();
+                }
+            }
+        );
+
+        // Scroll once when streamingText first appears
+        watch(
+            streamingText,
+            (newVal) => {
+                if (scrollOnNextStream && newVal) {
+                    scrollOnNextStream = false;
+                    nextTick(() => {
+                        if (!isScrolling.value) scrollToBottom();
+                    });
+                }
+            }
         );
 
         // Removed user settings watcher and debounced updater; participants now drive user info

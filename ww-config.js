@@ -22,14 +22,20 @@ const __pickTemplateMessageByMapping = (messages, mapping) => {
 };
 
 const __pickFirstAttachmentByMapping = (messages, mapping) => {
+    console.log('[PICK FIRST ATTACHMENT] Input:', { messagesCount: messages?.length, mapping });
     if (mapping?.code && Array.isArray(messages) && messages.length) {
         for (const msg of messages) {
             const arr = __evalCode(mapping.code, mapping.type || 'f', { mapping: msg });
-            if (Array.isArray(arr) && arr.length) return arr[0];
+            if (Array.isArray(arr) && arr.length) {
+                console.log('[PICK FIRST ATTACHMENT] Found via mapping:', arr[0]);
+                return arr[0];
+            }
         }
     }
     const withAtt = messages.find(m => Array.isArray(m?.attachments) && m.attachments.length);
-    return withAtt ? withAtt.attachments[0] : null;
+    const result = withAtt ? withAtt.attachments[0] : null;
+    console.log('[PICK FIRST ATTACHMENT] Result:', result);
+    return result;
 };
 
 export default {

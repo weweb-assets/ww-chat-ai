@@ -1,6 +1,6 @@
-# WW-CHAT
+# WW-CHAT-AI
 
-This is an element for Weweb, to display a Chat.
+This is an element for Weweb, to display an AI Chat.
 
 ## Installation
 

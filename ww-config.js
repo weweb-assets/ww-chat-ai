@@ -306,7 +306,11 @@ export default {
             type: 'Length',
             section: 'style',
             options: {
-                unitChoices: ['px', 'rem', 'em'],
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
             },
             bindable: true,
             responsive: true,
@@ -385,7 +389,11 @@ export default {
             type: 'Length',
             section: 'style',
             options: {
-                unitChoices: ['px', 'rem', 'em'],
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
             },
             bindable: true,
             responsive: true,
@@ -501,7 +509,11 @@ export default {
             type: 'Length',
             section: 'style',
             options: {
-                unitChoices: ['px', 'rem', 'em'],
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 8, max: 100 },
+                    { value: 'em', label: 'em', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.5, max: 5, digits: 3, step: 0.1 },
+                ],
             },
             bindable: true,
             responsive: true,

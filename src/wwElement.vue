@@ -236,10 +236,10 @@ export default {
                 return resolveMappingFormula(formula, obj);
             };
 
-            return rawMessages.value.map(message => {
+            return rawMessages.value.map((message, index) => {
                 if (!message || typeof message !== 'object') {
                     return {
-                        id: `msg-${wwLib.wwUtils.getUid()}`,
+                        id: `msg-fallback-${index}`,
                         text: '',
                         role: 'assistant',
                         timestamp: new Date().toISOString(),
@@ -248,6 +248,7 @@ export default {
                     };
                 }
 
+                const messageId = resolveMapping(message, props.content?.mappingMessageId, 'id');
                 const text = resolveMapping(message, props.content?.mappingMessageText, 'text') || '';
                 const role = resolveMapping(message, props.content?.mappingRole, 'role') || 'assistant';
                 const timestamp = resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') || new Date().toISOString();
@@ -272,8 +273,11 @@ export default {
                     attachments = rawAttachments;
                 }
 
+                // Use mapped message ID if available, or create stable ID from timestamp + text
+                const stableId = messageId || `msg-${timestamp}-${text.substring(0, 20)}`.replace(/[^a-zA-Z0-9-]/g, '-');
+
                 return {
-                    id: `msg-${wwLib.wwUtils.getUid()}`,
+                    id: stableId,
                     text,
                     role: role === 'user' ? 'user' : 'assistant',
                     timestamp,
@@ -417,15 +421,25 @@ export default {
         };
 
         const sendMessage = () => {
-            if (isEditing.value || isDisabled.value || !newMessage.value.trim()) return;
+            if (isEditing.value || isDisabled.value) return;
+            if (!newMessage.value.trim() && pendingAttachments.value.length === 0) return;
 
             const message = {
+                id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
                 role: 'user',
                 timestamp: new Date().toISOString(),
+                attachments: pendingAttachments.value.map(att => ({
+                    id: att.id,
+                    name: att.name,
+                    type: att.type,
+                    size: att.size,
+                    url: att.url,
+                })),
             };
 
             newMessage.value = '';
+            pendingAttachments.value = [];
 
             emit('trigger-event', {
                 name: 'messageSent',

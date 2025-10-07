@@ -375,9 +375,6 @@ export default {
         &--assistant {
             padding: 12px 0;
             max-width: 100%;
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
         }
 
         &:not(.ww-message-item--continued) {

@@ -112,6 +112,7 @@ export default {
             [
                 'chatDataTitle',
                 'messages',
+                'mappingMessageId',
                 'mappingMessageText',
                 'mappingRole',
                 'mappingTimestamp',
@@ -132,9 +133,19 @@ export default {
             label: { en: 'On message sent' },
             event: {
                 message: {
+                    id: 'msg-1',
                     text: 'Hello there!',
                     role: 'user',
                     timestamp: new Date().toISOString(),
+                    attachments: [
+                        {
+                            id: 'file-1',
+                            name: 'demo.txt',
+                            type: 'text/plain',
+                            size: 12,
+                            url: 'blob:https://example.com/...',
+                        },
+                    ],
                 },
             },
         },
@@ -170,8 +181,10 @@ export default {
                     timestamp: new Date().toISOString(),
                 },
                 position: {
-                    x: 100,
-                    y: 200,
+                    elementX: 50, // relative to chat element
+                    elementY: 20,
+                    viewportX: 320, // relative to page top-left
+                    viewportY: 480,
                 },
             },
         },
@@ -223,6 +236,7 @@ export default {
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'inherit',
         },
 
@@ -237,6 +251,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#ffffff',
         },
         messagesAreaPadding: {
@@ -244,6 +259,7 @@ export default {
             type: 'Spacing',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '16px',
         },
         emptyMessageText: {
@@ -251,6 +267,7 @@ export default {
             type: 'Text',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'No messages yet',
         },
         emptyMessageColor: {
@@ -258,6 +275,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#64748b',
         },
 
@@ -272,6 +290,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'transparent',
         },
         messageTextColor: {
@@ -279,13 +298,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#334155',
         },
         messageFontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
             section: 'style',
+            options: {
+                unitChoices: ['px', 'rem', 'em'],
+            },
             bindable: true,
+            responsive: true,
             defaultValue: '0.875rem',
         },
         messageFontWeight: {
@@ -306,6 +330,7 @@ export default {
                 ],
             },
             bindable: true,
+            responsive: true,
             defaultValue: '400',
         },
         messageFontFamily: {
@@ -313,6 +338,7 @@ export default {
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'inherit',
         },
         messageBorder: {
@@ -320,6 +346,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'none',
         },
         messageRadius: {
@@ -327,7 +354,8 @@ export default {
             type: 'BorderRadius',
             section: 'style',
             bindable: true,
-            defaultValue: '0px',
+            responsive: true,
+            defaultValue: '12px',
         },
 
         // User message styles (with bubble)
@@ -341,6 +369,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#f4f4f4',
         },
         ownMessageTextColor: {
@@ -348,13 +377,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#1e1e1e',
         },
         ownMessageFontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
             section: 'style',
+            options: {
+                unitChoices: ['px', 'rem', 'em'],
+            },
             bindable: true,
+            responsive: true,
             defaultValue: '0.875rem',
         },
         ownMessageFontWeight: {
@@ -375,6 +409,7 @@ export default {
                 ],
             },
             bindable: true,
+            responsive: true,
             defaultValue: '400',
         },
         ownMessageFontFamily: {
@@ -382,6 +417,7 @@ export default {
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'inherit',
         },
         ownMessageBorder: {
@@ -389,6 +425,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '1px solid #d0d0d0',
         },
         ownMessageRadius: {
@@ -396,6 +433,7 @@ export default {
             type: 'BorderRadius',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '18px',
         },
 
@@ -410,13 +448,15 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#ffffff',
         },
         inputAreaBorder: {
-            label: { en: 'Area Border' },
+            label: { en: 'Area Border Top' },
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '1px solid #e2e8f0',
         },
         textAreaTitle: {
@@ -429,6 +469,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '1px solid #e2e8f0',
         },
         textareaBorderHover: {
@@ -436,6 +477,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '1px solid #cbd5e1',
         },
         textareaBorderFocus: {
@@ -443,6 +485,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '1px solid #3b82f6',
         },
         inputTextColor: {
@@ -450,13 +493,18 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#334155',
         },
         inputFontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
             section: 'style',
+            options: {
+                unitChoices: ['px', 'rem', 'em'],
+            },
             bindable: true,
+            responsive: true,
             defaultValue: '0.875rem',
         },
         inputFontWeight: {
@@ -477,6 +525,7 @@ export default {
                 ],
             },
             bindable: true,
+            responsive: true,
             defaultValue: '400',
         },
         inputFontFamily: {
@@ -484,6 +533,7 @@ export default {
             type: 'FontFamily',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'inherit',
         },
         inputPlaceholderColor: {
@@ -491,6 +541,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#94a3b8',
         },
         inputHeight: {
@@ -498,6 +549,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '38px',
         },
         inputBorderRadius: {
@@ -505,6 +557,7 @@ export default {
             type: 'BorderRadius',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '8px',
         },
         inputPlaceholder: {
@@ -512,6 +565,7 @@ export default {
             type: 'Text',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'Message...',
         },
         inputActionAlign: {
@@ -525,6 +579,7 @@ export default {
                 ],
             },
             bindable: true,
+            responsive: true,
             defaultValue: 'end',
         },
 
@@ -536,16 +591,29 @@ export default {
         },
         sendIcon: {
             label: { en: 'Icon' },
-            type: 'Icon',
+            type: 'SystemIcon',
             section: 'style',
             bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
             defaultValue: 'send',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the send button',
+            },
+            propertyHelp: {
+                tooltip: 'Icon used for the send button.\n\nExample: `lucide/send`, `lucide/chevron-right`',
+            },
+            /* wwEditor:end */
         },
         sendIconColor: {
             label: { en: 'Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '#334155',
         },
         sendIconSize: {
@@ -553,6 +621,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '20px',
         },
 
@@ -567,6 +636,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'linear-gradient(135deg, #3b82f6, #2563eb)',
         },
         sendButtonHoverBgColor: {
@@ -574,6 +644,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
         },
         sendButtonBorder: {
@@ -581,6 +652,7 @@ export default {
             type: 'Border',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: 'none',
         },
         sendButtonBorderRadius: {
@@ -588,6 +660,7 @@ export default {
             type: 'BorderRadius',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '12px',
         },
         sendButtonSize: {
@@ -595,13 +668,15 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '42px',
         },
         sendButtonBoxShadow: {
-            label: { en: 'Box Shadow' },
+            label: { en: 'Shadow' },
             type: 'BoxShadow',
             section: 'style',
             bindable: true,
+            responsive: true,
             defaultValue: '0 2px 4px rgba(59, 130, 246, 0.3)',
         },
 
@@ -676,6 +751,29 @@ export default {
                 type: 'array',
                 tooltip: 'Array of message objects: [{ text: string, role: "user"|"assistant", timestamp?: string }]',
             },
+        },
+        mappingMessageId: {
+            label: { en: 'Message ID' },
+            type: 'Formula',
+            options: content => ({
+                template: Array.isArray(content.messages) && content.messages.length ? content.messages[0] : null,
+            }),
+            defaultValue: {
+                type: 'f',
+                code: "context.mapping?.['id']",
+            },
+            section: 'settings',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'formula',
+                tooltip: 'Formula to extract the unique message ID from each message object',
+            },
+            propertyHelp: {
+                tooltip:
+                    'Mapping to the unique message ID in your Messages data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "msg-1"',
+            },
+            /* wwEditor:end */
+            hidden: (content, _, boundProps) => !boundProps.messages,
         },
         mappingMessageText: {
             label: { en: 'Message Text' },
@@ -918,6 +1016,7 @@ export default {
             section: 'settings',
             bindable: true,
             defaultValue: '',
+            hidden: content => !content.isStreaming,
         },
     },
 };

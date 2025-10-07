@@ -342,13 +342,13 @@ export default {
 
         const sendButtonStyle = computed(() => ({
             color: props.sendIconColor,
-            background: props.sendButtonBgColor,
+            '--btn-bg': props.sendButtonBgColor,
+            '--btn-hover-bg': props.sendButtonHoverBgColor,
             border: props.sendButtonBorder,
             borderRadius: props.sendButtonBorderRadius,
             width: props.sendButtonSize,
             height: props.sendButtonSize,
             boxShadow: props.sendButtonBoxShadow,
-            '--btn-hover-bg': props.sendButtonHoverBgColor,
         }));
 
         const attachmentButtonStyle = computed(() => ({
@@ -714,6 +714,7 @@ export default {
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
         align-self: auto;
+        background: var(--btn-bg, linear-gradient(135deg, #3b82f6, #2563eb));
 
         &:hover:not(:disabled) {
             background: var(--btn-hover-bg, linear-gradient(135deg, #2563eb, #1d4ed8));

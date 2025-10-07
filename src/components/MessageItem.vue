@@ -372,11 +372,6 @@ export default {
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        &--assistant {
-            padding: 12px 0;
-            max-width: 100%;
-        }
-
         &:not(.ww-message-item--continued) {
             margin-top: 8px;
         }

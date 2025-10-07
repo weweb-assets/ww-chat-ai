@@ -355,11 +355,18 @@ export default {
         },
         messageRadius: {
             label: { en: 'Border Radius' },
-            type: 'BorderRadius',
+            type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
             responsive: true,
-            defaultValue: '12px',
+            defaultValue: '12px 12px 12px 12px',
         },
 
         // User message styles (with bubble)
@@ -438,11 +445,18 @@ export default {
         },
         ownMessageRadius: {
             label: { en: 'Border Radius' },
-            type: 'BorderRadius',
+            type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
             responsive: true,
-            defaultValue: '18px',
+            defaultValue: '18px 18px 18px 18px',
         },
 
         // Input styles
@@ -566,7 +580,14 @@ export default {
         },
         inputBorderRadius: {
             label: { en: 'Border Radius' },
-            type: 'BorderRadius',
+            type: 'Spacing',
+            options: {
+                isCorner: true,
+                unitChoices: [
+                    { value: 'px', label: 'px', min: 0, max: 50, default: true },
+                    { value: '%', label: '%', min: 0, max: 100, digits: 2, step: 1 },
+                ],
+            },
             section: 'style',
             bindable: true,
             responsive: true,
@@ -669,7 +690,7 @@ export default {
         },
         sendButtonBorderRadius: {
             label: { en: 'Border Radius' },
-            type: 'BorderRadius',
+            type: 'Length',
             section: 'style',
             bindable: true,
             responsive: true,
@@ -685,7 +706,7 @@ export default {
         },
         sendButtonBoxShadow: {
             label: { en: 'Shadow' },
-            type: 'BoxShadow',
+            type: 'Shadows',
             section: 'style',
             bindable: true,
             responsive: true,

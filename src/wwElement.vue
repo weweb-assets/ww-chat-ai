@@ -311,7 +311,7 @@ export default {
         const messageFontWeight = computed(() => props.content?.messageFontWeight || '400');
         const messageFontFamily = computed(() => props.content?.messageFontFamily || 'inherit');
         const messageBorder = computed(() => props.content?.messageBorder || 'none');
-        const messageRadius = computed(() => props.content?.messageRadius || '0px');
+        const messageRadius = computed(() => props.content?.messageRadius || '12px 12px 12px 12px');
 
         const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#f4f4f4');
         const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e1e1e');
@@ -319,7 +319,7 @@ export default {
         const ownMessageFontWeight = computed(() => props.content?.ownMessageFontWeight || '400');
         const ownMessageFontFamily = computed(() => props.content?.ownMessageFontFamily || 'inherit');
         const ownMessageBorder = computed(() => props.content?.ownMessageBorder || '1px solid #d0d0d0');
-        const ownMessageRadius = computed(() => props.content?.ownMessageRadius || '18px');
+        const ownMessageRadius = computed(() => props.content?.ownMessageRadius || '18px 18px 18px 18px');
 
         // Input styles
         const inputBgColor = computed(() => props.content?.inputBgColor || '#ffffff');

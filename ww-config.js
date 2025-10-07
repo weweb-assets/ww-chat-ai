@@ -88,7 +88,20 @@ export default {
                 'inputPlaceholder',
                 'inputActionAlign',
             ],
-            ['sendTitle', 'sendIcon', 'sendIconColor', 'sendIconSize'],
+            [
+                'sendTitle',
+                'sendIcon',
+                'sendIconColor',
+                'sendIconSize',
+                'attachmentTitle',
+                'attachmentIcon',
+                'attachmentIconColor',
+                'attachmentIconSize',
+                'removeTitle',
+                'removeIcon',
+                'removeIconColor',
+                'removeIconSize',
+            ],
             [
                 'sendButtonTitle',
                 'sendButtonBgColor',
@@ -97,6 +110,15 @@ export default {
                 'sendButtonBorderRadius',
                 'sendButtonSize',
                 'sendButtonBoxShadow',
+            ],
+            [
+                'attachmentButtonTitle',
+                'attachmentButtonBgColor',
+                'attachmentButtonHoverBgColor',
+                'attachmentButtonBorder',
+                'attachmentButtonBorderRadius',
+                'attachmentButtonSize',
+                'attachmentButtonBoxShadow',
             ],
         ],
         customSettingsPropertiesOrder: [
@@ -657,6 +679,130 @@ export default {
             responsive: true,
             defaultValue: '20px',
         },
+        attachmentTitle: {
+            type: 'Title',
+            label: { en: 'Attachment Icon' },
+            section: 'style',
+        },
+        attachmentIcon: {
+            label: { en: 'Icon' },
+            type: 'SystemIcon',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'paperclip',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the attachment button',
+            },
+            propertyHelp: {
+                tooltip: 'Icon for adding attachments button.\n\nExample: `lucide/paperclip`, `lucide/plus`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentIconColor: {
+            label: { en: 'Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the attachment button icon',
+            },
+            propertyHelp: {
+                tooltip: 'Attachment button icon color.\n\nExample: `#334155`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentIconSize: {
+            label: { en: 'Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '20px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Size of the attachment button icon',
+            },
+            propertyHelp: {
+                tooltip: 'Attachment button icon size.\n\nExample: `20px`',
+            },
+            /* wwEditor:end */
+        },
+        removeTitle: {
+            type: 'Title',
+            label: { en: 'Remove Attachment Icon' },
+            section: 'style',
+        },
+        removeIcon: {
+            label: { en: 'Icon' },
+            type: 'SystemIcon',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: 'x',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Icon for the remove attachment button',
+            },
+            propertyHelp: {
+                tooltip: 'Icon used for remove attachment button.\n\nExample: `lucide/x`, `lucide/trash`',
+            },
+            /* wwEditor:end */
+        },
+        removeIconColor: {
+            label: { en: 'Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#334155',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Color of the remove attachment button icon',
+            },
+            propertyHelp: {
+                tooltip: 'Remove button icon color.\n\nExample: `#334155`',
+            },
+            /* wwEditor:end */
+        },
+        removeIconSize: {
+            label: { en: 'Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '16px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Size of the remove attachment button icon',
+            },
+            propertyHelp: {
+                tooltip: 'Remove button icon size.\n\nExample: `16px`',
+            },
+            /* wwEditor:end */
+        },
 
         // Send button styles
         sendButtonTitle: {
@@ -711,6 +857,109 @@ export default {
             bindable: true,
             responsive: true,
             defaultValue: '0 2px 4px rgba(59, 130, 246, 0.3)',
+        },
+
+        // Attachment button styles
+        attachmentButtonTitle: {
+            type: 'Title',
+            label: { en: 'Attachment Button' },
+            section: 'style',
+        },
+        attachmentButtonBgColor: {
+            label: { en: 'Background Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#f8fafc',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Background for the attachment button' },
+            propertyHelp: {
+                tooltip: 'Background color of attachment button.\n\nExample: `#f8fafc`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonHoverBgColor: {
+            label: { en: 'Hover Background' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '#f1f5f9',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Hover background for the attachment button' },
+            propertyHelp: {
+                tooltip: 'Background color of attachment button on hover.\n\nExample: `#f1f5f9`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBorder: {
+            label: { en: 'Border' },
+            type: 'Border',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '1px solid #e2e8f0',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border for the attachment button' },
+            propertyHelp: {
+                tooltip: 'Border of attachment button.\n\nExample: `1px solid #e2e8f0`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBorderRadius: {
+            label: { en: 'Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '12px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border radius of the attachment button' },
+            propertyHelp: {
+                tooltip: 'Border radius of attachment button.\n\nExample: `12px`, `8px`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonSize: {
+            label: { en: 'Size' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '42px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Square size of the attachment button' },
+            propertyHelp: {
+                tooltip: 'Width & height of attachment button.\n\nExample: `42px`',
+            },
+            /* wwEditor:end */
+        },
+        attachmentButtonBoxShadow: {
+            label: { en: 'Shadow' },
+            type: 'Shadows',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '0 1px 2px rgba(0, 0, 0, 0.06)',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Shadow applied to the attachment button' },
+            propertyHelp: {
+                tooltip: 'Background shadow of attachment button.\n\nExample: `0 1px 2px rgba(0,0,0,.06)`',
+            },
+            /* wwEditor:end */
         },
 
         // ======== SETTINGS ========

@@ -764,8 +764,8 @@ export default {
             attachmentIconColor: computed(() => props.content?.attachmentIconColor || '#334155'),
             attachmentIconSize: computed(() => props.content?.attachmentIconSize || '20px'),
             removeIcon: computed(() => props.content?.removeIcon || 'x'),
-            removeIconColor: computed(() => props.content?.removeIconColor || '#f43f5e'),
-            removeIconSize: computed(() => props.content?.removeIconSize || '12px'),
+            removeIconColor: computed(() => props.content?.removeIconColor || '#334155'),
+            removeIconSize: computed(() => props.content?.removeIconSize || '16px'),
 
             // Input action alignment and button styles
             actionAlign: computed(() => props.content?.inputActionAlign || 'end'),

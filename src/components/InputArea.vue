@@ -222,11 +222,11 @@ export default {
         },
         removeIconColor: {
             type: String,
-            default: '#f43f5e',
+            default: '#334155',
         },
         removeIconSize: {
             type: String,
-            default: '12px',
+            default: '16px',
         },
     },
     emits: ['update:modelValue', 'send', 'attachment', 'remove-attachment', 'pending-attachment-click'],
@@ -353,13 +353,13 @@ export default {
 
         const attachmentButtonStyle = computed(() => ({
             color: props.attachmentIconColor,
-            background: props.attachmentButtonBgColor,
+            '--btn-bg': props.attachmentButtonBgColor,
+            '--btn-hover-bg': props.attachmentButtonHoverBgColor,
             border: props.attachmentButtonBorder,
             borderRadius: props.attachmentButtonBorderRadius,
             width: props.attachmentButtonSize,
             height: props.attachmentButtonSize,
             boxShadow: props.attachmentButtonBoxShadow,
-            '--btn-hover-bg': props.attachmentButtonHoverBgColor,
         }));
 
         watch(
@@ -606,6 +606,7 @@ export default {
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
         align-self: auto;
+        background: var(--btn-bg, #f8fafc);
 
         &:hover {
             background: var(--btn-hover-bg, #f1f5f9);

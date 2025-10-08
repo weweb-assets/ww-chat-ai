@@ -218,6 +218,10 @@ export default {
             type: Boolean,
             default: true,
         },
+        ownMessageShowTimestamp: {
+            type: Boolean,
+            default: true,
+        },
     },
     emits: ['attachment-click', 'right-click'],
     setup(props, { emit }) {
@@ -252,8 +256,8 @@ export default {
         });
 
         const showTimestamp = computed(() => {
-            // User messages always show timestamp
-            if (props.isOwnMessage) return true;
+            // User messages show timestamp based on ownMessageShowTimestamp property
+            if (props.isOwnMessage) return props.ownMessageShowTimestamp;
             // Assistant messages show timestamp based on messageShowTimestamp property
             return props.messageShowTimestamp;
         });

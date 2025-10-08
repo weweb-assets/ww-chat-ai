@@ -24,6 +24,7 @@
                     :same-sender-as-next="isSameSenderAsNext(index)"
                     :enable-markdown="enableMarkdown"
                     :message-show-timestamp="messageShowTimestamp"
+                    :own-message-show-timestamp="ownMessageShowTimestamp"
                     :message-bg-color="messageBgColor"
                     :message-text-color="messageTextColor"
                     :message-font-size="messageFontSize"
@@ -55,6 +56,7 @@
                 :same-sender-as-next="false"
                 :enable-markdown="enableMarkdown"
                 :message-show-timestamp="messageShowTimestamp"
+                :own-message-show-timestamp="ownMessageShowTimestamp"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -110,6 +112,10 @@ export default {
             default: false,
         },
         messageShowTimestamp: {
+            type: Boolean,
+            default: true,
+        },
+        ownMessageShowTimestamp: {
             type: Boolean,
             default: true,
         },

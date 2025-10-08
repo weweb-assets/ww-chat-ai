@@ -11,6 +11,7 @@
                 :streaming-text="streamingText"
                 :enable-markdown="enableMarkdown"
                 :message-show-timestamp="messageShowTimestamp"
+                :own-message-show-timestamp="ownMessageShowTimestamp"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -216,6 +217,7 @@ export default {
         const userLabel = computed(() => props.content?.userLabel || '');
         const assistantLabel = computed(() => props.content?.assistantLabel || '');
         const messageShowTimestamp = computed(() => props.content?.messageShowTimestamp !== false);
+        const ownMessageShowTimestamp = computed(() => props.content?.ownMessageShowTimestamp !== false);
         const isStreaming = computed(() => props.content?.isStreaming || false);
         const streamingText = computed(() => props.content?.streamingText || '');
         const rawMessages = computed(() => {
@@ -723,6 +725,7 @@ export default {
             containerStyles,
             messagesContainerStyles,
             messageShowTimestamp,
+            ownMessageShowTimestamp,
             messageBgColor,
             messageTextColor,
             messageFontSize,

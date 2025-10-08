@@ -103,6 +103,10 @@ export default {
                 'removeIcon',
                 'removeIconColor',
                 'removeIconSize',
+                'imagePreviewTitle',
+                'messagesAttachmentThumbMaxWidth',
+                'messagesAttachmentThumbMaxHeight',
+                'messagesAttachmentThumbBorderRadius',
             ],
             [
                 'sendButtonTitle',
@@ -851,6 +855,67 @@ export default {
             },
             propertyHelp: {
                 tooltip: 'Remove button icon size.\n\nExample: `16px`',
+            },
+            /* wwEditor:end */
+        },
+
+        // Image preview (thumbnails inside messages)
+        imagePreviewTitle: {
+            type: 'Title',
+            label: { en: 'Image Preview' },
+            section: 'style',
+        },
+        messagesAttachmentThumbMaxWidth: {
+            label: { en: 'Attachment Max Width' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '250px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Maximum width of image attachment thumbnails in the messages area',
+            },
+            propertyHelp: {
+                tooltip: 'Max width of attached images in messages.\n\nExample: `250px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbMaxHeight: {
+            label: { en: 'Attachment Max Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '200px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Maximum height of image attachment thumbnails in the messages area',
+            },
+            propertyHelp: {
+                tooltip: 'Max height of attached images in messages.\n\nExample: `200px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbBorderRadius: {
+            label: { en: 'Attachment Border Radius' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '6px',
+            /* wwEditor:start */
+            bindingValidation: { type: 'string', tooltip: 'Border radius of image attachment thumbnails' },
+            propertyHelp: {
+                tooltip: 'Border radius of attached images in messages.\n\nExample: `6px`',
             },
             /* wwEditor:end */
         },

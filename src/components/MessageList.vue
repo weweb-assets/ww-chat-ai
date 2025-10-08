@@ -23,6 +23,7 @@
                     :same-sender-as-previous="isSameSenderAsPrevious(index)"
                     :same-sender-as-next="isSameSenderAsNext(index)"
                     :enable-markdown="enableMarkdown"
+                    :message-show-timestamp="messageShowTimestamp"
                     :message-bg-color="messageBgColor"
                     :message-text-color="messageTextColor"
                     :message-font-size="messageFontSize"
@@ -53,6 +54,7 @@
                 :same-sender-as-previous="false"
                 :same-sender-as-next="false"
                 :enable-markdown="enableMarkdown"
+                :message-show-timestamp="messageShowTimestamp"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
                 :message-font-size="messageFontSize"
@@ -97,11 +99,19 @@ export default {
         },
         userLabel: {
             type: String,
-            default: 'You',
+            default: '',
         },
         assistantLabel: {
             type: String,
-            default: 'Assistant',
+            default: '',
+        },
+        enableMarkdown: {
+            type: Boolean,
+            default: false,
+        },
+        messageShowTimestamp: {
+            type: Boolean,
+            default: true,
         },
         isStreaming: {
             type: Boolean,
@@ -110,10 +120,6 @@ export default {
         streamingText: {
             type: String,
             default: '',
-        },
-        enableMarkdown: {
-            type: Boolean,
-            default: false,
         },
         messageBgColor: {
             type: String,

@@ -54,6 +54,7 @@ export default {
             ],
             [
                 'messageTitle',
+                'messageShowTimestamp',
                 'messageBgColor',
                 'messageTextColor',
                 'messageFontSize',
@@ -306,6 +307,13 @@ export default {
             type: 'Title',
             label: { en: 'Assistant Messages' },
             section: 'style',
+        },
+        messageShowTimestamp: {
+            label: { en: 'Show Timestamp' },
+            type: 'OnOff',
+            section: 'style',
+            bindable: true,
+            defaultValue: true,
         },
         messageBgColor: {
             label: { en: 'Background Color' },

@@ -95,7 +95,7 @@
             </div>
 
             <!-- Message timestamp -->
-            <div class="ww-message-item__time">
+            <div v-if="showTimestamp" class="ww-message-item__time">
                 {{ formatMessageTime(message.timestamp) }}
             </div>
         </div>
@@ -204,11 +204,19 @@ export default {
         },
         userLabel: {
             type: String,
-            default: 'You',
+            default: '',
         },
         assistantLabel: {
             type: String,
-            default: 'Assistant',
+            default: '',
+        },
+        enableMarkdown: {
+            type: Boolean,
+            default: false,
+        },
+        messageShowTimestamp: {
+            type: Boolean,
+            default: true,
         },
     },
     emits: ['attachment-click', 'right-click'],
@@ -236,7 +244,18 @@ export default {
         });
 
         const showSenderName = computed(() => {
-            return true;
+            // Hide label if it's empty
+            if (props.isOwnMessage) {
+                return props.userLabel && props.userLabel.trim() !== '';
+            }
+            return props.assistantLabel && props.assistantLabel.trim() !== '';
+        });
+
+        const showTimestamp = computed(() => {
+            // User messages always show timestamp
+            if (props.isOwnMessage) return true;
+            // Assistant messages show timestamp based on messageShowTimestamp property
+            return props.messageShowTimestamp;
         });
 
         const renderedMarkdown = computed(() => {
@@ -336,6 +355,7 @@ export default {
             isAssistantMessage,
             senderDisplayName,
             showSenderName,
+            showTimestamp,
             renderedMarkdown,
             messageStyles,
             isImageFile,

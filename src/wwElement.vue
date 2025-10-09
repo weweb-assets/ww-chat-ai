@@ -1,38 +1,31 @@
 <template>
-    <div class="ww-chat" :class="{ 'ww-chat--disabled': isDisabled }" :style="containerStyles">
-        <!-- Chat Header -->
-        <ChatHeader
-            v-if="displayHeader"
-            :user-name="headerUserName"
-            :user-avatar="headerUserAvatar"
-            :user-location="headerUserLocation"
-            :user-status="headerUserStatus"
-            :header-bg-color="headerBgColor"
-            :text-color="headerTextColor"
-            :header-border="headerBorder"
-            :header-box-shadow="headerBoxShadow"
-            :header-padding="headerPadding"
-            :name-font-size="headerNameFontSize"
-            :name-font-weight="headerNameFontWeight"
-            :location-font-size="headerLocationFontSize"
-            :location-opacity="headerLocationOpacity"
-            :close-button-color="headerCloseButtonColor"
-            :close-button-bg-hover="headerCloseButtonBgHover"
-            :participants="headerParticipants"
-            @close="handleClose"
-        />
-
+    <div ref="chatRoot" class="ww-chat-ai" :class="{ 'ww-chat-ai--disabled': isDisabled }" :style="containerStyles">
         <!-- Messages Area -->
-        <div ref="messagesContainer" class="ww-chat__messages" :style="messagesContainerStyles">
+        <div ref="messagesContainer" class="ww-chat-ai__messages" :style="messagesContainerStyles">
             <MessageList
                 :messages="messages"
-                :current-user-id="currentUserId"
+                :current-user-id="'user'"
+                :user-label="userLabel"
+                :assistant-label="assistantLabel"
+                :is-streaming="isStreaming"
+                :streaming-text="streamingText"
+                :enable-markdown="enableMarkdown"
+                :message-show-timestamp="messageShowTimestamp"
+                :own-message-show-timestamp="ownMessageShowTimestamp"
                 :message-bg-color="messageBgColor"
                 :message-text-color="messageTextColor"
+                :message-font-size="messageFontSize"
+                :message-font-weight="messageFontWeight"
+                :message-font-family="messageFontFamily"
                 :message-border="messageBorder"
+                :message-radius="messageRadius"
                 :own-message-bg-color="ownMessageBgColor"
                 :own-message-text-color="ownMessageTextColor"
+                :own-message-font-size="ownMessageFontSize"
+                :own-message-font-weight="ownMessageFontWeight"
+                :own-message-font-family="ownMessageFontFamily"
                 :own-message-border="ownMessageBorder"
+                :own-message-radius="ownMessageRadius"
                 :empty-message-text="emptyMessageText"
                 :empty-message-color="emptyMessageColor"
                 :date-separator-text-color="dateSeparatorTextColor"
@@ -52,12 +45,18 @@
             :pending-attachments="pendingAttachments"
             :input-bg-color="inputBgColor"
             :input-text-color="inputTextColor"
+            :input-font-size="inputFontSize"
+            :input-font-weight="inputFontWeight"
+            :input-font-family="inputFontFamily"
             :input-placeholder-color="inputPlaceholderColor"
-            :input-border="inputBorder"
-            :input-max-height="inputMaxHeight"
-            :input-min-height="inputMinHeight"
+            :input-area-border="inputAreaBorder"
+            :textarea-border="textareaBorder"
+            :textarea-border-hover="textareaBorderHover"
+            :textarea-border-focus="textareaBorderFocus"
+            :input-height="inputHeight"
             :input-border-radius="inputBorderRadius"
             :placeholder="inputPlaceholder"
+            :action-align="actionAlign"
             :send-icon="sendIcon"
             :send-icon-color="sendIconColor"
             :send-icon-size="sendIconSize"
@@ -67,16 +66,28 @@
             :remove-icon="removeIcon"
             :remove-icon-color="removeIconColor"
             :remove-icon-size="removeIconSize"
+            :send-button-bg-color="sendButtonBgColor"
+            :send-button-hover-bg-color="sendButtonHoverBgColor"
+            :send-button-border="sendButtonBorder"
+            :send-button-border-radius="sendButtonBorderRadius"
+            :send-button-size="sendButtonSize"
+            :send-button-box-shadow="sendButtonBoxShadow"
+            :attachment-button-bg-color="attachmentButtonBgColor"
+            :attachment-button-hover-bg-color="attachmentButtonHoverBgColor"
+            :attachment-button-border="attachmentButtonBorder"
+            :attachment-button-border-radius="attachmentButtonBorderRadius"
+            :attachment-button-size="attachmentButtonSize"
+            :attachment-button-box-shadow="attachmentButtonBoxShadow"
             @send="sendMessage"
             @attachment="handleAttachment"
             @remove-attachment="handleRemoveAttachment"
+            @pending-attachment-click="handlePendingAttachmentClick"
         />
     </div>
 </template>
 
 <script>
 import { ref, computed, watch, nextTick, provide, onMounted } from 'vue';
-import ChatHeader from './components/ChatHeader.vue';
 import MessageList from './components/MessageList.vue';
 import InputArea from './components/InputArea.vue';
 
@@ -135,9 +146,8 @@ import {
 } from 'date-fns/locale';
 
 export default {
-    name: 'Chat',
+    name: 'ChatAI',
     components: {
-        ChatHeader,
         MessageList,
         InputArea,
     },
@@ -163,21 +173,34 @@ export default {
     },
     emits: ['trigger-event'],
     setup(props, { emit }) {
+        const chatRoot = ref(null);
         const messagesContainer = ref(null);
         const newMessage = ref('');
         const isScrolling = ref(false);
         const pendingAttachments = ref([]);
 
-        const { value: chatHistory, setValue: setChatHistory } = wwLib.wwVariable.useComponentVariable({
+        const debounce = (func, delay) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(null, args), delay);
+            };
+        };
+
+        const { value: chatState, setValue: setChatState } = wwLib.wwVariable.useComponentVariable({
             uid: props.uid,
-            name: 'chatHistory',
-            type: 'array',
-            defaultValue: [],
+            name: 'chatState',
+            type: 'object',
+            defaultValue: {
+                messages: [],
+                utils: { messageCount: 0, isDisabled: false },
+            },
         });
 
         const { resolveMappingFormula } = wwLib.wwFormula.useFormula();
 
         const resolveMapping = (message, mappingFormula, defaultProp) => {
+            if (!message || typeof message !== 'object') return '';
             if (!mappingFormula) return message[defaultProp];
             return resolveMappingFormula(mappingFormula, message);
         };
@@ -190,86 +213,130 @@ export default {
             return false;
         });
 
-        const currentUserId = computed(() => props.content?.currentUserId || 'current-user');
-        const rawMessages = computed(() => props.content?.chatHistory || chatHistory.value || []);
+        // Labels for user and assistant
+        const userLabel = computed(() => props.content?.userLabel || '');
+        const assistantLabel = computed(() => props.content?.assistantLabel || '');
+        const messageShowTimestamp = computed(() => props.content?.messageShowTimestamp !== false);
+        const ownMessageShowTimestamp = computed(() => props.content?.ownMessageShowTimestamp !== false);
+        const isStreaming = computed(() => props.content?.isStreaming || false);
+        const streamingText = computed(() => props.content?.streamingText || '');
+        const rawMessages = computed(() => {
+            // Ensure we always have an array to work with
+            const messagesContent = props.content?.messages;
+
+            // Check if messages is a valid array
+            if (Array.isArray(messagesContent)) {
+                return messagesContent;
+            }
+
+            // Final fallback to empty array
+            return [];
+        });
 
         const messages = computed(() => {
-            return rawMessages.value.map(message => {
+            const mapAttachmentField = (obj, formula, fallbackKey) => {
+                if (!obj || typeof obj !== 'object') return undefined;
+                if (!formula) return obj[fallbackKey];
+                return resolveMappingFormula(formula, obj);
+            };
+
+            return rawMessages.value.map((message, index) => {
+                if (!message || typeof message !== 'object') {
+                    return {
+                        id: `msg-fallback-${index}`,
+                        text: '',
+                        role: 'assistant',
+                        timestamp: new Date().toISOString(),
+                        userName: assistantLabel.value,
+                        attachments: [],
+                    };
+                }
+
+                const messageId = resolveMapping(message, props.content?.mappingMessageId, 'id');
+                const text = resolveMapping(message, props.content?.mappingMessageText, 'text') || '';
+                const role = resolveMapping(message, props.content?.mappingRole, 'role') || 'assistant';
+                const timestamp = resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') || new Date().toISOString();
+
+                // Map attachments with optional field mappings
+                const rawAttachments = resolveMapping(message, props.content?.mappingAttachments, 'attachments');
+                let attachments;
+                if (Array.isArray(rawAttachments)) {
+                    attachments = rawAttachments.map(att => {
+                        if (!att || typeof att !== 'object') return att;
+                        return {
+                            id: mapAttachmentField(att, props.content?.mappingAttachmentId, 'id'),
+                            name: mapAttachmentField(att, props.content?.mappingAttachmentName, 'name'),
+                            url: mapAttachmentField(att, props.content?.mappingAttachmentUrl, 'url'),
+                            type: mapAttachmentField(att, props.content?.mappingAttachmentType, 'type'),
+                            size: mapAttachmentField(att, props.content?.mappingAttachmentSize, 'size'),
+                            // Preserve local upload File if present
+                            file: att.file,
+                        };
+                    });
+                } else {
+                    attachments = rawAttachments;
+                }
+
+                // Use mapped message ID if available, or create stable ID from timestamp + text
+                const stableId = messageId || `msg-${timestamp}-${text.substring(0, 20)}`.replace(/[^a-zA-Z0-9-]/g, '-');
+
                 return {
-                    id:
-                        resolveMapping(message, props.content?.mappingMessageId, 'id') ||
-                        `msg-${wwLib.wwUtils.getUid()}`,
-                    text: resolveMapping(message, props.content?.mappingMessageText, 'text') || '',
-                    senderId: resolveMapping(message, props.content?.mappingSenderId, 'senderId') || '',
-                    userName: resolveMapping(message, props.content?.mappingUserName, 'userName') || '',
-                    timestamp:
-                        resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') ||
-                        new Date().toISOString(),
-                    attachments: resolveMapping(message, props.content?.mappingAttachments, 'attachments'),
-                    _originalData: message,
+                    id: stableId,
+                    text,
+                    role: role === 'user' ? 'user' : 'assistant',
+                    timestamp,
+                    userName: role === 'user' ? userLabel.value : assistantLabel.value,
+                    attachments,
                 };
             });
         });
 
         const isDisabled = computed(() => props.content?.disabled || false);
-        const displayHeader = computed(() => props.content?.displayHeader !== false);
         const allowAttachments = computed(() => props.content?.allowAttachments || false);
-        const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Type a message...');
-
-        // User properties
-        const userName = computed(() => props.content?.userName || 'User');
-        const userAvatar = computed(() => props.content?.userAvatar || '');
-        const userLocation = computed(() => props.content?.userLocation || '');
-        const userStatus = computed(() => props.content?.userStatus || 'online');
+        const enableMarkdown = computed(() => props.content?.enableMarkdown || false);
+        const inputPlaceholder = computed(() => props.content?.inputPlaceholder || 'Message...');
 
         // Style properties
         const containerStyles = computed(() => ({
-            backgroundColor: props.content?.backgroundColor || '#f5f7fb',
-            border: props.content?.containerBorder || '1px solid #e2e8f0',
-            borderRadius: props.content?.containerBorderRadius || '8px',
-            boxShadow: props.content?.containerShadow || '0 2px 8px rgba(0, 0, 0, 0.05)',
             fontFamily: props.content?.fontFamily || 'inherit',
         }));
 
         const messagesAreaPadding = computed(() => props.content?.messagesAreaPadding || '16px');
-        const messagesAreaHeight = computed(() => props.content?.messagesAreaHeight || 'auto');
 
         const messagesContainerStyles = computed(() => ({
             backgroundColor: props.content?.messagesAreaBgColor || '#ffffff',
             padding: messagesAreaPadding.value,
-            height: messagesAreaHeight.value,
-            maxHeight: messagesAreaHeight.value !== 'auto' ? messagesAreaHeight.value : undefined,
         }));
 
-        // Header styles
-        const headerBgColor = computed(() => props.content?.headerBgColor || '#ffffff');
-        const headerTextColor = computed(() => props.content?.headerTextColor || '#1e293b');
-        const headerBorder = computed(() => props.content?.headerBorder || '1px solid #e2e8f0');
-        const headerBoxShadow = computed(() => props.content?.headerBoxShadow || '0 2px 8px rgba(0, 0, 0, 0.05)');
-        const headerPadding = computed(() => props.content?.headerPadding || '16px');
-        const headerNameFontSize = computed(() => props.content?.headerNameFontSize || '18px');
-        const headerNameFontWeight = computed(() => props.content?.headerNameFontWeight || '600');
-        const headerLocationFontSize = computed(() => props.content?.headerLocationFontSize || '14px');
-        const headerLocationOpacity = computed(() => props.content?.headerLocationOpacity || '0.7');
-        const headerCloseButtonColor = computed(() => props.content?.headerCloseButtonColor || '#334155');
-        const headerCloseButtonBgHover = computed(() => props.content?.headerCloseButtonBgHover || '#dbeafe');
-
         // Message styles
-        const messageBgColor = computed(() => props.content?.messageBgColor || '#f1f5f9');
+        const messageBgColor = computed(() => props.content?.messageBgColor || 'transparent');
         const messageTextColor = computed(() => props.content?.messageTextColor || '#334155');
-        const messageBorder = computed(() => props.content?.messageBorder || '1px solid #e2e8f0');
+        const messageFontSize = computed(() => props.content?.messageFontSize || '0.875rem');
+        const messageFontWeight = computed(() => props.content?.messageFontWeight || '400');
+        const messageFontFamily = computed(() => props.content?.messageFontFamily || 'inherit');
+        const messageBorder = computed(() => props.content?.messageBorder || 'none');
+        const messageRadius = computed(() => props.content?.messageRadius || '12px 12px 12px 12px');
 
-        const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#dbeafe');
-        const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e40af');
-        const ownMessageBorder = computed(() => props.content?.ownMessageBorder || '1px solid #bfdbfe');
+        const ownMessageBgColor = computed(() => props.content?.ownMessageBgColor || '#f4f4f4');
+        const ownMessageTextColor = computed(() => props.content?.ownMessageTextColor || '#1e1e1e');
+        const ownMessageFontSize = computed(() => props.content?.ownMessageFontSize || '0.875rem');
+        const ownMessageFontWeight = computed(() => props.content?.ownMessageFontWeight || '400');
+        const ownMessageFontFamily = computed(() => props.content?.ownMessageFontFamily || 'inherit');
+        const ownMessageBorder = computed(() => props.content?.ownMessageBorder || '1px solid #d0d0d0');
+        const ownMessageRadius = computed(() => props.content?.ownMessageRadius || '18px 18px 18px 18px');
 
         // Input styles
         const inputBgColor = computed(() => props.content?.inputBgColor || '#ffffff');
         const inputTextColor = computed(() => props.content?.inputTextColor || '#334155');
+        const inputFontSize = computed(() => props.content?.inputFontSize || '0.875rem');
+        const inputFontWeight = computed(() => props.content?.inputFontWeight || '400');
+        const inputFontFamily = computed(() => props.content?.inputFontFamily || 'inherit');
         const inputPlaceholderColor = computed(() => props.content?.inputPlaceholderColor || '#94a3b8');
-        const inputBorder = computed(() => props.content?.inputBorder || '1px solid #e2e8f0');
-        const inputMaxHeight = computed(() => props.content?.inputMaxHeight || '120px');
-        const inputMinHeight = computed(() => props.content?.inputMinHeight || '40px');
+        const inputAreaBorder = computed(() => props.content?.inputAreaBorder || '1px solid #e2e8f0');
+        const textareaBorder = computed(() => props.content?.textareaBorder || '1px solid #e2e8f0');
+        const textareaBorderHover = computed(() => props.content?.textareaBorderHover || '1px solid #cbd5e1');
+        const textareaBorderFocus = computed(() => props.content?.textareaBorderFocus || '1px solid #3b82f6');
+        const inputHeight = computed(() => props.content?.inputHeight || '38px');
         const inputBorderRadius = computed(() => props.content?.inputBorderRadius || '8px');
 
         // Empty message styles
@@ -282,58 +349,129 @@ export default {
         const dateSeparatorBgColor = computed(() => props.content?.dateSeparatorBgColor || '#ffffff');
         const dateSeparatorBorderRadius = computed(() => props.content?.dateSeparatorBorderRadius || '8px');
 
-        watch(
-            messages,
-            () => {
-                if (!isScrolling.value) {
-                    scrollToBottom();
-                }
-            },
-            { deep: true }
+        // Messages attachments thumbnail sizing (in messages area)
+        const messagesAttachmentThumbMaxWidth = computed(() => props.content?.messagesAttachmentThumbMaxWidth || '250px');
+        const messagesAttachmentThumbMaxHeight = computed(() => props.content?.messagesAttachmentThumbMaxHeight || '200px');
+        const messagesAttachmentThumbBorderRadius = computed(
+            () => props.content?.messagesAttachmentThumbBorderRadius || '6px'
         );
 
-        const scrollToBottom = async (smooth = false) => {
+        // Track if we should scroll on next streamingText update
+        let scrollOnNextStream = false;
+        let lastMessageCount = 0;
+
+        watch(
+            messages,
+            (newMessages) => {
+                // Only scroll if the number of messages changed (message added/removed)
+                // Not when message content changes
+                if (newMessages.length !== lastMessageCount) {
+                    lastMessageCount = newMessages.length;
+                    if (!isScrolling.value) scrollToBottom();
+                }
+            }
+        );
+
+        // Scroll when streaming starts
+        watch(
+            isStreaming,
+            (newVal, oldVal) => {
+                if (newVal && !oldVal) {
+                    // Streaming just started
+                    scrollOnNextStream = true;
+                } else if (!newVal && oldVal) {
+                    // Streaming just stopped - wait a bit for final message to be added
+                    setTimeout(() => {
+                        scrollToBottom();
+                    }, 50);
+                }
+            }
+        );
+
+        // Scroll when streamingText changes during streaming
+        watch(
+            streamingText,
+            (newVal, oldVal) => {
+                // First time streaming text appears
+                if (scrollOnNextStream && newVal) {
+                    scrollOnNextStream = false;
+                    nextTick(() => {
+                        if (!isScrolling.value) scrollToBottom();
+                    });
+                }
+                // Continue scrolling as streaming text grows (only if streaming is active)
+                else if (isStreaming.value && newVal && newVal.length > (oldVal?.length || 0)) {
+                    nextTick(() => {
+                        if (!isScrolling.value) scrollToBottom();
+                    });
+                }
+            }
+        );
+
+        // Removed user settings watcher and debounced updater; participants now drive user info
+
+        const scrollToBottom = async (smooth = null) => {
             await nextTick();
             if (messagesContainer.value) {
-                if (smooth) {
-                    const lastElement = messagesContainer.value.lastElementChild;
-                    if (lastElement) {
-                        lastElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                    } else {
-                        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-                    }
-                } else {
-                    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-                }
+                // Use the autoScrollBehavior setting if smooth parameter is not explicitly provided
+                const behavior =
+                    smooth !== null ? (smooth ? 'smooth' : 'auto') : props.content?.autoScrollBehavior || 'auto';
+
+                messagesContainer.value.scrollTo({
+                    top: messagesContainer.value.scrollHeight,
+                    behavior: behavior,
+                });
             }
         };
 
         const sendMessage = () => {
-            if (isEditing.value || isDisabled.value || !newMessage.value.trim()) return;
-
-            const attachments = [...pendingAttachments.value];
-            pendingAttachments.value = [];
+            if (isEditing.value || isDisabled.value) return;
+            if (!newMessage.value.trim() && pendingAttachments.value.length === 0) return;
 
             const message = {
                 id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
-                senderId: currentUserId.value,
-                userName: userName.value,
+                role: 'user',
                 timestamp: new Date().toISOString(),
-                attachments: attachments.length > 0 ? attachments : undefined,
+                attachments: pendingAttachments.value.map(att => ({
+                    id: att.id,
+                    name: att.name,
+                    type: att.type,
+                    size: att.size,
+                    url: att.url,
+                })),
             };
 
-            const updatedHistory = [...chatHistory.value, message];
-            setChatHistory(updatedHistory);
-
             newMessage.value = '';
+            pendingAttachments.value = [];
 
             emit('trigger-event', {
                 name: 'messageSent',
                 event: { message },
             });
+        };
+
+
+        const addMessage = message => {
+            if (isEditing.value) return;
+
+            const newMessageRaw = {
+                id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
+                text: message.text || '',
+                role: message.role || 'assistant',
+                timestamp: message.timestamp || new Date().toISOString(),
+                ...message,
+            };
+
+            const updatedMessages = [...(chatState.value?.messages || []), newMessageRaw];
+            setChatState({
+                ...chatState.value,
+                messages: updatedMessages,
+            });
 
             scrollToBottom();
+
+            return newMessageRaw;
         };
 
         const handleAttachment = files => {
@@ -371,6 +509,14 @@ export default {
             });
         };
 
+        const handlePendingAttachmentClick = ({ attachment, index }) => {
+            const file = attachment && attachment.file ? attachment.file : attachment;
+            emit('trigger-event', {
+                name: 'pendingAttachmentClick',
+                event: { attachment: file, index },
+            });
+        };
+
         const handleMessageRightClick = ({ message, position }) => {
             if (isEditing.value) return;
 
@@ -380,42 +526,37 @@ export default {
             });
         };
 
-        const handleClose = () => {
-            if (isEditing.value) return;
+        // Emit messageReceived for new external messages (not initial history, not own messages)
+        let _messagesWatcherInitialized = false;
+        const _seenMessageIds = new Set();
+        watch(
+            () => messages.value,
+            newMessages => {
+                if (isEditing.value) return;
 
-            emit('trigger-event', {
-                name: 'close',
-                event: {},
-            });
-        };
+                if (!_messagesWatcherInitialized) {
+                    newMessages.forEach(m => {
+                        if (m && m.id) _seenMessageIds.add(m.id);
+                    });
+                    _messagesWatcherInitialized = true;
+                    return;
+                }
 
-        const addMessage = message => {
-            if (isEditing.value) return;
-
-            const newMessageRaw = {
-                id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
-                text: message.text || '',
-                senderId: message.senderId || '',
-                userName: message.userName || '',
-                timestamp: message.timestamp || new Date().toISOString(),
-                attachments: message.attachments,
-                ...message,
-            };
-
-            const updatedHistory = [...chatHistory.value, newMessageRaw];
-            setChatHistory(updatedHistory);
-
-            scrollToBottom();
-
-            if (newMessageRaw.senderId !== currentUserId.value) {
-                emit('trigger-event', {
-                    name: 'messageReceived',
-                    event: { message: newMessageRaw },
-                });
-            }
-
-            return newMessageRaw;
-        };
+                for (const m of newMessages) {
+                    const id = m?.id;
+                    if (!id) continue;
+                    if (_seenMessageIds.has(id)) continue;
+                    _seenMessageIds.add(id);
+                    if (m.role === 'assistant') {
+                        emit('trigger-event', {
+                            name: 'messageReceived',
+                            event: { message: m },
+                        });
+                    }
+                }
+            },
+            { deep: false }
+        );
 
         // Date/time locale configuration
         const locale = computed(() => {
@@ -500,137 +641,117 @@ export default {
         }));
 
         provide('dateTimeOptions', dateTimeOptions);
+        provide('chatRootEl', chatRoot);
 
-        const clearMessages = () => {
-            if (isEditing.value) return;
+        // Local context functionality
+        const currentLocalContext = ref({});
 
-            setChatHistory([]);
+        const registerChatLocalContext = ({ data, markdown }) => {
+            wwLib.wwElement.useRegisterElementLocalContext('chat', data, {}, markdown);
+            currentLocalContext.value = { data, markdown };
         };
 
-        const chatPartners = computed(() => {
-            if (messages.value.length === 0 || props.content?.showSelfInHeader) {
-                return {
-                    name: userName.value,
-                    avatar: userAvatar.value,
-                    location: userLocation.value,
-                    status: userStatus.value,
-                    participants: [],
-                    participantsString: '',
-                };
-            }
+        // Chat local context data for AI chat
+        const chatData = computed(() => ({
+            messages: messages.value.map((message, index) => ({
+                ...message,
+                isOwn: message.role === 'user',
+                isFirst: index === 0 || messages.value[index - 1].role !== message.role,
+                isLast: index === messages.value.length - 1 || messages.value[index + 1].role !== message.role,
+            })),
+            utils: {
+                messageCount: messages.value.length,
+                isDisabled: isDisabled.value,
+            },
+        }));
 
-            const otherSenderIds = [
-                ...new Set(messages.value.filter(msg => msg.senderId !== currentUserId.value).map(msg => msg.senderId)),
-            ];
+        const chatMarkdown = `### Chat AI local information
 
-            if (otherSenderIds.length === 0) {
-                return {
-                    name: userName.value,
-                    avatar: userAvatar.value,
-                    location: userLocation.value,
-                    status: userStatus.value,
-                    participants: [],
-                    participantsString: '',
-                };
-            }
+        #### messages
+        Array of all messages in the AI conversation. Each message contains:
+        - \`id\`: Unique message identifier
+        - \`text\`: Message content
+        - \`role\`: Message role ('user' or 'assistant')
+        - \`userName\`: Display name (based on role and labels)
+        - \`timestamp\`: Message timestamp (ISO string)
+        - \`isOwn\`: Boolean indicating if message is from user
+        - \`isFirst\`: Boolean indicating if this is first message in a group from this role
+        - \`isLast\`: Boolean indicating if this is last message in a group from this role
 
-            const participants = otherSenderIds.map(senderId => {
-                const msg = messages.value.find(m => m.senderId === senderId);
-                return msg ? msg.userName : 'Unknown User';
-            });
+        #### utils
+        Component state information:
+        - \`messageCount\`: Total number of messages
+        - \`isDisabled\`: Boolean indicating if chat is disabled`;
 
-            const participantsString = participants.join(', ');
+        // Sync chatState with local context data
+        watch(
+            chatData,
+            newChatData => {
+                setChatState({
+                    ...newChatData,
+                });
+            },
+            { deep: true, immediate: true }
+        );
 
-            if (otherSenderIds.length === 1) {
-                const otherUser = messages.value.find(msg => msg.senderId === otherSenderIds[0]);
-                return {
-                    name: otherUser.userName,
-                    avatar: otherUser.avatar || otherUser.avatarUrl || '',
-                    location: '',
-                    status: 'online',
-                    participants,
-                    participantsString,
-                };
-            }
-
-            const lastOtherMsg = [...messages.value]
-                .filter(msg => msg.senderId !== currentUserId.value)
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-
-            const template = props.content?.groupChatTemplate || 'Group Chat ({count} participants)';
-            const groupChatName = template.replace('{count}', otherSenderIds.length);
-
-            return {
-                name: groupChatName,
-                avatar: '',
-                location: lastOtherMsg ? `Last message from ${lastOtherMsg.userName}` : '',
-                status: 'online',
-                participants,
-                participantsString,
-            };
+        registerChatLocalContext({
+            data: chatData,
+            markdown: chatMarkdown,
         });
 
-        const headerUserName = computed(() => chatPartners.value.name);
-        const headerUserAvatar = computed(() => chatPartners.value.avatar);
-        const headerUserLocation = computed(() => chatPartners.value.location);
-        const headerUserStatus = computed(() => chatPartners.value.status);
-        const headerParticipants = computed(() => chatPartners.value.participantsString);
-
         provide('isEditing', isEditing);
+        provide('_wwChat:localContext', currentLocalContext);
 
         onMounted(() => {
+            // Initialize message count tracker
+            lastMessageCount = messages.value.length;
+            // Ensure we show latest messages on mount
             scrollToBottom();
         });
 
         return {
+            chatRoot,
             messagesContainer,
             newMessage,
             messages,
-            pendingAttachments,
-
-            currentUserId,
             isDisabled,
-            displayHeader,
-            allowAttachments,
             inputPlaceholder,
-            userName,
-            userAvatar,
-            userLocation,
-            userStatus,
-
-            headerUserName,
-            headerUserAvatar,
-            headerUserLocation,
-            headerUserStatus,
-            headerParticipants,
+            enableMarkdown,
+            userLabel,
+            assistantLabel,
+            isStreaming,
+            streamingText,
 
             containerStyles,
             messagesContainerStyles,
-            headerBgColor,
-            headerTextColor,
-            headerBorder,
-            headerBoxShadow,
-            headerPadding,
-            headerNameFontSize,
-            headerNameFontWeight,
-            headerLocationFontSize,
-            headerLocationOpacity,
-            headerCloseButtonColor,
-            headerCloseButtonBgHover,
+            messageShowTimestamp,
+            ownMessageShowTimestamp,
             messageBgColor,
             messageTextColor,
+            messageFontSize,
+            messageFontWeight,
+            messageFontFamily,
             messageBorder,
+            messageRadius,
             messagesAreaPadding,
-            messagesAreaHeight,
             ownMessageBgColor,
             ownMessageTextColor,
+            ownMessageFontSize,
+            ownMessageFontWeight,
+            ownMessageFontFamily,
             ownMessageBorder,
+            ownMessageRadius,
             inputBgColor,
             inputTextColor,
+            inputFontSize,
+            inputFontWeight,
+            inputFontFamily,
             inputPlaceholderColor,
-            inputBorder,
-            inputMaxHeight,
-            inputMinHeight,
+            inputAreaBorder,
+            textareaBorder,
+            textareaBorderHover,
+            textareaBorderFocus,
+            inputHeight,
             inputBorderRadius,
 
             emptyMessageText,
@@ -649,65 +770,67 @@ export default {
             attachmentIconColor: computed(() => props.content?.attachmentIconColor || '#334155'),
             attachmentIconSize: computed(() => props.content?.attachmentIconSize || '20px'),
             removeIcon: computed(() => props.content?.removeIcon || 'x'),
-            removeIconColor: computed(() => props.content?.removeIconColor || '#f43f5e'),
-            removeIconSize: computed(() => props.content?.removeIconSize || '12px'),
+            removeIconColor: computed(() => props.content?.removeIconColor || '#334155'),
+            removeIconSize: computed(() => props.content?.removeIconSize || '16px'),
+
+            // Input action alignment and button styles
+            actionAlign: computed(() => props.content?.inputActionAlign || 'end'),
+            sendButtonBgColor: computed(() => props.content?.sendButtonBgColor || 'linear-gradient(135deg, #3b82f6, #2563eb)'),
+            sendButtonHoverBgColor: computed(() => props.content?.sendButtonHoverBgColor || 'linear-gradient(135deg, #2563eb, #1d4ed8)'),
+            sendButtonBorder: computed(() => props.content?.sendButtonBorder || 'none'),
+            sendButtonBorderRadius: computed(() => props.content?.sendButtonBorderRadius || '12px'),
+            sendButtonSize: computed(() => props.content?.sendButtonSize || '42px'),
+            sendButtonBoxShadow: computed(() => props.content?.sendButtonBoxShadow || '0 2px 4px rgba(59, 130, 246, 0.3)'),
+            attachmentButtonBgColor: computed(() => props.content?.attachmentButtonBgColor || '#f8fafc'),
+            attachmentButtonHoverBgColor: computed(() => props.content?.attachmentButtonHoverBgColor || '#f1f5f9'),
+            attachmentButtonBorder: computed(() => props.content?.attachmentButtonBorder || '1px solid #e2e8f0'),
+            attachmentButtonBorderRadius: computed(() => props.content?.attachmentButtonBorderRadius || '12px'),
+            attachmentButtonSize: computed(() => props.content?.attachmentButtonSize || '42px'),
+            attachmentButtonBoxShadow: computed(() => props.content?.attachmentButtonBoxShadow || '0 1px 2px rgba(0, 0, 0, 0.06)'),
 
             // Methods
             scrollToBottom,
             sendMessage,
+            addMessage,
             handleAttachment,
             handleRemoveAttachment,
+            handlePendingAttachmentClick,
             handleAttachmentClick,
             handleMessageRightClick,
-            handleClose,
-            addMessage,
-            clearMessages,
+            currentLocalContext,
+            pendingAttachments,
+            allowAttachments,
+
+            // Exposed for CSS variables
+            messagesAttachmentThumbMaxWidth,
+            messagesAttachmentThumbMaxHeight,
+            messagesAttachmentThumbBorderRadius,
         };
     },
     methods: {
         actionScrollToBottom(smooth = false) {
             this.scrollToBottom(smooth);
         },
-        actionClearMessages() {
-            this.clearMessages();
-        },
-        actionAddMessage(message) {
-            return this.addMessage(message);
-        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
-.ww-chat {
-    --ww-chat-bg-color: v-bind('containerStyles.backgroundColor');
-    --ww-chat-border: v-bind('containerStyles.border');
-    --ww-chat-border-radius: v-bind('containerStyles.borderRadius');
-    --ww-chat-shadow: v-bind('containerStyles.boxShadow');
+.ww-chat-ai {
     --ww-chat-font-family: v-bind('containerStyles.fontFamily');
-
-    --ww-chat-header-bg: v-bind('headerBgColor');
-    --ww-chat-header-text: v-bind('headerTextColor');
-    --ww-chat-header-border: v-bind('headerBorder');
-    --ww-chat-header-shadow: v-bind('headerBoxShadow');
-    --ww-chat-header-padding: v-bind('headerPadding');
-    --ww-chat-header-name-font-size: v-bind('headerNameFontSize');
-    --ww-chat-header-name-font-weight: v-bind('headerNameFontWeight');
-    --ww-chat-header-location-font-size: v-bind('headerLocationFontSize');
-    --ww-chat-header-location-opacity: v-bind('headerLocationOpacity');
-    --ww-chat-header-close-button-color: v-bind('headerCloseButtonColor');
-    --ww-chat-header-close-button-bg-hover: v-bind('headerCloseButtonBgHover');
-
     --ww-chat-messages-bg: v-bind('messagesContainerStyles.backgroundColor');
-
     --ww-chat-message-bg: v-bind('messageBgColor');
     --ww-chat-message-text: v-bind('messageTextColor');
+    --ww-chat-message-font-size: v-bind('messageFontSize');
+    --ww-chat-message-font-weight: v-bind('messageFontWeight');
+    --ww-chat-message-font-family: v-bind('messageFontFamily');
     --ww-chat-message-border: v-bind('messageBorder');
-
     --ww-chat-own-message-bg: v-bind('ownMessageBgColor');
     --ww-chat-own-message-text: v-bind('ownMessageTextColor');
+    --ww-chat-own-message-font-size: v-bind('ownMessageFontSize');
+    --ww-chat-own-message-font-weight: v-bind('ownMessageFontWeight');
+    --ww-chat-own-message-font-family: v-bind('ownMessageFontFamily');
     --ww-chat-own-message-border: v-bind('ownMessageBorder');
-
     --ww-chat-empty-message-text: v-bind('emptyMessageText');
     --ww-chat-empty-message-color: v-bind('emptyMessageColor');
 
@@ -716,28 +839,28 @@ export default {
     --ww-chat-date-separator-bg-color: v-bind('dateSeparatorBgColor');
     --ww-chat-date-separator-border-radius: v-bind('dateSeparatorBorderRadius');
 
+    /* Attachment thumbnails in messages area */
+    --ww-chat-attachment-thumb-max-width: v-bind('messagesAttachmentThumbMaxWidth');
+    --ww-chat-attachment-thumb-max-height: v-bind('messagesAttachmentThumbMaxHeight');
+    --ww-chat-attachment-thumb-radius: v-bind('messagesAttachmentThumbBorderRadius');
+
     --ww-chat-input-bg: v-bind('inputBgColor');
     --ww-chat-input-text: v-bind('inputTextColor');
+    --ww-chat-input-font-size: v-bind('inputFontSize');
+    --ww-chat-input-font-weight: v-bind('inputFontWeight');
+    --ww-chat-input-font-family: v-bind('inputFontFamily');
     --ww-chat-input-placeholder: v-bind('inputPlaceholderColor');
-    --ww-chat-input-border: v-bind('inputBorder');
-    --ww-chat-input-max-height: v-bind('inputMaxHeight');
-    --ww-chat-input-min-height: v-bind('inputMinHeight');
+    --ww-chat-input-area-border: v-bind('inputAreaBorder');
+    --ww-chat-textarea-border: v-bind('textareaBorder');
+    --ww-chat-textarea-border-hover: v-bind('textareaBorderHover');
+    --ww-chat-textarea-border-focus: v-bind('textareaBorderFocus');
+    --ww-chat-input-height: v-bind('inputHeight');
     --ww-chat-input-border-radius: v-bind('inputBorderRadius');
-
     --ww-chat-messages-padding: v-bind('messagesAreaPadding');
-
-    --ww-chat-messages-height: v-bind('messagesAreaHeight');
 
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 300px;
     overflow: hidden;
-
-    background-color: var(--ww-chat-bg-color);
-    border: var(--ww-chat-border);
-    border-radius: var(--ww-chat-border-radius);
-    box-shadow: var(--ww-chat-shadow);
     font-family: var(--ww-chat-font-family);
 
     &--disabled {
@@ -745,17 +868,10 @@ export default {
         pointer-events: none;
     }
 
-    .ww-chat-header {
-        flex-shrink: 0;
-        z-index: 2;
-    }
-
     &__messages {
-        flex: v-bind("messagesAreaHeight === 'auto' ? '1' : '0 0 auto'");
-        min-height: 100px;
-        height: var(--ww-chat-messages-height);
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
-        scroll-behavior: smooth;
         padding: var(--ww-chat-messages-padding);
         background-color: var(--ww-chat-messages-bg);
         position: relative;

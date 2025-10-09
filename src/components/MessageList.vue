@@ -4,7 +4,7 @@
             <div class="ww-message-list__empty-message" :style="emptyMessageStyle">{{ emptyMessageText }}</div>
         </div>
 
-        <transition-group name="message-transition" tag="div">
+        <div>
             <div v-for="(message, index) in groupedMessages" :key="message.key">
                 <!-- Date separator -->
                 <div
@@ -19,20 +19,64 @@
                 <message-item
                     v-else
                     :message="message"
-                    :is-own-message="message.senderId === currentUserId"
+                    :is-own-message="message.role === 'user'"
                     :same-sender-as-previous="isSameSenderAsPrevious(index)"
                     :same-sender-as-next="isSameSenderAsNext(index)"
+                    :enable-markdown="enableMarkdown"
+                    :message-show-timestamp="messageShowTimestamp"
+                    :own-message-show-timestamp="ownMessageShowTimestamp"
                     :message-bg-color="messageBgColor"
                     :message-text-color="messageTextColor"
+                    :message-font-size="messageFontSize"
+                    :message-font-weight="messageFontWeight"
+                    :message-font-family="messageFontFamily"
                     :message-border="messageBorder"
+                    :message-radius="messageRadius"
                     :own-message-bg-color="ownMessageBgColor"
                     :own-message-text-color="ownMessageTextColor"
+                    :own-message-font-size="ownMessageFontSize"
+                    :own-message-font-weight="ownMessageFontWeight"
+                    :own-message-font-family="ownMessageFontFamily"
                     :own-message-border="ownMessageBorder"
+                    :own-message-radius="ownMessageRadius"
+                    :user-label="userLabel"
+                    :assistant-label="assistantLabel"
                     @attachment-click="handleAttachmentClick"
                     @right-click="handleRightClick"
                 />
             </div>
-        </transition-group>
+        </div>
+
+        <!-- Streaming message -->
+        <div v-if="isStreaming && streamingText" class="ww-message-list__streaming">
+            <message-item
+                :message="streamingMessage"
+                :is-own-message="false"
+                :same-sender-as-previous="false"
+                :same-sender-as-next="false"
+                :enable-markdown="enableMarkdown"
+                :message-show-timestamp="messageShowTimestamp"
+                :own-message-show-timestamp="ownMessageShowTimestamp"
+                :message-bg-color="messageBgColor"
+                :message-text-color="messageTextColor"
+                :message-font-size="messageFontSize"
+                :message-font-weight="messageFontWeight"
+                :message-font-family="messageFontFamily"
+                :message-border="messageBorder"
+                :message-radius="messageRadius"
+                :own-message-bg-color="ownMessageBgColor"
+                :own-message-text-color="ownMessageTextColor"
+                :own-message-font-size="ownMessageFontSize"
+                :own-message-font-weight="ownMessageFontWeight"
+                :own-message-font-family="ownMessageFontFamily"
+                :own-message-border="ownMessageBorder"
+                :own-message-radius="ownMessageRadius"
+                :user-label="userLabel"
+                :assistant-label="assistantLabel"
+                @attachment-click="handleAttachmentClick"
+                @right-click="handleRightClick"
+            />
+        </div>
     </div>
 </template>
 
@@ -55,17 +99,61 @@ export default {
             type: String,
             required: true,
         },
+        userLabel: {
+            type: String,
+            default: '',
+        },
+        assistantLabel: {
+            type: String,
+            default: '',
+        },
+        enableMarkdown: {
+            type: Boolean,
+            default: false,
+        },
+        messageShowTimestamp: {
+            type: Boolean,
+            default: true,
+        },
+        ownMessageShowTimestamp: {
+            type: Boolean,
+            default: true,
+        },
+        isStreaming: {
+            type: Boolean,
+            default: false,
+        },
+        streamingText: {
+            type: String,
+            default: '',
+        },
         messageBgColor: {
             type: String,
-            default: '#f1f5f9',
+            default: 'transparent',
         },
         messageTextColor: {
             type: String,
             default: '#334155',
         },
+        messageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        messageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        messageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         messageBorder: {
             type: String,
             default: '1px solid #e2e8f0',
+        },
+        messageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
         },
         ownMessageBgColor: {
             type: String,
@@ -75,9 +163,25 @@ export default {
             type: String,
             default: '#1e40af',
         },
+        ownMessageFontSize: {
+            type: String,
+            default: '0.875rem',
+        },
+        ownMessageFontWeight: {
+            type: String,
+            default: '400',
+        },
+        ownMessageFontFamily: {
+            type: String,
+            default: 'inherit',
+        },
         ownMessageBorder: {
             type: String,
             default: '1px solid #bfdbfe',
+        },
+        ownMessageRadius: {
+            type: String,
+            default: '18px 18px 18px 18px',
         },
         emptyMessageText: {
             type: String,
@@ -156,6 +260,15 @@ export default {
             return result;
         });
 
+        const streamingMessage = computed(() => ({
+            id: 'streaming',
+            text: props.streamingText,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+            userName: props.assistantLabel,
+            attachments: [],
+        }));
+
         const isSameSenderAsPrevious = index => {
             if (index === 0) return false;
 
@@ -166,7 +279,7 @@ export default {
             while (prevIndex >= 0) {
                 const prevMessage = groupedMessages.value[prevIndex];
                 if (prevMessage.type !== 'date-separator') {
-                    return currentMessage.senderId === prevMessage.senderId;
+                    return currentMessage.role === prevMessage.role;
                 }
                 prevIndex--;
             }
@@ -184,7 +297,7 @@ export default {
             while (nextIndex < groupedMessages.value.length) {
                 const nextMessage = groupedMessages.value[nextIndex];
                 if (nextMessage.type !== 'date-separator') {
-                    return currentMessage.senderId === nextMessage.senderId;
+                    return currentMessage.role === nextMessage.role;
                 }
                 nextIndex++;
             }
@@ -197,13 +310,22 @@ export default {
             emit('attachment-click', attachment);
         };
 
-        const handleRightClick = ({ message, x, y }) => {
+        const handleRightClick = ({ message, elementX, elementY, viewportX, viewportY }) => {
             if (isEditing.value) return;
-            emit('message-right-click', { message, position: { x, y } });
+            emit('message-right-click', {
+                message,
+                position: {
+                    elementX,
+                    elementY,
+                    viewportX,
+                    viewportY,
+                },
+            });
         };
 
         return {
             groupedMessages,
+            streamingMessage,
             isSameSenderAsPrevious,
             isSameSenderAsNext,
             handleAttachmentClick,
@@ -226,8 +348,6 @@ export default {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        min-height: 100px;
         opacity: 0.5;
     }
 

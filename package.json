@@ -1,10 +1,10 @@
 {
-    "name": "ww-chat",
+    "name": "ww-chat-ai",
     "repository": {
         "type": "git",
-        "url": "https://github.com/weweb-assets/ww-chat"
+        "url": "https://github.com/weweb-assets/ww-chat-ai"
     },
-    "version": "3.3.0",
+    "version": "1.0.0",
     "scripts": {
         "build": "weweb build",
         "serve": "weweb serve"
@@ -19,6 +19,8 @@
     },
     "license": "MIT",
     "dependencies": {
-        "date-fns": "^4.1.0"
+        "date-fns": "^4.1.0",
+        "highlight.js": "^11.11.1",
+        "markdown-it": "^14.1.0"
     }
 }

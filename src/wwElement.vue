@@ -428,18 +428,19 @@ export default {
             if (isEditing.value || isDisabled.value) return;
             if (!newMessage.value.trim() && pendingAttachments.value.length === 0) return;
 
+            const attachments = [...pendingAttachments.value];
+            // For the emitted event, only expose File objects (no id/url metadata)
+            const attachmentsForEvent = attachments
+                .map(att => att && att.file)
+                .filter(file => !!file);
+
             const message = {
                 id: `msg-${wwLib.wwUtils.getUid()}`,
                 text: newMessage.value.trim(),
                 role: 'user',
                 timestamp: new Date().toISOString(),
-                attachments: pendingAttachments.value.map(att => ({
-                    id: att.id,
-                    name: att.name,
-                    type: att.type,
-                    size: att.size,
-                    url: att.url,
-                })),
+                // Emit attachments as File[] only, without id/url/name duplication
+                attachments: attachmentsForEvent.length > 0 ? attachmentsForEvent : undefined,
             };
 
             newMessage.value = '';

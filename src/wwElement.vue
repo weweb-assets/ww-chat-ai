@@ -219,7 +219,14 @@ export default {
         const messageShowTimestamp = computed(() => props.content?.messageShowTimestamp !== false);
         const ownMessageShowTimestamp = computed(() => props.content?.ownMessageShowTimestamp !== false);
         const isStreaming = computed(() => props.content?.isStreaming || false);
-        const streamingText = computed(() => props.content?.streamingText || '');
+        const streamingText = computed(() => {
+            const text = props.content?.streamingText;
+            // Handle when streamingText is bound as an array (e.g., from OpenAI)
+            if (Array.isArray(text)) {
+                return text[0] || '';
+            }
+            return text || '';
+        });
         const rawMessages = computed(() => {
             // Ensure we always have an array to work with
             const messagesContent = props.content?.messages;

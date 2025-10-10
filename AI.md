@@ -21,7 +21,8 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 
 **Chat Data:**
 - messages: array – Conversation data with role-based messages. Example: [{ content: 'Hello', role: 'user', timestamp: '2025-01-15T10:30:00Z' }]
-- mappingMessageText: Formula – Extract message text. Default: context.mapping?.['content']
+- mappingMessageId: Formula – Extract unique message ID. Default: context.mapping?.['id']
+- mappingMessageText: Formula – Extract message content text. Default: context.mapping?.['content']
 - mappingRole: Formula – Extract message role ('user' or 'assistant'). Default: context.mapping?.['role']
 - mappingTimestamp: Formula – Extract timestamp. Default: context.mapping?.['timestamp']
 - mappingAttachments: Formula – Extract attachments array from message. Default: context.mapping?.['attachments']
@@ -33,7 +34,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 
 **Streaming:**
 - isStreaming: boolean – Indicates if AI is currently streaming a response. Example: false
-- streamingText: string – Current streaming text from AI (bindable to OpenAI stream). Example: 'The answer is...'
+- streamingText: string|string[] – Current streaming text from AI (bindable to OpenAI stream). Supports string or array (uses first element if array). Example: 'The answer is...'
 
 **Style - Messages Area:**
 - fontFamily: string – Global font family. Example: 'Inter, sans-serif'
@@ -56,6 +57,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - messageFontSize: string – Assistant font size. Example: '0.875rem'
 - messageFontWeight: string – Assistant font weight. Example: '400'
 - messageFontFamily: string – Assistant font family. Example: 'inherit'
+- messageShowTimestamp: boolean – Show timestamp for assistant messages. Example: true
 
 **Style - User Messages (Bubble):**
 - ownMessageBgColor: string – User message background. Example: '#f4f4f4'
@@ -65,6 +67,7 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - ownMessageFontSize: string – User font size. Example: '0.875rem'
 - ownMessageFontWeight: string – User font weight. Example: '400'
 - ownMessageFontFamily: string – User font family. Example: 'inherit'
+- ownMessageShowTimestamp: boolean – Show timestamp for user messages. Example: true
 
 **Style - Attachment Thumbnails:**
 - messagesAttachmentThumbMaxWidth: string – Max width for attachment thumbnails. Example: '250px'
@@ -103,8 +106,8 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - attachmentIconColor: string – Attachment icon color. Example: '#334155'
 - attachmentIconSize: string – Attachment icon size. Example: '20px'
 - removeIcon: string – Remove attachment icon name. Example: 'x'
-- removeIconColor: string – Remove icon color. Example: '#f43f5e'
-- removeIconSize: string – Remove icon size. Example: '12px'
+- removeIconColor: string – Remove icon color. Example: '#334155'
+- removeIconSize: string – Remove icon size. Example: '16px'
 - attachmentButtonBgColor: string – Attachment button bg. Example: '#f8fafc'
 - attachmentButtonHoverBgColor: string – Attachment button hover. Example: '#f1f5f9'
 - attachmentButtonBorder: string – Attachment button border. Example: '1px solid #e2e8f0'
@@ -121,20 +124,22 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - chatState: ***READ ONLY*** Contains messages array and utils object. (path: variables['current_element_uid-chatState'])
 
 ***Events:***
-- messageSent: Triggered when the user sends a message. Payload: { message: { text, role: 'user', timestamp } }
-- messageReceived: Triggered when a new assistant message is detected. Payload: { message }
+- messageSent: Triggered when the user sends a message. Payload: { message: { id, content, role: 'user', timestamp, attachments?: File[] } }
+- messageReceived: Triggered when a new assistant message is detected. Payload: { message: { id, content, role: 'assistant', timestamp, attachments? } }
 - attachmentClick: Triggered when user clicks an attachment in a message. Payload: { attachment: { id, name, url, type, size } }
-- pendingAttachmentClick: Triggered when user clicks a pending attachment before sending. Payload: { attachment, index }
-- messageRightClick: Triggered when user right-clicks a message. Payload: { message, position: { x, y } }
+- pendingAttachmentClick: Triggered when user clicks a pending attachment before sending. Payload: { attachment: File, index }
+- messageRightClick: Triggered when user right-clicks a message. Payload: { message, position: { elementX, elementY, viewportX, viewportY } }
 
 ***Exposed Element Actions:***
 - scrollToBottom: (smooth?: boolean) Scroll to the latest message; uses `autoScrollBehavior` when arg omitted.
-- addMessage: (message: { text, role, timestamp?, ...rest }) Add a message programmatically to the chat.
+- addMessage: (message: { content, role, timestamp?, id?, ...rest }) Add a message programmatically to the chat. Accepts both 'content' and 'text' fields for backwards compatibility.
 
 ***Notes:***
 - **Role-based system**: Messages use `role` property with values 'user' or 'assistant' (not participants)
 - **ChatGPT-style by default**: Assistant messages have transparent background and no border; user messages have bubble style
-- **Streaming support**: Bind `isStreaming` and `streamingText` to show real-time AI responses from OpenAI or similar APIs
+- **Streaming support**: Bind `isStreaming` and `streamingText` to show real-time AI responses from OpenAI or similar APIs. `streamingText` accepts both string and string[] (uses first element if array)
+- **Message content field**: Uses `content` field (OpenAI API standard) instead of `text`. Backwards compatible via `addMessage` action
+- **Attachments in events**: `messageSent` event includes attachments as File[] objects (not metadata), ready for base64 encoding with FileReader
 - **Markdown rendering**: Enable `enableMarkdown` to render bold, italic, code blocks, links, lists, headers with syntax highlighting. When disabled, newlines (\n) are still respected via CSS
 - **Attachments for AI**: Enable `allowAttachments` for vision models (ChatGPT Vision, Claude with vision) or document analysis
 - **Date separators**: Automatically shown between messages from different days
@@ -149,4 +154,4 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 {"uid":"chat-1","tag":"ww-chat-ai","name":"Chat AI","props":{"default":{"messages":{"js":"return variables['messages-variable']"},"userLabel":"You","assistantLabel":"AI Assistant","enableMarkdown":true,"allowAttachments":true,"isStreaming":{"js":"return variables['is-streaming']"},"streamingText":{"js":"return variables['stream-text']"},"fontFamily":"Inter, sans-serif","messagesAreaBgColor":"#ffffff","messageBgColor":"transparent","messageTextColor":"#334155","ownMessageBgColor":"#f4f4f4","ownMessageTextColor":"#1e1e1e","inputPlaceholder":"Ask me anything...","autoScrollBehavior":"smooth"}},"styles":{"default":{"width":"100%","height":"600px","display":"flex"}}}
 </elements>
 
-Expected messages data structure: [{"text":"Hello","role":"user","timestamp":"2025-01-15T10:30:00Z"},{"text":"Hi there!","role":"assistant","timestamp":"2025-01-15T10:30:05Z","attachments":[{"id":"img-1","name":"chart.png","url":"https://example.com/chart.png","type":"image/png","size":245600}]}]
+Expected messages data structure: [{"content":"Hello","role":"user","timestamp":"2025-01-15T10:30:00Z"},{"content":"Hi there!","role":"assistant","timestamp":"2025-01-15T10:30:05Z","attachments":[{"id":"img-1","name":"chart.png","url":"https://example.com/chart.png","type":"image/png","size":245600}]}]

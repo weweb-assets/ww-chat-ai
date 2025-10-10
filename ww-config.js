@@ -1187,7 +1187,7 @@ export default {
             }),
             defaultValue: {
                 type: 'f',
-                code: "context.mapping?.['text']",
+                code: "context.mapping?.['content']",
             },
             section: 'settings',
             /* wwEditor:start */

@@ -20,8 +20,8 @@ AI-focused chat UI with ChatGPT-style design: transparent assistant messages, us
 - autoScrollBehavior: 'auto'|'smooth' – Scroll mode for new messages. Example: 'auto'
 
 **Chat Data:**
-- messages: array – Conversation data with role-based messages. Example: [{ text: 'Hello', role: 'user', timestamp: '2025-01-15T10:30:00Z' }]
-- mappingMessageText: Formula – Extract message text. Default: context.mapping?.['text']
+- messages: array – Conversation data with role-based messages. Example: [{ content: 'Hello', role: 'user', timestamp: '2025-01-15T10:30:00Z' }]
+- mappingMessageText: Formula – Extract message text. Default: context.mapping?.['content']
 - mappingRole: Formula – Extract message role ('user' or 'assistant'). Default: context.mapping?.['role']
 - mappingTimestamp: Formula – Extract timestamp. Default: context.mapping?.['timestamp']
 - mappingAttachments: Formula – Extract attachments array from message. Default: context.mapping?.['attachments']

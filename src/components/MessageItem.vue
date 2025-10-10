@@ -40,7 +40,7 @@
                 v-else
                 class="ww-message-item__text"
             >
-                {{ message.text }}
+                {{ message.content }}
             </div>
 
             <!-- Attachments if any -->
@@ -263,10 +263,10 @@ export default {
         });
 
         const renderedMarkdown = computed(() => {
-            if (!props.enableMarkdown || !props.message.text) {
+            if (!props.enableMarkdown || !props.message.content) {
                 return '';
             }
-            return md.render(props.message.text);
+            return md.render(props.message.content);
         });
 
         const messageStyles = computed(() => {

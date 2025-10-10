@@ -260,7 +260,7 @@ export default {
                 }
 
                 const messageId = resolveMapping(message, props.content?.mappingMessageId, 'id');
-                const text = resolveMapping(message, props.content?.mappingMessageText, 'text') || '';
+                const text = resolveMapping(message, props.content?.mappingMessageText, 'content') || '';
                 const role = resolveMapping(message, props.content?.mappingRole, 'role') || 'assistant';
                 const timestamp = resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') || new Date().toISOString();
 
@@ -284,12 +284,12 @@ export default {
                     attachments = rawAttachments;
                 }
 
-                // Use mapped message ID if available, or create stable ID from timestamp + text
+                // Use mapped message ID if available, or create stable ID from timestamp + content
                 const stableId = messageId || `msg-${timestamp}-${text.substring(0, 20)}`.replace(/[^a-zA-Z0-9-]/g, '-');
 
                 return {
                     id: stableId,
-                    text,
+                    content: text,
                     role: role === 'user' ? 'user' : 'assistant',
                     timestamp,
                     userName: role === 'user' ? userLabel.value : assistantLabel.value,
@@ -443,7 +443,7 @@ export default {
 
             const message = {
                 id: `msg-${wwLib.wwUtils.getUid()}`,
-                text: newMessage.value.trim(),
+                content: newMessage.value.trim(),
                 role: 'user',
                 timestamp: new Date().toISOString(),
                 // Emit attachments as File[] only, without id/url/name duplication
@@ -465,7 +465,7 @@ export default {
 
             const newMessageRaw = {
                 id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
-                text: message.text || '',
+                content: message.content || message.text || '',
                 role: message.role || 'assistant',
                 timestamp: message.timestamp || new Date().toISOString(),
                 ...message,

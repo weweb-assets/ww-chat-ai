@@ -162,7 +162,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-1',
-                    text: 'Hello there!',
+                    content: 'Hello there!',
                     role: 'user',
                     timestamp: new Date().toISOString(),
                     attachments: [
@@ -183,7 +183,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-2',
-                    text: 'New assistant message received',
+                    content: 'New assistant message received',
                     role: 'assistant',
                     timestamp: new Date().toISOString(),
                     attachments: [
@@ -204,7 +204,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-1',
-                    text: 'Message content',
+                    content: 'Message content',
                     role: 'user',
                     timestamp: new Date().toISOString(),
                 },
@@ -1197,7 +1197,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["text"]\nExample value: "Hello, how can I help?"',
+                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["content"]\nExample value: "Hello, how can I help?"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,

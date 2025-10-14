@@ -532,8 +532,12 @@ export default {
         }
 
         img {
+            width: auto;
+            height: auto;
             max-width: 100%;
             max-height: var(--ww-chat-attachment-thumb-max-height, 200px);
+            min-width: 80px; /* Fallback minimum width for SVGs without intrinsic dimensions */
+            min-height: 80px; /* Fallback minimum height for SVGs without intrinsic dimensions */
             object-fit: contain;
             border-radius: var(--ww-chat-attachment-thumb-radius, 6px);
         }

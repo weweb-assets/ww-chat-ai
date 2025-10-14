@@ -89,6 +89,8 @@ On messageSent event:
 **Style - Attachment Thumbnails:**
 - messagesAttachmentThumbMaxWidth: string – Max width for attachment thumbnails. Example: '250px'
 - messagesAttachmentThumbMaxHeight: string – Max height for attachment thumbnails. Example: '200px'
+- messagesAttachmentThumbMinWidth: string – Min width for attachment thumbnails (fallback for SVGs without intrinsic dimensions). Example: '80px'
+- messagesAttachmentThumbMinHeight: string – Min height for attachment thumbnails (fallback for SVGs without intrinsic dimensions). Example: '80px'
 - messagesAttachmentThumbBorderRadius: string – Border radius for thumbnails. Example: '6px'
 
 **Style - Input Area:**

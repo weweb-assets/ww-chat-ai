@@ -106,6 +106,8 @@ export default {
                 'imagePreviewTitle',
                 'messagesAttachmentThumbMaxWidth',
                 'messagesAttachmentThumbMaxHeight',
+                'messagesAttachmentThumbMinWidth',
+                'messagesAttachmentThumbMinHeight',
                 'messagesAttachmentThumbBorderRadius',
             ],
             [
@@ -900,6 +902,44 @@ export default {
             },
             propertyHelp: {
                 tooltip: 'Max height of attached images in messages.\n\nExample: `200px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbMinWidth: {
+            label: { en: 'Attachment Min Width' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '80px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Minimum width of image attachment thumbnails (fallback for SVGs without intrinsic dimensions)',
+            },
+            propertyHelp: {
+                tooltip: 'Min width of attached images in messages.\n\nExample: `80px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbMinHeight: {
+            label: { en: 'Attachment Min Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '80px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Minimum height of image attachment thumbnails (fallback for SVGs without intrinsic dimensions)',
+            },
+            propertyHelp: {
+                tooltip: 'Min height of attached images in messages.\n\nExample: `80px`',
             },
             /* wwEditor:end */
         },

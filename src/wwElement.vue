@@ -359,6 +359,8 @@ export default {
         // Messages attachments thumbnail sizing (in messages area)
         const messagesAttachmentThumbMaxWidth = computed(() => props.content?.messagesAttachmentThumbMaxWidth || '250px');
         const messagesAttachmentThumbMaxHeight = computed(() => props.content?.messagesAttachmentThumbMaxHeight || '200px');
+        const messagesAttachmentThumbMinWidth = computed(() => props.content?.messagesAttachmentThumbMinWidth || '80px');
+        const messagesAttachmentThumbMinHeight = computed(() => props.content?.messagesAttachmentThumbMinHeight || '80px');
         const messagesAttachmentThumbBorderRadius = computed(
             () => props.content?.messagesAttachmentThumbBorderRadius || '6px'
         );
@@ -812,6 +814,8 @@ export default {
             // Exposed for CSS variables
             messagesAttachmentThumbMaxWidth,
             messagesAttachmentThumbMaxHeight,
+            messagesAttachmentThumbMinWidth,
+            messagesAttachmentThumbMinHeight,
             messagesAttachmentThumbBorderRadius,
         };
     },
@@ -850,6 +854,8 @@ export default {
     /* Attachment thumbnails in messages area */
     --ww-chat-attachment-thumb-max-width: v-bind('messagesAttachmentThumbMaxWidth');
     --ww-chat-attachment-thumb-max-height: v-bind('messagesAttachmentThumbMaxHeight');
+    --ww-chat-attachment-thumb-min-width: v-bind('messagesAttachmentThumbMinWidth');
+    --ww-chat-attachment-thumb-min-height: v-bind('messagesAttachmentThumbMinHeight');
     --ww-chat-attachment-thumb-radius: v-bind('messagesAttachmentThumbBorderRadius');
 
     --ww-chat-input-bg: v-bind('inputBgColor');

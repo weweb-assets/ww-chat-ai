@@ -219,7 +219,14 @@ export default {
         const messageShowTimestamp = computed(() => props.content?.messageShowTimestamp !== false);
         const ownMessageShowTimestamp = computed(() => props.content?.ownMessageShowTimestamp !== false);
         const isStreaming = computed(() => props.content?.isStreaming || false);
-        const streamingText = computed(() => props.content?.streamingText || '');
+        const streamingText = computed(() => {
+            const text = props.content?.streamingText;
+            // Handle when streamingText is bound as an array (e.g., from OpenAI)
+            if (Array.isArray(text)) {
+                return text[0] || '';
+            }
+            return text || '';
+        });
         const rawMessages = computed(() => {
             // Ensure we always have an array to work with
             const messagesContent = props.content?.messages;
@@ -253,7 +260,7 @@ export default {
                 }
 
                 const messageId = resolveMapping(message, props.content?.mappingMessageId, 'id');
-                const text = resolveMapping(message, props.content?.mappingMessageText, 'text') || '';
+                const text = resolveMapping(message, props.content?.mappingMessageText, 'content') || '';
                 const role = resolveMapping(message, props.content?.mappingRole, 'role') || 'assistant';
                 const timestamp = resolveMapping(message, props.content?.mappingTimestamp, 'timestamp') || new Date().toISOString();
 
@@ -277,12 +284,12 @@ export default {
                     attachments = rawAttachments;
                 }
 
-                // Use mapped message ID if available, or create stable ID from timestamp + text
+                // Use mapped message ID if available, or create stable ID from timestamp + content
                 const stableId = messageId || `msg-${timestamp}-${text.substring(0, 20)}`.replace(/[^a-zA-Z0-9-]/g, '-');
 
                 return {
                     id: stableId,
-                    text,
+                    content: text,
                     role: role === 'user' ? 'user' : 'assistant',
                     timestamp,
                     userName: role === 'user' ? userLabel.value : assistantLabel.value,
@@ -352,6 +359,8 @@ export default {
         // Messages attachments thumbnail sizing (in messages area)
         const messagesAttachmentThumbMaxWidth = computed(() => props.content?.messagesAttachmentThumbMaxWidth || '250px');
         const messagesAttachmentThumbMaxHeight = computed(() => props.content?.messagesAttachmentThumbMaxHeight || '200px');
+        const messagesAttachmentThumbMinWidth = computed(() => props.content?.messagesAttachmentThumbMinWidth || '80px');
+        const messagesAttachmentThumbMinHeight = computed(() => props.content?.messagesAttachmentThumbMinHeight || '80px');
         const messagesAttachmentThumbBorderRadius = computed(
             () => props.content?.messagesAttachmentThumbBorderRadius || '6px'
         );
@@ -428,18 +437,19 @@ export default {
             if (isEditing.value || isDisabled.value) return;
             if (!newMessage.value.trim() && pendingAttachments.value.length === 0) return;
 
+            const attachments = [...pendingAttachments.value];
+            // For the emitted event, only expose File objects (no id/url metadata)
+            const attachmentsForEvent = attachments
+                .map(att => att && att.file)
+                .filter(file => !!file);
+
             const message = {
                 id: `msg-${wwLib.wwUtils.getUid()}`,
-                text: newMessage.value.trim(),
+                content: newMessage.value.trim(),
                 role: 'user',
                 timestamp: new Date().toISOString(),
-                attachments: pendingAttachments.value.map(att => ({
-                    id: att.id,
-                    name: att.name,
-                    type: att.type,
-                    size: att.size,
-                    url: att.url,
-                })),
+                // Emit attachments as File[] only, without id/url/name duplication
+                attachments: attachmentsForEvent.length > 0 ? attachmentsForEvent : undefined,
             };
 
             newMessage.value = '';
@@ -457,7 +467,7 @@ export default {
 
             const newMessageRaw = {
                 id: message.id || `msg-${wwLib.wwUtils.getUid()}`,
-                text: message.text || '',
+                content: message.content || message.text || '',
                 role: message.role || 'assistant',
                 timestamp: message.timestamp || new Date().toISOString(),
                 ...message,
@@ -804,6 +814,8 @@ export default {
             // Exposed for CSS variables
             messagesAttachmentThumbMaxWidth,
             messagesAttachmentThumbMaxHeight,
+            messagesAttachmentThumbMinWidth,
+            messagesAttachmentThumbMinHeight,
             messagesAttachmentThumbBorderRadius,
         };
     },
@@ -842,6 +854,8 @@ export default {
     /* Attachment thumbnails in messages area */
     --ww-chat-attachment-thumb-max-width: v-bind('messagesAttachmentThumbMaxWidth');
     --ww-chat-attachment-thumb-max-height: v-bind('messagesAttachmentThumbMaxHeight');
+    --ww-chat-attachment-thumb-min-width: v-bind('messagesAttachmentThumbMinWidth');
+    --ww-chat-attachment-thumb-min-height: v-bind('messagesAttachmentThumbMinHeight');
     --ww-chat-attachment-thumb-radius: v-bind('messagesAttachmentThumbBorderRadius');
 
     --ww-chat-input-bg: v-bind('inputBgColor');

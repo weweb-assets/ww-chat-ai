@@ -106,6 +106,8 @@ export default {
                 'imagePreviewTitle',
                 'messagesAttachmentThumbMaxWidth',
                 'messagesAttachmentThumbMaxHeight',
+                'messagesAttachmentThumbMinWidth',
+                'messagesAttachmentThumbMinHeight',
                 'messagesAttachmentThumbBorderRadius',
             ],
             [
@@ -162,7 +164,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-1',
-                    text: 'Hello there!',
+                    content: 'Hello there!',
                     role: 'user',
                     timestamp: new Date().toISOString(),
                     attachments: [
@@ -183,7 +185,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-2',
-                    text: 'New assistant message received',
+                    content: 'New assistant message received',
                     role: 'assistant',
                     timestamp: new Date().toISOString(),
                     attachments: [
@@ -204,7 +206,7 @@ export default {
             event: {
                 message: {
                     id: 'msg-1',
-                    text: 'Message content',
+                    content: 'Message content',
                     role: 'user',
                     timestamp: new Date().toISOString(),
                 },
@@ -903,6 +905,44 @@ export default {
             },
             /* wwEditor:end */
         },
+        messagesAttachmentThumbMinWidth: {
+            label: { en: 'Attachment Min Width' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '80px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Minimum width of image attachment thumbnails (fallback for SVGs without intrinsic dimensions)',
+            },
+            propertyHelp: {
+                tooltip: 'Min width of attached images in messages.\n\nExample: `80px`',
+            },
+            /* wwEditor:end */
+        },
+        messagesAttachmentThumbMinHeight: {
+            label: { en: 'Attachment Min Height' },
+            type: 'Length',
+            section: 'style',
+            bindable: true,
+            classes: true,
+            states: true,
+            responsive: true,
+            defaultValue: '80px',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'Minimum height of image attachment thumbnails (fallback for SVGs without intrinsic dimensions)',
+            },
+            propertyHelp: {
+                tooltip: 'Min height of attached images in messages.\n\nExample: `80px`',
+            },
+            /* wwEditor:end */
+        },
         messagesAttachmentThumbBorderRadius: {
             label: { en: 'Attachment Border Radius' },
             type: 'Length',
@@ -1187,7 +1227,7 @@ export default {
             }),
             defaultValue: {
                 type: 'f',
-                code: "context.mapping?.['text']",
+                code: "context.mapping?.['content']",
             },
             section: 'settings',
             /* wwEditor:start */
@@ -1197,7 +1237,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["text"]\nExample value: "Hello, how can I help?"',
+                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["content"]\nExample value: "Hello, how can I help?"',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,

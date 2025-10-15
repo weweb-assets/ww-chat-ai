@@ -40,7 +40,7 @@
                 v-else
                 class="ww-message-item__text"
             >
-                {{ message.text }}
+                {{ message.content }}
             </div>
 
             <!-- Attachments if any -->
@@ -263,10 +263,10 @@ export default {
         });
 
         const renderedMarkdown = computed(() => {
-            if (!props.enableMarkdown || !props.message.text) {
+            if (!props.enableMarkdown || !props.message.content) {
                 return '';
             }
-            return md.render(props.message.text);
+            return md.render(props.message.content);
         });
 
         const messageStyles = computed(() => {
@@ -536,8 +536,8 @@ export default {
             height: auto;
             max-width: 100%;
             max-height: var(--ww-chat-attachment-thumb-max-height, 200px);
-            min-width: 80px; /* Fallback minimum width for SVGs without intrinsic dimensions */
-            min-height: 80px; /* Fallback minimum height for SVGs without intrinsic dimensions */
+            min-width: var(--ww-chat-attachment-thumb-min-width, 80px);
+            min-height: var(--ww-chat-attachment-thumb-min-height, 80px);
             object-fit: contain;
             border-radius: var(--ww-chat-attachment-thumb-radius, 6px);
         }

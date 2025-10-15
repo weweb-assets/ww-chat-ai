@@ -262,7 +262,7 @@ export default {
 
         const streamingMessage = computed(() => ({
             id: 'streaming',
-            text: props.streamingText,
+            content: props.streamingText,
             role: 'assistant',
             timestamp: new Date().toISOString(),
             userName: props.assistantLabel,

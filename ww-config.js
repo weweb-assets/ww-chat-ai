@@ -353,7 +353,7 @@ export default {
             defaultValue: true,
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Show a timestamp beside assistant messages.\n\nPossible values: `true`, `false`',
+                tooltip: 'Show a timestamp beside assistant messages.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -429,7 +429,7 @@ export default {
             defaultValue: '400',
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Font weight of assistant messages.\n\nPossible values: `100`, `200`, `300`, `400`, `500`, `600`, `700`, `800`, `900`',
+                tooltip: 'Font weight of assistant messages.\n\nPossible values: **`100`**, **`200`**, **`300`**, **`400`**, **`500`**, **`600`**, **`700`**, **`800`**, **`900`**',
             },
             /* wwEditor:end */
         },
@@ -497,7 +497,7 @@ export default {
             defaultValue: true,
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Show a timestamp beside user messages.\n\nPossible values: `true`, `false`',
+                tooltip: 'Show a timestamp beside user messages.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -573,7 +573,7 @@ export default {
             defaultValue: '400',
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Font weight of user messages.\n\nPossible values: `100` to `900`',
+                tooltip: 'Font weight of user messages.\n\nPossible values: **`100`**, **`200`**, **`300`**, **`400`**, **`500`**, **`600`**, **`700`**, **`800`**, **`900`**',
             },
             /* wwEditor:end */
         },
@@ -766,7 +766,7 @@ export default {
             defaultValue: '400',
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Font weight of text input.\n\nPossible values: `100` to `900`',
+                tooltip: 'Font weight of text input.\n\nPossible values: **`100`**, **`200`**, **`300`**, **`400`**, **`500`**, **`600`**, **`700`**, **`800`**, **`900`**',
             },
             /* wwEditor:end */
         },
@@ -863,7 +863,7 @@ export default {
             defaultValue: 'end',
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Vertical alignment of action buttons beside the text input.\n\nPossible values: `start`, `end`',
+                tooltip: 'Vertical alignment of action buttons beside the text input.\n\nPossible values: **`start`**, **`end`**',
             },
             /* wwEditor:end */
         },
@@ -1378,7 +1378,7 @@ export default {
             defaultValue: false,
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Disable the entire chat UI and sending.\n\nPossible values: `true`, `false`',
+                tooltip: 'Disable the entire chat UI and sending.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -1390,7 +1390,7 @@ export default {
             defaultValue: false,
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Render markdown (bold, code, links, lists). When off, newlines are kept.\n\nPossible values: `true`, `false`',
+                tooltip: 'Render markdown (bold, code, links, lists). When off, newlines are kept.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -1402,7 +1402,7 @@ export default {
             defaultValue: false,
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Enable file attachments in the input area.\n\nPossible values: `true`, `false`',
+                tooltip: 'Enable file attachments in the input area.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -1420,7 +1420,7 @@ export default {
             defaultValue: 'auto',
             /* wwEditor:start */
             propertyHelp: {
-                tooltip: 'Scroll behavior for new messages.\n\nPossible values: `auto`, `smooth`',
+                tooltip: 'Scroll behavior for new messages.\n\nPossible values: **`auto`**, **`smooth`**',
             },
             /* wwEditor:end */
         },
@@ -1443,7 +1443,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'A list of role-based messages that represent the conversation.\n\nEach message typically includes `content`, `role` (`user` or `assistant`), and `timestamp`. Optionally can include `attachments`.\n\nExample:\n[\n  { "content": "Hello!", "role": "user", "timestamp": "2025-06-01T10:30:00Z" },\n  {\n    "content": "Hi there!",\n    "role": "assistant",\n    "timestamp": "2025-06-01T10:30:05Z",\n    "attachments": [\n      { "id": "img-1", "name": "chart.png", "url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e", "type": "image/png", "size": 245600 }\n    ]\n  }\n]',
+                    'A list of role-based messages that represent the conversation.\n\nEach message typically includes **`content`**, **`role`** (**`user`** or **`assistant`**), and **`timestamp`**. Optionally can include **`attachments`**.\n\n**Example:**\n```json\n[\n  { "content": "Hello!", "role": "user", "timestamp": "2025-06-01T10:30:00Z" },\n  {\n    "content": "Hi there!",\n    "role": "assistant",\n    "timestamp": "2025-06-01T10:30:05Z",\n    "attachments": [\n      { "id": "img-1", "name": "chart.png", "url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e", "type": "image/png", "size": 245600 }\n    ]\n  }\n]\n```',
             },
             /* wwEditor:end */
         },
@@ -1465,7 +1465,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the unique message ID in your Messages data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "msg-1"',
+                    'Mapping to the unique message ID in your **Messages** data.\n\n**Example mapping:** `context.mapping?.["id"]`\n\n**Example value:** `"msg-1"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -1488,7 +1488,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the text content in your Messages data.\n\nExample mapping: context.mapping?.["content"]\nExample value: "Hello, how can I help?"',
+                    'Mapping to the text content in your **Messages** data.\n\n**Example mapping:** `context.mapping?.["content"]`\n\n**Example value:** `"Hello, how can I help?"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -1511,7 +1511,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the role in your Messages data.\n\nExample mapping: context.mapping?.["role"]\nExample values: "user" or "assistant"',
+                    'Mapping to the role in your **Messages** data.\n\n**Example mapping:** `context.mapping?.["role"]`\n\n**Example values:** `"user"` or `"assistant"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -1534,7 +1534,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the timestamp in your Messages data.\n\nExample mapping: context.mapping?.["timestamp"]\nExample value: "2025-10-02T10:30:00Z"',
+                    'Mapping to the timestamp in your **Messages** data.\n\n**Example mapping:** `context.mapping?.["timestamp"]`\n\n**Example value:** `"2025-10-02T10:30:00Z"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -1559,7 +1559,7 @@ export default {
             },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the attachments in your Messages data.\n\nExample mapping: context.mapping?.["attachments"]\nExample value: [{ id: "file-1", name: "image.png", type: "image/png", size: 204800, url: "https://example.com/file.png" }]',
+                    'Mapping to the attachments in your **Messages** data.\n\n**Example mapping:** `context.mapping?.["attachments"]`\n\n**Example value:**\n```json\n[{ "id": "file-1", "name": "image.png", "type": "image/png", "size": 204800, "url": "https://example.com/file.png" }]\n```',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => !boundProps.messages,
@@ -1590,7 +1590,7 @@ export default {
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment unique id' },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the unique ID in your Attachments data.\n\nExample mapping: context.mapping?.["id"]\nExample value: "file-1"',
+                    'Mapping to the unique ID in your **Attachments** data.\n\n**Example mapping:** `context.mapping?.["id"]`\n\n**Example value:** `"file-1"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -1613,7 +1613,7 @@ export default {
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment display name' },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the display name in your Attachments data.\n\nExample mapping: context.mapping?.["name"]\nExample value: "report.pdf"',
+                    'Mapping to the display name in your **Attachments** data.\n\n**Example mapping:** `context.mapping?.["name"]`\n\n**Example value:** `"report.pdf"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -1636,7 +1636,7 @@ export default {
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment URL' },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the file URL in your Attachments data.\n\nExample mapping: context.mapping?.["url"]\nExample value: "https://example.com/file.pdf"',
+                    'Mapping to the file URL in your **Attachments** data.\n\n**Example mapping:** `context.mapping?.["url"]`\n\n**Example value:** `"https://example.com/file.pdf"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -1659,7 +1659,7 @@ export default {
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment MIME type' },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the MIME type in your Attachments data.\n\nExample mapping: context.mapping?.["type"]\nExample value: "image/png"',
+                    'Mapping to the MIME type in your **Attachments** data.\n\n**Example mapping:** `context.mapping?.["type"]`\n\n**Example value:** `"image/png"`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -1682,7 +1682,7 @@ export default {
             bindingValidation: { type: 'formula', tooltip: 'Formula that returns the attachment size in bytes' },
             propertyHelp: {
                 tooltip:
-                    'Mapping to the size in your Attachments data.\n\nExample mapping: context.mapping?.["size"]\nExample value: 204800',
+                    'Mapping to the size in your **Attachments** data.\n\n**Example mapping:** `context.mapping?.["size"]`\n\n**Example value:** `204800`',
             },
             /* wwEditor:end */
             hidden: (content, _, boundProps) => {
@@ -1707,7 +1707,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Controls visibility of the temporary assistant streaming bubble. Set true while generating.\n\nPossible values: `true`, `false`',
+                    'Controls visibility of the temporary assistant streaming bubble. Set **`true`** while generating.\n\nPossible values: **`true`**, **`false`**',
             },
             /* wwEditor:end */
         },
@@ -1721,7 +1721,7 @@ export default {
             /* wwEditor:start */
             propertyHelp: {
                 tooltip:
-                    'Live content being streamed from your AI API while `Is Streaming` is true.\n\nExample: `…`, `Typing…`, `The answer is…`',
+                    'Live content being streamed from your AI API while **Is Streaming** is **`true`**.\n\nExample: **`…`**, **`Typing…`**, **`The answer is…`**',
             },
             /* wwEditor:end */
         },

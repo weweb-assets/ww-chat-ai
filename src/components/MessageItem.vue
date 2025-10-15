@@ -532,6 +532,8 @@ export default {
         }
 
         img {
+            width: auto;
+            height: auto;
             max-width: 100%;
             max-height: var(--ww-chat-attachment-thumb-max-height, 200px);
             min-width: var(--ww-chat-attachment-thumb-min-width, 80px);

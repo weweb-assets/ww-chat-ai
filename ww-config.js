@@ -45,116 +45,175 @@ export default {
         icon: 'chat',
         customStylePropertiesOrder: [
             'fontFamily',
-            [
-                'messagesAreaTitle',
-                'messagesAreaBgColor',
-                'messagesAreaPadding',
-                'emptyMessageText',
-                'emptyMessageColor',
-            ],
-            [
-                'messageTitle',
-                'messageShowTimestamp',
-                'messageBgColor',
-                'messageTextColor',
-                'messageFontSize',
-                'messageFontWeight',
-                'messageFontFamily',
-                'messageBorder',
-                'messageRadius',
-                'ownMessageTitle',
-                'ownMessageShowTimestamp',
-                'ownMessageBgColor',
-                'ownMessageTextColor',
-                'ownMessageFontSize',
-                'ownMessageFontWeight',
-                'ownMessageFontFamily',
-                'ownMessageBorder',
-                'ownMessageRadius',
-            ],
-            [
-                'inputAreaTitle',
-                'inputBgColor',
-                'inputAreaBorder',
-                'textAreaTitle',
-                'textareaBorder',
-                'textareaBorderHover',
-                'textareaBorderFocus',
-                'inputTextColor',
-                'inputFontSize',
-                'inputFontWeight',
-                'inputFontFamily',
-                'inputPlaceholderColor',
-                'inputHeight',
-                'inputBorderRadius',
-                'inputPlaceholder',
-                'inputActionAlign',
-            ],
-            [
-                'sendTitle',
-                'sendIcon',
-                'sendIconColor',
-                'sendIconSize',
-                'attachmentTitle',
-                'attachmentIcon',
-                'attachmentIconColor',
-                'attachmentIconSize',
-                'removeTitle',
-                'removeIcon',
-                'removeIconColor',
-                'removeIconSize',
-                'imagePreviewTitle',
-                'messagesAttachmentThumbMaxWidth',
-                'messagesAttachmentThumbMaxHeight',
-                'messagesAttachmentThumbMinWidth',
-                'messagesAttachmentThumbMinHeight',
-                'messagesAttachmentThumbBorderRadius',
-            ],
-            [
-                'sendButtonTitle',
-                'sendButtonBgColor',
-                'sendButtonHoverBgColor',
-                'sendButtonBorder',
-                'sendButtonBorderRadius',
-                'sendButtonSize',
-                'sendButtonBoxShadow',
-            ],
-            [
-                'attachmentButtonTitle',
-                'attachmentButtonBgColor',
-                'attachmentButtonHoverBgColor',
-                'attachmentButtonBorder',
-                'attachmentButtonBorderRadius',
-                'attachmentButtonSize',
-                'attachmentButtonBoxShadow',
-            ],
+            {
+                label: "Messages area",
+                isCollapsible: true,
+                properties: [
+                    'messagesAreaBgColor',
+                    'messagesAreaPadding',
+                    'emptyMessageText',
+                    'emptyMessageColor',
+                ],
+            },
+            {
+                label: "Assistant messages",
+                isCollapsible: true,
+                properties: [
+                    'messageShowTimestamp',
+                    'messageBgColor',
+                    'messageTextColor',
+                    'messageFontSize',
+                    'messageFontWeight',
+                    'messageFontFamily',
+                    'messageBorder',
+                    'messageRadius',
+                ],
+            },
+            {
+                label: "User messages",
+                isCollapsible: true,
+                properties: [
+                    'ownMessageShowTimestamp',
+                    'ownMessageBgColor',
+                    'ownMessageTextColor',
+                    'ownMessageFontSize',
+                    'ownMessageFontWeight',
+                    'ownMessageFontFamily',
+                    'ownMessageBorder',
+                    'ownMessageRadius',
+                ],
+            },
+            {
+                label: "Input area",
+                isCollapsible: true,
+                properties: [
+                    'inputBgColor',
+                    'inputAreaBorder',
+                ],
+            },
+            {
+                label: "Text area",
+                isCollapsible: true,
+                properties: [
+                    'textareaBorder',
+                    'textareaBorderHover',
+                    'textareaBorderFocus',
+                    'inputTextColor',
+                    'inputFontSize',
+                    'inputFontWeight',
+                    'inputFontFamily',
+                    'inputPlaceholderColor',
+                    'inputHeight',
+                    'inputBorderRadius',
+                    'inputPlaceholder',
+                    'inputActionAlign',
+                ],
+            },
+            {
+                label: "Send icon",
+                isCollapsible: true,
+                properties: [
+                    'sendIcon',
+                    'sendIconColor',
+                    'sendIconSize',
+                ],
+            },
+            {
+                label: "Attachment icon",
+                isCollapsible: true,
+                properties: [
+                    'attachmentIcon',
+                    'attachmentIconColor',
+                    'attachmentIconSize',
+                ],
+            },
+            {
+                label: "Remove attachment icon",
+                isCollapsible: true,
+                properties: [
+                    'removeIcon',
+                    'removeIconColor',
+                    'removeIconSize',
+                ],
+            },
+            {
+                label: "Image preview",
+                isCollapsible: true,
+                properties: [
+                    'messagesAttachmentThumbMaxWidth',
+                    'messagesAttachmentThumbMaxHeight',
+                    'messagesAttachmentThumbMinWidth',
+                    'messagesAttachmentThumbMinHeight',
+                    'messagesAttachmentThumbBorderRadius',
+                ],
+            },
+            {
+                label: "Send button",
+                isCollapsible: true,
+                properties: [
+                    'sendButtonBgColor',
+                    'sendButtonHoverBgColor',
+                    'sendButtonBorder',
+                    'sendButtonBorderRadius',
+                    'sendButtonSize',
+                    'sendButtonBoxShadow',
+                ],
+            },
+            {
+                label: "Attachment button",
+                isCollapsible: true,
+                properties: [
+                    'attachmentButtonBgColor',
+                    'attachmentButtonHoverBgColor',
+                    'attachmentButtonBorder',
+                    'attachmentButtonBorderRadius',
+                    'attachmentButtonSize',
+                    'attachmentButtonBoxShadow',
+                ],
+            },            
         ],
         customSettingsPropertiesOrder: [
-            [
-                'chatSettingsTitle',
-                'userLabel',
-                'assistantLabel',
-                'disabled',
-                'enableMarkdown',
-                'allowAttachments',
-                'autoScrollBehavior',
-            ],
-            [
-                'chatDataTitle',
-                'messages',
-                'mappingMessageId',
-                'mappingMessageText',
-                'mappingRole',
-                'mappingTimestamp',
-                'mappingAttachments',
-                'attachmentsDataTitle',
-                'mappingAttachmentId',
-                'mappingAttachmentName',
-                'mappingAttachmentUrl',
-                'mappingAttachmentType',
-                'mappingAttachmentSize',
-            ],
-            ['streamingTitle', 'isStreaming', 'streamingText'],
+            {
+                label: "Chat settings",
+                isCollapsible: true,
+                properties: [
+                    'userLabel',
+                    'assistantLabel',
+                    'disabled',
+                    'enableMarkdown',
+                    'allowAttachments',
+                    'autoScrollBehavior',
+                ],
+            }, 
+            {
+                label: "Chat data",
+                isCollapsible: true,
+                properties: [
+                    'messages',
+                    'mappingMessageId',
+                    'mappingMessageText',
+                    'mappingRole',
+                    'mappingTimestamp',
+                    'mappingAttachments',
+                ],
+            }, 
+             {
+                label: "Attachments data",
+                isCollapsible: true,
+                properties: [
+                    'mappingAttachmentId',
+                    'mappingAttachmentName',
+                    'mappingAttachmentUrl',
+                    'mappingAttachmentType',
+                    'mappingAttachmentSize',
+                ],
+            },
+            {
+                label: "Streaming",
+                isCollapsible: true,
+                properties: ['isStreaming', 'streamingText'],
+
+            }, 
         ],
     },
     triggerEvents: [
@@ -277,11 +336,6 @@ export default {
         },
 
         // Messages area styles
-        messagesAreaTitle: {
-            type: 'Title',
-            label: { en: 'Messages Area' },
-            section: 'style',
-        },
         messagesAreaBgColor: {
             label: { en: 'Background Color' },
             type: 'Color',
@@ -340,11 +394,6 @@ export default {
         },
 
         // Message styles (AI/Assistant messages - no bubble by default)
-        messageTitle: {
-            type: 'Title',
-            label: { en: 'Assistant Messages' },
-            section: 'style',
-        },
         messageShowTimestamp: {
             label: { en: 'Show Timestamp' },
             type: 'OnOff',
@@ -484,11 +533,6 @@ export default {
         },
 
         // User message styles (with bubble)
-        ownMessageTitle: {
-            type: 'Title',
-            label: { en: 'User Messages' },
-            section: 'style',
-        },
         ownMessageShowTimestamp: {
             label: { en: 'Show Timestamp' },
             type: 'OnOff',
@@ -628,11 +672,6 @@ export default {
         },
 
         // Input styles
-        inputAreaTitle: {
-            type: 'Title',
-            label: { en: 'Input Area' },
-            section: 'style',
-        },
         inputBgColor: {
             label: { en: 'Background Color' },
             type: 'Color',
@@ -660,11 +699,6 @@ export default {
                 tooltip: 'Top border separating messages from input.\n\nExample: `1px solid #e2e8f0`',
             },
             /* wwEditor:end */
-        },
-        textAreaTitle: {
-            type: 'Title',
-            label: { en: 'Text Area' },
-            section: 'style',
         },
         textareaBorder: {
             label: { en: 'Border' },
@@ -869,11 +903,6 @@ export default {
         },
 
         // Send icon
-        sendTitle: {
-            type: 'Title',
-            label: { en: 'Send Icon' },
-            section: 'style',
-        },
         sendIcon: {
             label: { en: 'Icon' },
             type: 'SystemIcon',
@@ -920,11 +949,6 @@ export default {
                 tooltip: 'Send button icon size.\n\nExample: `20px`',
             },
             /* wwEditor:end */
-        },
-        attachmentTitle: {
-            type: 'Title',
-            label: { en: 'Attachment Icon' },
-            section: 'style',
         },
         attachmentIcon: {
             label: { en: 'Icon' },
@@ -982,11 +1006,6 @@ export default {
                 tooltip: 'Attachment button icon size.\n\nExample: `20px`',
             },
             /* wwEditor:end */
-        },
-        removeTitle: {
-            type: 'Title',
-            label: { en: 'Remove Attachment Icon' },
-            section: 'style',
         },
         removeIcon: {
             label: { en: 'Icon' },
@@ -1047,11 +1066,6 @@ export default {
         },
 
         // Image preview (thumbnails inside messages)
-        imagePreviewTitle: {
-            type: 'Title',
-            label: { en: 'Image Preview' },
-            section: 'style',
-        },
         messagesAttachmentThumbMaxWidth: {
             label: { en: 'Attachment Max Width' },
             type: 'Length',
@@ -1146,11 +1160,6 @@ export default {
         },
 
         // Send button styles
-        sendButtonTitle: {
-            type: 'Title',
-            label: { en: 'Send Button' },
-            section: 'style',
-        },
         sendButtonBgColor: {
             label: { en: 'Background' },
             type: 'Color',
@@ -1237,11 +1246,6 @@ export default {
         },
 
         // Attachment button styles
-        attachmentButtonTitle: {
-            type: 'Title',
-            label: { en: 'Attachment Button' },
-            section: 'style',
-        },
         attachmentButtonBgColor: {
             label: { en: 'Background Color' },
             type: 'Color',
@@ -1340,12 +1344,6 @@ export default {
         },
 
         // ======== SETTINGS ========
-
-        chatSettingsTitle: {
-            type: 'Title',
-            label: { en: 'Chat Settings' },
-            section: 'settings',
-        },
         userLabel: {
             label: { en: 'User Label' },
             type: 'Text',
@@ -1426,11 +1424,6 @@ export default {
         },
 
         // Chat data
-        chatDataTitle: {
-            type: 'Title',
-            label: { en: 'Chat Data' },
-            section: 'settings',
-        },
         messages: {
             label: { en: 'Messages' },
             type: 'Info',
@@ -1566,16 +1559,6 @@ export default {
         },
 
         // Attachments Data
-        attachmentsDataTitle: {
-            type: 'Title',
-            label: { en: 'Attachments Data' },
-            section: 'settings',
-            hidden: (content, _, boundProps) => {
-                const hasMessages = !!boundProps?.messages;
-                const hasAttachmentsMapping = !!content?.mappingAttachments?.code;
-                return !(hasMessages && hasAttachmentsMapping);
-            },
-        },
         mappingAttachmentId: {
             label: { en: 'ID' },
             type: 'Formula',
@@ -1693,11 +1676,6 @@ export default {
         },
 
         // Streaming
-        streamingTitle: {
-            type: 'Title',
-            label: { en: 'Streaming' },
-            section: 'settings',
-        },
         isStreaming: {
             label: { en: 'Is Streaming' },
             type: 'OnOff',

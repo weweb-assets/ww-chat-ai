@@ -274,6 +274,233 @@
             "name": "attachmentIconColor",
             "description": "THEME TOKEN — icon color inside the attachment button.",
             "type": "string"
+        },
+        {
+            "name": "mappingMessageId",
+            "description": "Formula to extract the unique message ID from each item in `messages`. ONLY include when the bound data shape differs from the default `id` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['id']" }
+        },
+        {
+            "name": "mappingMessageText",
+            "description": "Formula to extract the message body text from each item in `messages`. ONLY include when the bound data shape differs from the default `content` field (note: ww-chat-ai uses `content`, not `text`). Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['content']" }
+        },
+        {
+            "name": "mappingRole",
+            "description": "Formula to extract the role of each message. Result MUST resolve to either `'user'` or `'assistant'` — this drives left/right alignment. ONLY include when the bound data shape differs from the default `role` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['role']" }
+        },
+        {
+            "name": "mappingTimestamp",
+            "description": "Formula to extract the message timestamp (ISO string or Date) from each item in `messages`. ONLY include when the bound data shape differs from the default `timestamp` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['timestamp']" }
+        },
+        {
+            "name": "mappingAttachments",
+            "description": "Formula returning the attachments array of each message. ONLY include when the bound data shape differs from the default `attachments` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['attachments']" }
+        },
+        {
+            "name": "mappingAttachmentId",
+            "description": "Formula to extract the unique ID of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['id']" }
+        },
+        {
+            "name": "mappingAttachmentName",
+            "description": "Formula to extract the display name of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['name']" }
+        },
+        {
+            "name": "mappingAttachmentUrl",
+            "description": "Formula to extract the file URL of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['url'] ?? context.mapping?.['href']" }
+        },
+        {
+            "name": "mappingAttachmentType",
+            "description": "Formula to extract the MIME type of an attachment (e.g. `image/png`). Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['type'] ?? context.mapping?.['mime']" }
+        },
+        {
+            "name": "mappingAttachmentSize",
+            "description": "Formula to extract the attachment size in bytes. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
+            "type": "formula",
+            "defaultValue": { "type": "f", "code": "context.mapping?.['size']" }
+        },
+        {
+            "name": "emptyMessageText",
+            "description": "Placeholder text shown in the messages area when `messages` is empty.",
+            "type": "string",
+            "defaultValue": "No messages yet"
+        },
+        {
+            "name": "messagesAreaPadding",
+            "description": "CSS padding shorthand for the scrolling messages area between the header and the input.",
+            "type": "string",
+            "defaultValue": "16px",
+            "responsive": true
+        },
+        {
+            "name": "messageFontSize",
+            "description": "Font size of the text inside assistant message bubbles.",
+            "type": "string",
+            "defaultValue": "0.875rem",
+            "responsive": true
+        },
+        {
+            "name": "messageFontWeight",
+            "description": "CSS font-weight of assistant message bubbles (e.g. '400', '500').",
+            "type": "string",
+            "defaultValue": "400",
+            "responsive": true
+        },
+        {
+            "name": "messageFontFamily",
+            "description": "Font family used for assistant message bubbles. Use `inherit` to fall back to the chat's `fontFamily`.",
+            "type": "string",
+            "defaultValue": "inherit",
+            "responsive": true
+        },
+        {
+            "name": "ownMessageFontSize",
+            "description": "Font size of the text inside the user's own message bubbles.",
+            "type": "string",
+            "defaultValue": "0.875rem",
+            "responsive": true
+        },
+        {
+            "name": "ownMessageFontWeight",
+            "description": "CSS font-weight of the user's own message bubbles.",
+            "type": "string",
+            "defaultValue": "400",
+            "responsive": true
+        },
+        {
+            "name": "ownMessageFontFamily",
+            "description": "Font family used for the user's own message bubbles. Use `inherit` to fall back to the chat's `fontFamily`.",
+            "type": "string",
+            "defaultValue": "inherit",
+            "responsive": true
+        },
+        {
+            "name": "textareaBorderHover",
+            "description": "CSS border shorthand applied to the input textarea on hover.",
+            "type": "string",
+            "defaultValue": "1px solid #cbd5e1",
+            "responsive": true
+        },
+        {
+            "name": "inputFontSize",
+            "description": "Font size of the text typed in the chat input textarea.",
+            "type": "string",
+            "defaultValue": "0.875rem",
+            "responsive": true
+        },
+        {
+            "name": "inputFontWeight",
+            "description": "CSS font-weight of the text typed in the chat input textarea.",
+            "type": "string",
+            "defaultValue": "400",
+            "responsive": true
+        },
+        {
+            "name": "inputFontFamily",
+            "description": "Font family used for the chat input textarea. Use `inherit` to fall back to the chat's `fontFamily`.",
+            "type": "string",
+            "defaultValue": "inherit",
+            "responsive": true
+        },
+        {
+            "name": "inputHeight",
+            "description": "Initial height of the chat input textarea. The textarea auto-grows beyond this with content — there is no max-height property.",
+            "type": "string",
+            "defaultValue": "38px",
+            "responsive": true
+        },
+        {
+            "name": "sendIconSize",
+            "description": "Size (width/height) of the send icon inside the send button.",
+            "type": "string",
+            "defaultValue": "20px",
+            "responsive": true
+        },
+        {
+            "name": "attachmentIconSize",
+            "description": "Size (width/height) of the paperclip icon inside the attachment button. Only relevant when `allowAttachments: true`.",
+            "type": "string",
+            "defaultValue": "20px",
+            "responsive": true
+        },
+        {
+            "name": "removeIconColor",
+            "description": "Color of the small remove (×) icon that appears on pending attachments before they're sent. Only relevant when `allowAttachments: true`.",
+            "type": "string",
+            "defaultValue": "#334155",
+            "responsive": true
+        },
+        {
+            "name": "removeIconSize",
+            "description": "Size (width/height) of the small remove (×) icon on pending attachments. Only relevant when `allowAttachments: true`.",
+            "type": "string",
+            "defaultValue": "16px",
+            "responsive": true
+        },
+        {
+            "name": "messagesAttachmentThumbMaxWidth",
+            "description": "Maximum width of an image attachment thumbnail rendered inside a message bubble.",
+            "type": "string",
+            "defaultValue": "250px",
+            "responsive": true
+        },
+        {
+            "name": "messagesAttachmentThumbMaxHeight",
+            "description": "Maximum height of an image attachment thumbnail rendered inside a message bubble.",
+            "type": "string",
+            "defaultValue": "200px",
+            "responsive": true
+        },
+        {
+            "name": "messagesAttachmentThumbMinWidth",
+            "description": "Minimum width of an image attachment thumbnail rendered inside a message bubble.",
+            "type": "string",
+            "defaultValue": "80px",
+            "responsive": true
+        },
+        {
+            "name": "messagesAttachmentThumbMinHeight",
+            "description": "Minimum height of an image attachment thumbnail rendered inside a message bubble.",
+            "type": "string",
+            "defaultValue": "80px",
+            "responsive": true
+        },
+        {
+            "name": "messagesAttachmentThumbBorderRadius",
+            "description": "Border radius of image attachment thumbnails rendered inside a message bubble.",
+            "type": "string",
+            "defaultValue": "6px",
+            "responsive": true
+        },
+        {
+            "name": "sendButtonSize",
+            "description": "Square size (width/height) of the send button next to the input.",
+            "type": "string",
+            "defaultValue": "42px",
+            "responsive": true
+        },
+        {
+            "name": "attachmentButtonSize",
+            "description": "Square size (width/height) of the attachment button. Only relevant when `allowAttachments: true`.",
+            "type": "string",
+            "defaultValue": "42px",
+            "responsive": true
         }
     ],
     "states": [],

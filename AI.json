@@ -67,7 +67,10 @@
             "name": "autoScrollBehavior",
             "description": "Scroll animation when new messages arrive or `scrollToBottom` fires.",
             "type": "string",
-            "options": ["auto", "smooth"],
+            "options": [
+                "auto",
+                "smooth"
+            ],
             "defaultValue": "auto"
         },
         {
@@ -98,248 +101,347 @@
             "name": "inputPlaceholder",
             "description": "Placeholder text shown in the composer when empty (e.g. `Message...`, `Ask me anything...`).",
             "type": "string",
-            "defaultValue": "Message..."
+            "defaultValue": "Message...",
+            "responsive": true
         },
         {
             "name": "inputActionAlign",
             "description": "Vertical alignment of the send / attachment buttons relative to the multi-line textarea.",
             "type": "string",
-            "options": ["start", "end"],
-            "defaultValue": "end"
+            "options": [
+                "start",
+                "end"
+            ],
+            "defaultValue": "end",
+            "responsive": true
         },
         {
             "name": "sendIcon",
             "description": "Icon for the send button. System-icon name (e.g. `send`, `chevron-right`, `arrow-up`).",
             "type": "string",
-            "defaultValue": "send"
+            "defaultValue": "send",
+            "responsive": true
         },
         {
             "name": "attachmentIcon",
             "description": "Icon for the attachment button. System-icon name (e.g. `paperclip`, `plus`, `image`).",
             "type": "string",
-            "defaultValue": "paperclip"
+            "defaultValue": "paperclip",
+            "responsive": true
         },
         {
             "name": "removeIcon",
             "description": "Icon shown on pending attachments to remove them before sending. System-icon name.",
             "type": "string",
-            "defaultValue": "x"
+            "defaultValue": "x",
+            "responsive": true
         },
         {
             "name": "fontFamily",
             "description": "THEME TOKEN — font family applied to the entire chat (messages + input). CSS font-family string. Required to propagate the page's typography into the chat's isolated sub-components.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "inherit",
+            "responsive": true
         },
         {
             "name": "messagesAreaBgColor",
             "description": "THEME TOKEN — background color of the scrolling messages area.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#ffffff",
+            "responsive": true
         },
         {
             "name": "emptyMessageColor",
             "description": "THEME TOKEN — text color of the empty-state label.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#64748b",
+            "responsive": true
         },
         {
             "name": "messageBgColor",
             "description": "THEME TOKEN — background color of ASSISTANT message bubbles (left side).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "transparent",
+            "responsive": true
         },
         {
             "name": "messageTextColor",
             "description": "THEME TOKEN — text color of assistant messages.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#334155",
+            "responsive": true
         },
         {
             "name": "messageBorder",
             "description": "THEME TOKEN — CSS border shorthand for assistant message bubbles (e.g. `1px solid #333`).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "none",
+            "responsive": true
         },
         {
             "name": "messageRadius",
             "description": "THEME TOKEN — CSS border-radius for assistant message bubbles (e.g. `12px`, `4px 16px 16px 16px`).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "12px 12px 12px 12px",
+            "responsive": true
         },
         {
             "name": "ownMessageBgColor",
             "description": "THEME TOKEN — background color of USER message bubbles (right side). Usually the accent color.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#f4f4f4",
+            "responsive": true
         },
         {
             "name": "ownMessageTextColor",
             "description": "THEME TOKEN — text color of user messages.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#1e1e1e",
+            "responsive": true
         },
         {
             "name": "ownMessageBorder",
             "description": "THEME TOKEN — CSS border shorthand for user message bubbles.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "1px solid #d0d0d0",
+            "responsive": true
         },
         {
             "name": "ownMessageRadius",
             "description": "THEME TOKEN — CSS border-radius for user message bubbles.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "18px 18px 18px 18px",
+            "responsive": true
         },
         {
             "name": "inputBgColor",
             "description": "THEME TOKEN — background color of the input area container.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#ffffff",
+            "responsive": true
         },
         {
             "name": "inputTextColor",
             "description": "THEME TOKEN — text color of the composer textarea.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#334155",
+            "responsive": true
         },
         {
             "name": "inputPlaceholderColor",
             "description": "THEME TOKEN — text color of the composer placeholder when empty.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#94a3b8",
+            "responsive": true
         },
         {
             "name": "inputAreaBorder",
             "description": "THEME TOKEN — CSS border shorthand at the top of the input area (separator from messages list).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "1px solid #e2e8f0",
+            "responsive": true
         },
         {
             "name": "textareaBorder",
             "description": "THEME TOKEN — CSS border around the textarea element itself.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "1px solid #e2e8f0",
+            "responsive": true
         },
         {
             "name": "textareaBorderFocus",
             "description": "THEME TOKEN — CSS border around the textarea when focused (accent ring).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "1px solid #3b82f6",
+            "responsive": true
         },
         {
             "name": "inputBorderRadius",
             "description": "THEME TOKEN — border-radius of the textarea composer.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "8px",
+            "responsive": true
         },
         {
             "name": "sendButtonBgColor",
             "description": "THEME TOKEN — background color of the send button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "linear-gradient(135deg, #3b82f6, #2563eb)",
+            "responsive": true
         },
         {
             "name": "sendButtonHoverBgColor",
             "description": "THEME TOKEN — background color of the send button on hover.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "linear-gradient(135deg, #2563eb, #1d4ed8)",
+            "responsive": true
         },
         {
             "name": "sendButtonBorder",
             "description": "THEME TOKEN — CSS border shorthand for the send button (e.g. `1px solid #00FF41`, `none`).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "none",
+            "responsive": true
         },
         {
             "name": "sendButtonBorderRadius",
             "description": "THEME TOKEN — border-radius of the send button (e.g. `4px` flat, `999px` circular).",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "12px",
+            "responsive": true
         },
         {
             "name": "sendButtonBoxShadow",
             "description": "THEME TOKEN — CSS box-shadow on the send button. Set to `none` to flatten the default soft blue shadow on non-default themes.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "0 2px 4px rgba(59, 130, 246, 0.3)",
+            "responsive": true
         },
         {
             "name": "sendIconColor",
             "description": "THEME TOKEN — icon color inside the send button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#334155",
+            "responsive": true
         },
         {
             "name": "attachmentButtonBgColor",
             "description": "THEME TOKEN — background color of the attachment button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#f8fafc",
+            "responsive": true
         },
         {
             "name": "attachmentButtonHoverBgColor",
             "description": "THEME TOKEN — background color of the attachment button on hover.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#f1f5f9",
+            "responsive": true
         },
         {
             "name": "attachmentButtonBorder",
             "description": "THEME TOKEN — CSS border shorthand for the attachment button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "1px solid #e2e8f0",
+            "responsive": true
         },
         {
             "name": "attachmentButtonBorderRadius",
             "description": "THEME TOKEN — border-radius of the attachment button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "12px",
+            "responsive": true
         },
         {
             "name": "attachmentButtonBoxShadow",
             "description": "THEME TOKEN — CSS box-shadow on the attachment button. Set to `none` to flatten the default.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "0 1px 2px rgba(0, 0, 0, 0.06)",
+            "responsive": true
         },
         {
             "name": "attachmentIconColor",
             "description": "THEME TOKEN — icon color inside the attachment button.",
-            "type": "string"
+            "type": "string",
+            "defaultValue": "#334155",
+            "responsive": true
         },
         {
             "name": "mappingMessageId",
             "description": "Formula to extract the unique message ID from each item in `messages`. ONLY include when the bound data shape differs from the default `id` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['id']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['id']"
+            }
         },
         {
             "name": "mappingMessageText",
             "description": "Formula to extract the message body text from each item in `messages`. ONLY include when the bound data shape differs from the default `content` field (note: ww-chat-ai uses `content`, not `text`). Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['content']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['content']"
+            }
         },
         {
             "name": "mappingRole",
             "description": "Formula to extract the role of each message. Result MUST resolve to either `'user'` or `'assistant'` — this drives left/right alignment. ONLY include when the bound data shape differs from the default `role` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['role']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['role']"
+            }
         },
         {
             "name": "mappingTimestamp",
             "description": "Formula to extract the message timestamp (ISO string or Date) from each item in `messages`. ONLY include when the bound data shape differs from the default `timestamp` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['timestamp']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['timestamp']"
+            }
         },
         {
             "name": "mappingAttachments",
             "description": "Formula returning the attachments array of each message. ONLY include when the bound data shape differs from the default `attachments` field. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['attachments']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['attachments']"
+            }
         },
         {
             "name": "mappingAttachmentId",
             "description": "Formula to extract the unique ID of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['id']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['id']"
+            }
         },
         {
             "name": "mappingAttachmentName",
             "description": "Formula to extract the display name of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['name']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['name']"
+            }
         },
         {
             "name": "mappingAttachmentUrl",
             "description": "Formula to extract the file URL of an attachment. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['url'] ?? context.mapping?.['href']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['url'] ?? context.mapping?.['href']"
+            }
         },
         {
             "name": "mappingAttachmentType",
             "description": "Formula to extract the MIME type of an attachment (e.g. `image/png`). Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['type'] ?? context.mapping?.['mime']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['type'] ?? context.mapping?.['mime']"
+            }
         },
         {
             "name": "mappingAttachmentSize",
             "description": "Formula to extract the attachment size in bytes. Only relevant when `mappingAttachments` is set. Always use `context.mapping?.['fieldName']` form — never a bare field name.",
             "type": "formula",
-            "defaultValue": { "type": "f", "code": "context.mapping?.['size']" }
+            "defaultValue": {
+                "type": "f",
+                "code": "context.mapping?.['size']"
+            }
         },
         {
             "name": "emptyMessageText",
             "description": "Placeholder text shown in the messages area when `messages` is empty.",
             "type": "string",
-            "defaultValue": "No messages yet"
+            "defaultValue": "No messages yet",
+            "responsive": true
         },
         {
             "name": "messagesAreaPadding",
@@ -583,7 +685,11 @@
             "actionName": "scrollToBottom",
             "description": "Scroll the messages area to the latest message. Call this after you append a streamed response to guarantee the user sees it.",
             "args": [
-                { "name": "smooth", "type": "boolean", "description": "Use smooth animation (overrides `autoScrollBehavior` for this call)." }
+                {
+                    "name": "smooth",
+                    "type": "boolean",
+                    "description": "Use smooth animation (overrides `autoScrollBehavior` for this call)."
+                }
             ]
         }
     ],
